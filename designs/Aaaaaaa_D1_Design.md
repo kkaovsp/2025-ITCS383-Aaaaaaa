@@ -3,19 +3,19 @@
 
 # C4 Context Diagram
 
-(To be added)
+<img width="1229" height="661" alt="C4_Context" src="https://github.com/user-attachments/assets/bc51945b-0e41-4ea6-b214-af0ec6e9c527" />
 
 ---
 
 # C4 Container Diagram
 
-(To be added)
+<img width="1401" height="711" alt="C4_Container" src="https://github.com/user-attachments/assets/feb9fbb9-2f40-4ed7-b0ad-abd7abd0ea09" />
 
 ---
 
 # C4 Component Diagram
 
-(To be added)
+<img width="625" height="827" alt="C4_Component" src="https://github.com/user-attachments/assets/081da7f0-b71e-441a-a87e-ecb5f1cbae87" />
 
 ---
 
