@@ -284,7 +284,7 @@ D5 -->|Payment Data| P5
 ```mermaid
 classDiagram
 
-%% Base User, Inheritance
+%% Base User
 
 class User {
   <<abstract>>
@@ -298,20 +298,29 @@ class User {
   +updateProfile()
 }
 
-%% Merchant (Verified User)
+%% General User
+
+class GeneralUser {
+  +browseEvents()
+  +searchBooths()
+  +viewBoothDetails()
+  +viewAnnouncements()
+  +registerAccount()
+}
+
+%% Merchant
 
 class Merchant {
   +string citizenId
   +string productDescription
   +string approvalStatus
-  +register()
   +reserveBooth()
   +makePayment()
   +uploadSlip()
   +viewReservationStatus()
 }
 
-%% Booth Manager (Staff)
+%% Booth Manager
 
 class BoothManager {
   +createEvent()
@@ -319,9 +328,13 @@ class BoothManager {
   +approveMerchant()
   +verifyPayment()
   +generateReport()
+  +viewNotifications()
 }
 
-User <|-- Merchant
+%% Inheritance
+
+User <|-- GeneralUser
+GeneralUser <|-- Merchant
 User <|-- BoothManager
 
 %% Event & Booth
@@ -385,6 +398,19 @@ Merchant "1" --> "many" Reservation
 Reservation "many" --> "1" Booth
 Reservation "1" --> "1" Payment
 Payment "1" --> "0..1" PaymentSlip
+
+%% Notification System
+
+class Notification {
+  +int notificationId
+  +string message
+  +dateTime createdAt
+  +string type
+  +string status
+  +sendNotification()
+}
+
+BoothManager "1" --> "many" Notification
 
 %% Reporting
 
