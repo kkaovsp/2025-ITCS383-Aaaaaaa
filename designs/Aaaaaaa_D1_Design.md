@@ -163,11 +163,13 @@ BM -->|Event Data| SYS
 BM -->|Booth Data| SYS
 BM -->|Approval Decisions| SYS
 BM -->|Payment Verification| SYS
+BM -->|Notification Request| SYS
 
 SYS -->|Registration Requests| BM
 SYS -->|Reservation Requests| BM
 SYS -->|Payment Requests| BM
 SYS -->|Reports| BM
+SYS -->|Notifications| BM
 
 %% MOI Verification
 SYS -->|Citizen ID| MOI
@@ -198,6 +200,7 @@ P2((2. Event & Booth Management))
 P3((3. Reservation Management))
 P4((4. Payment Management))
 P5((5. Reporting))
+P6((6. Notification Management))
 
 %% Data Stores
 D1[(D1 User Database)]
@@ -205,6 +208,7 @@ D2[(D2 Event Database)]
 D3[(D3 Booth Database)]
 D4[(D4 Reservation Database)]
 D5[(D5 Payment Database)]
+D6[(D6 Notification Database)]
 
 %% --------------------
 %% Process 1 User Management
@@ -220,6 +224,8 @@ MOI -->|Verification Result| P1
 
 P1 -->|User Record| D1
 D1 -->|User Data| P1
+
+P1 -->|Registration Event| P6
 
 %% --------------------
 %% Process 2 Event & Booth
@@ -248,6 +254,8 @@ D3 -->|Booth Availability Data| P3
 P3 -->|Reservation Record| D4
 D4 -->|Reservation Data| P3
 
+P3 -->|Reservation Event| P6
+
 %% --------------------
 %% Process 4 Payment
 MERCHANT -->|Payment Data| P4
@@ -266,6 +274,8 @@ PAY -->|Transfer Verification Result| P4
 P4 -->|Payment Record| D5
 D5 -->|Payment Data| P4
 
+P4 -->|Payment Slip Event| P6
+
 %% --------------------
 %% Process 5 Reporting
 BM -->|Report Request| P5
@@ -275,6 +285,15 @@ D1 -->|User Data| P5
 D2 -->|Event Data| P5
 D4 -->|Reservation Data| P5
 D5 -->|Payment Data| P5
+
+%% --------------------
+%% Process 6 Notification Management
+
+P6 -->|Notification Record| D6
+D6 -->|Notification Data| P6
+
+P6 -->|Notification Alert| BM
+BM -->|View Notification Request| P6
 ```
 
 ---
