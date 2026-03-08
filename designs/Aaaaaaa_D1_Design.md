@@ -21,7 +21,7 @@
 
 # Use Case Diagram
 
-(To be added)
+(JPEG To be added)
 ## Diagram by Mermaid
 ```mermaid
 flowchart LR
@@ -53,7 +53,11 @@ subgraph Booth_Organizer_System [Booth Organizer System]
     UC10([View Reservation Status])
     UC11([View Payment Status])
 
+    %% System Level Actions
+    UC19([Send Notification])
+    
     %% Booth Manager & Executive Core
+    UC20([View Notifications])
     UC12([Manage Events])
     UC13([Manage Booths])
     UC14([Approve Merchant Registration])
@@ -83,6 +87,7 @@ M --- UC9
 M --- UC10
 M --- UC11
 
+BM --- UC20
 BM --- UC12
 BM --- UC13
 BM --- UC14
@@ -108,6 +113,11 @@ UC15 --> BANK
 UC7 -.->|"«include»"| UC3
 UC8 -.->|"«include»"| UC7
 UC9 -.->|"«extend»"| UC8
+
+%% Notification Includes
+UC5 -.->|"«include»"| UC19
+UC7 -.->|"«include»"| UC19
+UC9 -.->|"«include»"| UC19
 ```
 ---
 
