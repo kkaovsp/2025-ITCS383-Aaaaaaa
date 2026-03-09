@@ -3,19 +3,19 @@
 
 # C4 Context Diagram
 
-<img width="1229" height="661" alt="C4_Context" src="https://github.com/user-attachments/assets/bc51945b-0e41-4ea6-b214-af0ec6e9c527" />
+<img width="1229" height="661" alt="C4_Context" src="https://github.com/user-attachments/assets/98481ecd-1011-4871-b3ca-6fbcdc84a7e3" />
 
 ---
 
 # C4 Container Diagram
 
-<img width="1401" height="711" alt="C4_Container" src="https://github.com/user-attachments/assets/feb9fbb9-2f40-4ed7-b0ad-abd7abd0ea09" />
+<img width="1401" height="711" alt="C4_Container" src="https://github.com/user-attachments/assets/438c874e-3a3a-4287-8066-2c90792ee507" />
 
 ---
 
 # C4 Component Diagram
 
-<img width="625" height="827" alt="C4_Component" src="https://github.com/user-attachments/assets/081da7f0-b71e-441a-a87e-ecb5f1cbae87" />
+<img width="625" height="827" alt="C4_Component" src="https://github.com/user-attachments/assets/b7f2262b-939d-49eb-80e1-453657e40371" />
 
 ---
 
@@ -451,7 +451,7 @@ The **Context Diagram** presents the Booth Organizer System at the highest level
 
 The **Container Diagram** describes the high-level technical architecture of the system by dividing it into major containers: the Web Application (Frontend), Backend API Server, and Database. The frontend provides the user interface that allows general users, merchants, and booth managers to interact with the system. The backend server implements the core business logic, including authentication, reservation management, payment processing, and report generation. The database stores persistent system data such as user accounts, events, booths, reservations, and payment records. This architectural separation supports key non-functional requirements including scalability, maintainability, and security by separating the presentation layer, application logic, and data storage.
 
-The **Component Diagram** further decomposes the backend system into smaller functional modules, including Authentication, User Management, Event Management, Booth Management, Reservation Management, Payment Processing, and Reporting components. Each component is responsible for a clearly defined part of the system functionality. For example, the Reservation component manages booth booking operations and ensures that booths cannot be double-booked, while the Payment component handles financial transactions and manages integration with external payment gateways. This modular design supports maintainability and scalability by assigning clear responsibilities to each component and enabling loosely coupled interactions between modules.
+The **Component Diagram** further decomposes the backend system into smaller functional modules, including Authentication, User Management, Event Management, Booth Management, Reservation Management, Payment Processing, Notification Triggering and Reporting components. Each component is responsible for a clearly defined part of the system functionality. For example, the Reservation component manages booth booking operations and ensures that booths cannot be double-booked, while the Payment component handles financial transactions and manages integration with external payment gateways. This modular design supports maintainability and scalability by assigning clear responsibilities to each component and enabling loosely coupled interactions between modules.
 
 The **Data Flow Diagram (DFD)** focuses on how information moves through the system. It illustrates how data such as user registration information, reservation details, and payment data flows between external actors, system processes, data stores, and external services. By modeling these data flows, the DFD helps define clear process boundaries and ensures that key workflows such as merchant registration, booth reservation, payment verification, and reservation confirmation follow the required sequence of operations. The DFD also clarifies how the system interacts with external services, including the MOI identity verification API and payment processing systems.
 
