@@ -9,6 +9,7 @@ The system manages:
 * Booth reservations
 * Payment processing
 * Administrative reporting
+* Notification system
 The platform supports both:
 * Temporary booths (event-based)
 * Fixed booths (long-term market booths)
@@ -146,6 +147,26 @@ Stores payment information for reservations.
 Primary Key: `payment_id`  
 Foreign Key: `reservation_id → reservations.reservation_id`
 
+# 7. Notifications Table
+
+Stores system notifications sent to users (e.g., reservation updates, payment status, merchant approval).
+
+| Field | MySQL Type | Description |
+|------|-------------|-------------|
+| notification_id | CHAR(36) | UUID primary key |
+| user_id | CHAR(36) | User who receives the notification |
+| title | VARCHAR(150) | Notification title |
+| message | TEXT | Notification content |
+| type | ENUM('RESERVATION','PAYMENT','MERCHANT_APPROVAL','EVENT','SYSTEM') | Notification category |
+| reference_id | CHAR(36) | Related entity ID (reservation, payment, event, etc.) |
+| is_read | BOOLEAN | Whether the notification has been read |
+| created_at | DATETIME | Notification creation timestamp |
+
+Primary Key: `notification_id`
+
+Foreign Key:
+- `user_id → users.id`
+
 ---
 
 # Relationships Summary
@@ -253,15 +274,18 @@ Events
     - Implement payment approval by Booth Manager
     - Update reservation status after payment approval
 
-- [ ] ** 10. Frontend Development**
+- [ ] **10. Frontend Development**
     - Create login and registration pages
     - Create event listing page
     - Create booth selection page
     - Create reservation page
     - Create payment page
     - Create admin dashboard for booth managers
+    = Create notification page for view all notification
 
 - [ ] **11. Notifications**
+    - Using in-app for notification
+    - Make notification hotbar to store notification
     - Notify booth manager when:
       * New merchant registration submitted
       * New booth reservation made
@@ -285,7 +309,6 @@ Events
 
 The project must follow the structure below.
 
-```
 implementations/
 │
 ├── backend/
@@ -298,28 +321,32 @@ implementations/
 │   │   │   ├── event.py
 │   │   │   ├── booth.py
 │   │   │   ├── reservation.py
-│   │   │   └── payment.py
+│   │   │   ├── payment.py
+│   │   │   └── notification.py
 │   │   │
 │   │   ├── routes/
 │   │   │   ├── auth_routes.py
 │   │   │   ├── event_routes.py
 │   │   │   ├── booth_routes.py
 │   │   │   ├── reservation_routes.py
-│   │   │   └── payment_routes.py
+│   │   │   ├── payment_routes.py
+│   │   │   └── notification_routes.py
 │   │   │
 │   │   ├── services/
 │   │   │   ├── auth_service.py
 │   │   │   ├── event_service.py
 │   │   │   ├── booth_service.py
 │   │   │   ├── reservation_service.py
-│   │   │   └── payment_service.py
+│   │   │   ├── payment_service.py
+│   │   │   └── notification_service.py
 │   │   │
 │   │   ├── schemas/
 │   │   │   ├── user_schema.py
 │   │   │   ├── event_schema.py
 │   │   │   ├── booth_schema.py
 │   │   │   ├── reservation_schema.py
-│   │   │   └── payment_schema.py
+│   │   │   ├── payment_schema.py
+│   │   │   └── notification_schema.py
 │   │   │
 │   │   └── database/
 │   │       └── db_connection.py
@@ -331,8 +358,14 @@ implementations/
 │   ├── public/
 │   ├── src/
 │   │   ├── components/
+│   │   │   └── NotificationBell.js
+│   │   │
 │   │   ├── pages/
+│   │   │
 │   │   ├── services/
+│   │   │   ├── api.js
+│   │   │   └── notificationService.js
+│   │   │
 │   │   └── App.js
 │   │
 │   └── package.json
@@ -437,9 +470,20 @@ MySQL Database
 
 ---
 
+# Notification
+
+| Method | Endpoint | Description |
+|------|------|------|
+| GET | `/api/notifications` | Get current user notifications |
+| PATCH | `/api/notifications/{id}/read` | Mark notification as read |
+
+---
+
 # Environment Variables
 
 Backend requires the following environment variables.
+
+Logged in users require cookie with there user id.
 
 ```
 DATABASE_URL=mysql+pymysql://username:password@localhost:3306/booth_system
