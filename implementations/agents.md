@@ -309,6 +309,7 @@ Events
 
 The project must follow the structure below.
 
+```
 implementations/
 │
 ├── backend/
