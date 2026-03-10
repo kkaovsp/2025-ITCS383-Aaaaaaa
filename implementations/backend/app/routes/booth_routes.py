@@ -32,6 +32,13 @@ def create_booth(booth: BoothCreate, user=Depends(require_role(["BOOTH_MANAGER"]
         booth_number=booth.booth_number,
         size=booth.size,
         price=booth.price,
+        location=getattr(booth, 'location', None),
+        electricity=getattr(booth, 'electricity', False),
+        outlets=getattr(booth, 'outlets', 0),
+        water_supply=getattr(booth, 'water_supply', False),
+        type=getattr(booth, 'type', None),
+        duration_type=getattr(booth, 'duration_type', None),
+        classification=getattr(booth, 'classification', None),
     )
     db.add(new)
     db.commit()
@@ -48,6 +55,13 @@ def update_booth(booth_id: str, booth: BoothCreate, user=Depends(require_role(["
     existing.booth_number = booth.booth_number
     existing.size = booth.size
     existing.price = booth.price
+    existing.location = getattr(booth, 'location', None)
+    existing.electricity = getattr(booth, 'electricity', False)
+    existing.outlets = getattr(booth, 'outlets', 0)
+    existing.water_supply = getattr(booth, 'water_supply', False)
+    existing.type = getattr(booth, 'type', None)
+    existing.duration_type = getattr(booth, 'duration_type', None)
+    existing.classification = getattr(booth, 'classification', None)
     db.commit()
     # refresh so that returned object contains the latest column values
     db.refresh(existing)

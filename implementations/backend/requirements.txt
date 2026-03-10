@@ -2,7 +2,6 @@ fastapi
 uvicorn[standard]
 sqlalchemy
 pydantic
-pymysql
 python-dotenv
 passlib[bcrypt]
 PyJWT

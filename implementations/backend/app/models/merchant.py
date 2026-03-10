@@ -2,6 +2,7 @@ from sqlalchemy import Column, String, Text, Enum, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from .base import Base
 import enum
+from sqlalchemy import Integer
 
 
 class ApprovalStatus(str, enum.Enum):
@@ -21,6 +22,7 @@ class Merchant(Base):
     approval_status = Column(Enum(ApprovalStatus), default=ApprovalStatus.PENDING)
     approved_by = Column(String(36))
     approved_at = Column(DateTime)
+    citizen_valid = Column(Integer, default=0)
 
     user = relationship("User", back_populates="merchant")
     reservations = relationship("Reservation", back_populates="merchant")

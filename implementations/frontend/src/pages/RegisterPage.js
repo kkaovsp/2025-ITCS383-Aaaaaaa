@@ -8,8 +8,8 @@ function RegisterPage() {
     password: '',
     name: '',
     contact_info: '',
-    role: 'GENERAL_USER',
     citizen_id: '',
+    seller_information: '',
     product_description: '',
   });
 
@@ -52,24 +52,17 @@ function RegisterPage() {
           <input name="contact_info" value={form.contact_info} onChange={handleChange} />
         </div>
         <div>
-          <label>Role:</label>
-          <select name="role" value={form.role} onChange={handleChange}>
-            <option value="GENERAL_USER">General User</option>
-            <option value="MERCHANT">Merchant</option>
-          </select>
+          <label>Citizen ID:</label>
+          <input name="citizen_id" value={form.citizen_id} onChange={handleChange} required />
         </div>
-        {form.role === 'MERCHANT' && (
-          <>
-            <div>
-              <label>Citizen ID:</label>
-              <input name="citizen_id" value={form.citizen_id} onChange={handleChange} />
-            </div>
-            <div>
-              <label>Product Description:</label>
-              <textarea name="product_description" value={form.product_description} onChange={handleChange} />
-            </div>
-          </>
-        )}
+        <div>
+          <label>Seller Information:</label>
+          <textarea name="seller_information" value={form.seller_information} onChange={handleChange} required />
+        </div>
+        <div>
+          <label>Product Description:</label>
+          <textarea name="product_description" value={form.product_description} onChange={handleChange} required />
+        </div>
         <button type="submit">Register</button>
       </form>
     </div>

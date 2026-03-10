@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Node
+node_modules/
+package-lock.json
+
+# Environment variables
+.env
+env/
+
+# Database
+*.db
+
+# Temporary files
+tmp_*
+cookies.txt

@@ -11,6 +11,7 @@ class ReservationType(str, enum.Enum):
 
 class ReservationStatus(str, enum.Enum):
     PENDING_PAYMENT = "PENDING_PAYMENT"
+    WAITING_FOR_APPROVAL = "WAITING_FOR_APPROVAL"
     CONFIRMED = "CONFIRMED"
     CANCELLED = "CANCELLED"
 

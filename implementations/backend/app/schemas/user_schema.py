@@ -7,10 +7,10 @@ class UserCreate(BaseModel):
     password: str
     name: str
     contact_info: str
-    role: str
-    # merchant-specific fields; these are optional for non‑merchant users
-    citizen_id: Optional[str] = None
-    product_description: Optional[str] = None
+    # require merchant application details during registration
+    citizen_id: str
+    seller_information: str
+    product_description: str
 
 
 class UserLogin(BaseModel):
