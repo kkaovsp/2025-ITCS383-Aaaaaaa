@@ -37,10 +37,8 @@ Stores authentication and basic user information.
 | username | VARCHAR(50) | Unique username for login |
 | password | VARCHAR(255) | Hashed password |
 | name | VARCHAR(100) | Full name of the user |
-| citizen_id | VARCHAR(20) | National citizen ID |
 | contact_info | VARCHAR(100) | Email or phone number |
 | role | ENUM('GENERAL_USER','MERCHANT','BOOTH_MANAGER') | User role |
-| approval_status | ENUM('PENDING','APPROVED','REJECTED') | Merchant approval status |
 | created_at | DATETIME | Account creation time |
 
 Primary Key: `id`
@@ -55,8 +53,10 @@ Stores additional information for merchants.
 |------|-------------|-------------|
 | merchant_id | CHAR(36) | UUID primary key |
 | user_id | CHAR(36) | Reference to users.id |
+| citizen_id | VARCHAR(20) | National citizen ID |
 | seller_information | TEXT | Merchant business information |
 | product_description | TEXT | Description of products |
+| approval_status | ENUM('PENDING','APPROVED','REJECTED') | Merchant approval status |
 | approved_by | CHAR(36) | Booth manager who approved merchant |
 | approved_at | DATETIME | Approval timestamp |
 
@@ -226,6 +226,9 @@ Events
 
 - [ ] **3. Authentication System**
     - Implement user registration API
+      * Ask for role first: Merchant or General User
+        - Register as Merchant require Citizen Id and Product Description
+        - Register as General user not require Citizen Id and Product Description
     - Implement user login API
     - Implement password hashing
     - Implement JWT authentication
