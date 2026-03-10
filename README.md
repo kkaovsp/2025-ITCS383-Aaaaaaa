@@ -27,7 +27,14 @@ This repository contains a FastAPI backend and React frontend for the system, cr
    is loaded before the app starts – the backend code now uses
    `python-dotenv` to read this file automatically. Alternatively you can export
    the variable manually or pass `--env-file .env` to Uvicorn.
-5. Start the development server:
+   ```
+   DATABASE_URL=mysql+pymysql://username:password@localhost:3306/booth_system
+   # Change `username` and `password` to mySQL server user.
+
+   JWT_SECRET=secret_key
+   # Change `secret_key` to Any Key.
+   ```
+6. Start the development server:
     ```bash
     cd implementations/backend
     uvicorn app.main:app --reload --env-file .env
