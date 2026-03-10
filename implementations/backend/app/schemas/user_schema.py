@@ -8,9 +8,9 @@ class UserCreate(BaseModel):
     name: str
     contact_info: str
     role: str
-    # merchant-specific fields
-    citizen_id: Optional[str]
-    product_description: Optional[str]
+    # merchant-specific fields; these are optional for non‑merchant users
+    citizen_id: Optional[str] = None
+    product_description: Optional[str] = None
 
 
 class UserLogin(BaseModel):
