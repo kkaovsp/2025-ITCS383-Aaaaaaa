@@ -8,3 +8,5 @@ passlib[bcrypt]
 PyJWT
 pytest
 requests
+python-multipart
+httpx
