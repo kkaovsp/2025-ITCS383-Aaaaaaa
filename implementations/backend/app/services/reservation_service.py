@@ -15,6 +15,14 @@ async def create_reservation(db: AsyncSession, reservation_in: ReservationCreate
     if booth.status != BoothStatus.AVAILABLE:
         raise ValueError("Booth is not available")
 
+    # Ensure merchant is approved
+    from ..models.merchant import Merchant, MerchantApprovalStatus
+
+    merchant_result = await db.execute(select(Merchant).where(Merchant.merchant_id == reservation_in.merchant_id))
+    merchant = merchant_result.scalars().first()
+    if not merchant or merchant.approval_status != MerchantApprovalStatus.APPROVED:
+        raise ValueError("Merchant not approved to make reservations")
+
     reservation = Reservation(**reservation_in.model_dump())
     db.add(reservation)
     booth.status = BoothStatus.RESERVED

@@ -104,30 +104,33 @@ def test_event_booth_reservation_payment_workflow(client):
     assert res.status_code == 200
     booth = res.json()
 
-    # Merchant makes a reservation
-    reservation_data = {
-        "booth_id": booth["booth_id"],
-        "merchant_id": merchant_login.json().get("access_token", ""),
-        "reservation_type": "SHORT_TERM",
-    }
-    # Note: merchant_id should be merchant user ID, but login response doesn't include it. We'll query "me" via /api/reservations currently not available.
-    # Instead, use the merchant's user id by retrieving data from /api/auth/register response (not returned) so we will adapt: use wrong merchant id to test rejection.
+    # Manager approves the merchant so they can make reservations
+    pending = client.get(
+        "/api/merchants/pending",
+        headers={"Authorization": f"Bearer {manager_token}"},
+    )
+    assert pending.status_code == 200
+    pending_merchants = pending.json()
+    assert pending_merchants, "Expected at least one pending merchant"
 
-    # Create reservation using correct merchant id by calling /api/reservations after retrieving current user from cookie.
-    # For test, we can use the merchant token stored in cookie by FastAPI TestClient.
-    res = client.get(
-        "/api/reservations",
-        headers={"Authorization": f"Bearer {merchant_token}"},
+    merchant_id = pending_merchants[0]["merchant_id"]
+    res = client.post(
+        f"/api/merchants/{merchant_id}/approve",
+        headers={"Authorization": f"Bearer {manager_token}"},
     )
     assert res.status_code == 200
 
-    # We'll create reservation with merchant_id being the current user id extracted from the response list (should be empty) by using token decode.
-    # Since we don't have an endpoint to fetch current user, we can use the database directly via test fixture.
+    # Merchant makes a reservation
     from app.core.security import decode_access_token
 
     payload = decode_access_token(merchant_token)
-    merchant_id = payload["sub"]
-    reservation_data["merchant_id"] = merchant_id
+    merchant_user_id = payload["sub"]
+
+    reservation_data = {
+        "booth_id": booth["booth_id"],
+        "merchant_id": merchant_user_id,
+        "reservation_type": "SHORT_TERM",
+    }
 
     res = client.post(
         "/api/reservations",

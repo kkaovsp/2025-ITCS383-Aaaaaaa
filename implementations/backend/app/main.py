@@ -2,7 +2,15 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .database.db_connection import engine, Base
-from .routes import auth_routes, event_routes, booth_routes, reservation_routes, payment_routes, notification_routes
+from .routes import (
+    auth_routes,
+    event_routes,
+    booth_routes,
+    reservation_routes,
+    payment_routes,
+    notification_routes,
+    merchant_routes,
+)
 
 
 def create_app() -> FastAPI:
@@ -22,6 +30,7 @@ def create_app() -> FastAPI:
     app.include_router(reservation_routes.router)
     app.include_router(payment_routes.router)
     app.include_router(notification_routes.router)
+    app.include_router(merchant_routes.router)
 
     @app.on_event("startup")
     async def on_startup():

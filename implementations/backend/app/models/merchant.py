@@ -15,8 +15,8 @@ class MerchantApprovalStatus(str, Enum):
 class Merchant(Base):
     __tablename__ = "merchants"
 
-    merchant_id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(String(36), ForeignKey("users.id"), nullable=False, unique=True)
+    # Use the same UUID as the user to simplify mapping
+    merchant_id = Column(String(36), ForeignKey("users.id"), primary_key=True)
     citizen_id = Column(String(20), nullable=False)
     seller_information = Column(Text, nullable=True)
     product_description = Column(Text, nullable=True)

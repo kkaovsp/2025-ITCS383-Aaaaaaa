@@ -13,14 +13,13 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS merchants (
   merchant_id CHAR(36) PRIMARY KEY,
-  user_id CHAR(36) NOT NULL,
   citizen_id VARCHAR(20) NOT NULL,
   seller_information TEXT,
   product_description TEXT,
   approval_status ENUM('PENDING','APPROVED','REJECTED') NOT NULL,
   approved_by CHAR(36),
   approved_at DATETIME,
-  FOREIGN KEY (user_id) REFERENCES users(id)
+  FOREIGN KEY (merchant_id) REFERENCES users(id)
 );
 
 CREATE TABLE IF NOT EXISTS events (

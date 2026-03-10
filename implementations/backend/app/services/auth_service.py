@@ -27,7 +27,7 @@ async def register_user(db: AsyncSession, user_in: UserCreate) -> User:
 
     if user.role == UserRole.MERCHANT:
         merchant = Merchant(
-            user_id=user.id,
+            merchant_id=user.id,
             citizen_id=user_in.citizen_id or "",
             seller_information=user_in.seller_information or "",
             product_description=user_in.product_description or "",

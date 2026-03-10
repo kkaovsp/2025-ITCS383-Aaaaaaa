@@ -16,7 +16,6 @@ class MerchantCreate(MerchantBase):
 
 class MerchantRead(MerchantBase):
     merchant_id: str
-    user_id: str
     approval_status: MerchantApprovalStatus
     approved_by: Optional[str] = None
     approved_at: Optional[str] = None
