@@ -20,11 +20,17 @@ This repository contains a FastAPI backend and React frontend for the system, cr
 3. Install dependencies:
     ```bash
     pip install -r requirements.txt
+    # if you hit a warning about form data, ensure python-multipart is installed
     ```
-4. Set up a MySQL database and update `DATABASE_URL` in `.env`.
+4. Set up a MySQL database and update `DATABASE_URL` in `.env` (see 
+   `implementations/backend/.env` for an example). Ensure the environment file
+   is loaded before the app starts – the backend code now uses
+   `python-dotenv` to read this file automatically. Alternatively you can export
+   the variable manually or pass `--env-file .env` to Uvicorn.
 5. Start the development server:
     ```bash
-    uvicorn app.main:app --reload
+    cd implementations/backend
+    uvicorn app.main:app --reload --env-file .env
     ```
 
 The backend will be available at `http://localhost:8000` and API docs at `http://localhost:8000/docs`.
@@ -52,6 +58,8 @@ Run backend tests using pytest:
 
 ```bash
 cd implementations/backend
+# make sure you've installed test client dependencies
+pip install -r requirements.txt
 pytest tests/
 ```
 
