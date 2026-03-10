@@ -68,4 +68,5 @@ def approve_payment(payment_id: str, user=Depends(require_role(["BOOTH_MANAGER"]
     if res:
         res.status = "CONFIRMED"
     db.commit()
+    db.refresh(pay)  # ensure we have the latest values after commit
     return pay

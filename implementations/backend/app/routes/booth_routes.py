@@ -49,6 +49,8 @@ def update_booth(booth_id: str, booth: BoothCreate, user=Depends(require_role(["
     existing.size = booth.size
     existing.price = booth.price
     db.commit()
+    # refresh so that returned object contains the latest column values
+    db.refresh(existing)
     return existing
 
 

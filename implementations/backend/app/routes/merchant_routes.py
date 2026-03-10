@@ -37,6 +37,7 @@ def approve_merchant(merchant_id: str, user=Depends(require_role(["BOOTH_MANAGER
     merchant.approved_by = user.id
     merchant.approved_at = datetime.datetime.utcnow()
     db.commit()
+    db.refresh(merchant)
     return merchant
 
 
@@ -48,4 +49,5 @@ def update_merchant(merchant_id: str, seller_information: str, product_descripti
     merchant.seller_information = seller_information
     merchant.product_description = product_description
     db.commit()
+    db.refresh(merchant)
     return merchant

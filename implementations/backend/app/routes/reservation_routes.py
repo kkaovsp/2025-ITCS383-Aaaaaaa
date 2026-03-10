@@ -4,6 +4,7 @@ import uuid, datetime
 
 from ..database.db_connection import SessionLocal
 from ..models.reservation import Reservation, ReservationStatus
+from ..models.merchant import Merchant
 from ..schemas.reservation_schema import ReservationCreate
 from ..services.dependencies import get_current_user, require_role
 
@@ -39,10 +40,14 @@ def create_reservation(req: ReservationCreate, user=Depends(get_current_user), d
     ).first()
     if existing:
         raise HTTPException(status_code=400, detail="Booth already reserved")
+    # determine the merchant record tied to this user
+    merchant = db.query(Merchant).filter(Merchant.user_id == user.id).first()
+    if not merchant:
+        raise HTTPException(status_code=400, detail="Merchant profile not found")
     new = Reservation(
         reservation_id=str(uuid.uuid4()),
         booth_id=req.booth_id,
-        merchant_id=req.merchant_id,
+        merchant_id=merchant.merchant_id,
         reservation_type=req.reservation_type,
         status=ReservationStatus.PENDING_PAYMENT,
         created_at=datetime.datetime.utcnow(),

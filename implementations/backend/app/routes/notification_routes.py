@@ -28,4 +28,5 @@ def mark_read(notification_id: str, user=Depends(get_current_user), db: Session 
         raise HTTPException(status_code=404, detail="Notification not found")
     note.is_read = True
     db.commit()
+    db.refresh(note)
     return note
