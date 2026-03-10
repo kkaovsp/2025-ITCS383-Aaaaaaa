@@ -60,7 +60,6 @@ def test_reservation_flow():
         "/api/reservations",
         json={
             "booth_id": booth_id,
-            "merchant_id": merch_token,  # wrong but we don't validate id
             "reservation_type": "SHORT_TERM",
         },
         headers={"Authorization": f"Bearer {merch_token}"},
@@ -73,7 +72,6 @@ def test_reservation_flow():
         "/api/reservations",
         json={
             "booth_id": booth_id,
-            "merchant_id": merch_token,
             "reservation_type": "SHORT_TERM",
         },
         headers={"Authorization": f"Bearer {merch_token}"},

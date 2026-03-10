@@ -51,7 +51,6 @@ def setup_reservation():
         "/api/reservations",
         json={
             "booth_id": booth_id,
-            "merchant_id": merch_token,
             "reservation_type": "SHORT_TERM",
         },
         headers={"Authorization": f"Bearer {merch_token}"},
