@@ -223,8 +223,18 @@ Events
       * Booths
       * Reservations
       * Payments
+     
+- [ ] **3. Frontend Development**
+    - Create Home page
+    - Create login and registration pages
+    - Create event listing page
+    - Create booth selection page
+    - Create reservation page
+    - Create payment page
+    - Create admin dashboard for booth managers
+    - Create notification page for view all notification
 
-- [ ] **3. Authentication System**
+- [ ] **4. Authentication System**
     - Implement user registration API
       * Ask for role first: Merchant or General User
         - Register as Merchant require Citizen Id and Product Description
@@ -236,38 +246,38 @@ Events
     - Verify Citizen ID using MOI API (mock if API unavailable)
     - Using Cookies for remembering the userID for CRUD operation. 
 
-- [ ] **4. Merchant Management**
+- [ ] **5. Merchant Management**
     - Implement merchant registration process
     - Implement merchant approval by Booth Manager
     - Store seller information and product description
     - Allow merchants to view and edit their profiles
 
-- [ ] **5. Event Management (Booth Manager)**
+- [ ] **6. Event Management (Booth Manager)**
     - Implement create event API
     - Implement edit event API
     - Implement delete event API
     - Implement list events API
 
-- [ ] **6. Booth Management**
+- [ ] **7. Booth Management**
     - Implement create booth API
     - Implement edit booth API
     - Implement delete booth API
     - Associate booths with events
     - Implement booth status management
 
-- [ ] **7. Booth Visualization**
+- [ ] **8. Booth Visualization**
     - Display booths for each event
     - Show booth status (Available / Reserved / Occupied)
     - Allow merchants to select booths visually
 
-- [ ] **8. Reservation System**
+- [ ] **9. Reservation System**
     - Implement booth reservation API
     - Prevent double booking
     - Implement reservation status tracking
     - Allow users to view their reservations
     - Allow managers to view all reservations
 
-- [ ] **9. Payment System**
+- [ ] **10. Payment System**
     - Implement payment record creation
     - Support payment methods:
       * Credit Card
@@ -276,15 +286,6 @@ Events
     - Implement payment slip upload for bank transfer
     - Implement payment approval by Booth Manager
     - Update reservation status after payment approval
-
-- [ ] **10. Frontend Development**
-    - Create login and registration pages
-    - Create event listing page
-    - Create booth selection page
-    - Create reservation page
-    - Create payment page
-    - Create admin dashboard for booth managers
-    = Create notification page for view all notification
 
 - [ ] **11. Notifications**
     - Using in-app for notification
@@ -305,6 +306,8 @@ Events
     - Setup production database
     - Prepare backend API server
     - Prepare frontend build
+    - Add the setup steps into the README.md
+     
 
 ---
 
