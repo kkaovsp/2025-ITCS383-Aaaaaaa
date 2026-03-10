@@ -16,6 +16,10 @@ This repository contains a FastAPI backend and React frontend for the system, cr
     ```bash
     python3 -m venv venv
     source venv/bin/activate
+
+    # For Window
+    python -m venv venv
+    .\venv\Scripts\Activate
     ```
 3. Install dependencies:
     ```bash
