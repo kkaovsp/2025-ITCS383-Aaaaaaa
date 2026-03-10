@@ -21,7 +21,8 @@
 
 # Use Case Diagram
 
-(JPEG To be added)
+<img width="5863" height="6676" alt="Use_Case" src="https://github.com/user-attachments/assets/0c1787d1-8313-4bf8-af0f-c977cfb0f0c5" />
+
 ## Diagram by Mermaid
 ```mermaid
 flowchart LR
@@ -30,14 +31,13 @@ flowchart LR
 GU[General User]
 M[Merchant]
 BM[Booth Manager]
-EX[Executive]
+%% Executive removed: Receives reports outside the system
 
 %% Actor inheritance (Dotted to reduce visual clutter)
 M -.->|inherits| GU
 
 %% System Boundary
-subgraph Booth_Organizer_System [Booth Organizer System]
-    %% Declaring Use Cases in strict Top-to-Bottom order to prevent line crossing
+subgraph Booth_Organizer_System [Booth Management System]
     
     %% General User & Merchant Core
     UC1([Browse Events])
@@ -45,6 +45,7 @@ subgraph Booth_Organizer_System [Booth Organizer System]
     UC3([View Booth Details])
     UC4([View Announcements])
     UC5([Register Account])
+    UC21([Verify Citizen ID])
     
     UC6([Login])
     UC7([Reserve Booth])
@@ -53,10 +54,10 @@ subgraph Booth_Organizer_System [Booth Organizer System]
     UC10([View Reservation Status])
     UC11([View Payment Status])
 
-    %% System Level Actions
+    %% System Level Actions (In-App Notification)
     UC19([Send Notification])
     
-    %% Booth Manager & Executive Core
+    %% Booth Manager Core
     UC20([View Notifications])
     UC12([Manage Events])
     UC13([Manage Booths])
@@ -64,14 +65,13 @@ subgraph Booth_Organizer_System [Booth Organizer System]
     UC15([Verify Payment])
     UC16([Generate Reports])
     UC17([Manage Announcements])
-    UC18([View Summary Reports])
 end
 
 %% External Systems (Forced to the Right)
-MOI[MOI]
+MOI[MOI API]
 CC[Credit Card Gateway]
 TM[TrueMoney Wallet]
-BANK[Banking]
+BANK[Banking System]
 
 %% Primary Actor Connections (Solid lines, no arrows for strict UML)
 GU --- UC1
@@ -95,12 +95,8 @@ BM --- UC15
 BM --- UC16
 BM --- UC17
 
-EX --- UC18
-
 %% External System Connections 
-%% Using standard arrows (-->) here is the secret trick. It forces Mermaid 
-%% to push these nodes into a new column on the far right.
-UC5 --> MOI
+UC21 --> MOI
 UC14 --> MOI
 
 UC8 --> CC
@@ -113,11 +109,12 @@ UC15 --> BANK
 UC7 -.->|"«include»"| UC3
 UC8 -.->|"«include»"| UC7
 UC9 -.->|"«extend»"| UC8
+UC5 -.->|"«include»"| UC21
 
-%% Notification Includes
+%% Notification Includes (Triggering the In-App alert)
 UC5 -.->|"«include»"| UC19
 UC7 -.->|"«include»"| UC19
-UC9 -.->|"«include»"| UC19
+UC9 -.->|"«include»"| UC19 
 ```
 ---
 
@@ -133,27 +130,28 @@ GU[General User]
 M[Merchant]
 BM[Booth Manager]
 MOI[MOI System]
-PAY[Payment Gateway]
+PG[Payment Gateways]
+BANK[Bank System]
 
 %% Main Process
-SYS((Booth Organizer System))
+SYS((Booth Management System))
 
-%% General User Flows
+%% General User Flows (Updated with Registration)
 GU -->|Search Request| SYS
 GU -->|Event Request| SYS
+GU -->|Registration Data| SYS
 
 SYS -->|Event Information| GU
 SYS -->|Booth Information| GU
 SYS -->|Announcements| GU
+SYS -->|Registration Status| GU
 
-%% Merchant Flows
-M -->|Registration Data| SYS
+%% Merchant Flows (Registration removed)
 M -->|Login Data| SYS
 M -->|Reservation Request| SYS
 M -->|Payment Data| SYS
 M -->|Payment Slip| SYS
 
-SYS -->|Registration Status| M
 SYS -->|Reservation Confirmation| M
 SYS -->|Payment Status| M
 SYS -->|Booth Availability| M
@@ -161,9 +159,9 @@ SYS -->|Booth Availability| M
 %% Booth Manager Flows
 BM -->|Event Data| SYS
 BM -->|Booth Data| SYS
+BM -->|Announcement Data| SYS
 BM -->|Approval Decisions| SYS
 BM -->|Payment Verification| SYS
-BM -->|Notification Request| SYS
 
 SYS -->|Registration Requests| BM
 SYS -->|Reservation Requests| BM
@@ -175,12 +173,13 @@ SYS -->|Notifications| BM
 SYS -->|Citizen ID| MOI
 MOI -->|Verification Result| SYS
 
-%% Payment Gateway
-SYS -->|Payment Request| PAY
-PAY -->|Payment Result| SYS
+%% Payment Gateways (Credit Card / TrueMoney)
+SYS -->|Payment Request| PG
+PG -->|Payment Result| SYS
 
-SYS -->|Payment Slip Data| PAY
-PAY -->|Transfer Verification| SYS
+%% Bank System (Slip Verification)
+SYS -->|Payment Slip Data| BANK
+BANK -->|Transfer Verification| SYS
 ```
 
 ## DFD Level 1
@@ -189,10 +188,11 @@ flowchart LR
 
 %% External Entities
 GU[General User]
-MERCHANT[Merchant]
+M[Merchant]
 BM[Booth Manager]
 MOI[MOI System]
-PAY[Payment Gateway]
+PG[Payment Gateways]
+BANK[Bank System]
 
 %% Processes
 P1((1. User Management))
@@ -212,12 +212,14 @@ D6[(D6 Notification Database)]
 
 %% --------------------
 %% Process 1 User Management
-MERCHANT -->|Registration Data| P1
-MERCHANT -->|Login Data| P1
-BM -->|Approval Decision| P1
+GU -->|Registration Data| P1
+P1 -->|Registration Status| GU
 
-P1 -->|Registration Status| MERCHANT
-P1 -->|Login Result| MERCHANT
+M -->|Login Data| P1
+P1 -->|Login Result| M
+
+P1 -->|Registration Requests| BM
+BM -->|Approval Decisions| P1
 
 P1 -->|Citizen ID| MOI
 MOI -->|Verification Result| P1
@@ -229,11 +231,16 @@ P1 -->|Registration Event| P6
 
 %% --------------------
 %% Process 2 Event & Booth
+GU -->|Search Request| P2
+GU -->|Event Request| P2
+
 BM -->|Event Data| P2
 BM -->|Booth Data| P2
+BM -->|Announcement Data| P2
 
 P2 -->|Event Information| GU
 P2 -->|Booth Information| GU
+P2 -->|Announcements| GU
 
 P2 -->|Event Record| D2
 D2 -->|Event Data| P2
@@ -243,10 +250,12 @@ D3 -->|Booth Data| P2
 
 %% --------------------
 %% Process 3 Reservation
-MERCHANT -->|Reservation Request| P3
+M -->|Reservation Request| P3
 
-P3 -->|Reservation Confirmation| MERCHANT
-P3 -->|Reservation List| BM
+P3 -->|Reservation Confirmation| M
+P3 -->|Booth Availability| M
+
+P3 -->|Reservation Requests| BM
 
 P3 -->|Booth Availability Request| D3
 D3 -->|Booth Availability Data| P3
@@ -258,18 +267,19 @@ P3 -->|Reservation Event| P6
 
 %% --------------------
 %% Process 4 Payment
-MERCHANT -->|Payment Data| P4
-MERCHANT -->|Payment Slip| P4
+M -->|Payment Data| P4
+M -->|Payment Slip| P4
 
-BM -->|Payment Approval| P4
+P4 -->|Payment Status| M
 
-P4 -->|Payment Status| MERCHANT
+P4 -->|Payment Requests| BM
+BM -->|Payment Verification| P4
 
-P4 -->|Payment Request| PAY
-PAY -->|Payment Result| P4
+P4 -->|Payment Request| PG
+PG -->|Payment Result| P4
 
-P4 -->|Transfer Verification Request| PAY
-PAY -->|Transfer Verification Result| P4
+P4 -->|Payment Slip Data| BANK
+BANK -->|Transfer Verification| P4
 
 P4 -->|Payment Record| D5
 D5 -->|Payment Data| P4
@@ -292,8 +302,7 @@ D5 -->|Payment Data| P5
 P6 -->|Notification Record| D6
 D6 -->|Notification Data| P6
 
-P6 -->|Notification Alert| BM
-BM -->|View Notification Request| P6
+P6 -->|Notifications| BM
 ```
 
 ---
@@ -441,20 +450,22 @@ class Report {
 
 BoothManager "1" --> "many" Report
 ```
+---
 
-# Design Rationale
-The system models were developed based on the functional and non-functional requirements of the Booth Organizer System in order to clearly represent the system functionality, architecture, data interactions, and structural design. Each model provides a different perspective of the system and collectively supports key design decisions such as defining system boundaries, assigning responsibilities to system components, and clarifying how different parts of the system interact.
+# System Architecture and Design Rationale
 
-The **Use Case Diagram** represents the system from the user’s perspective and directly reflects the functional requirements identified during requirements analysis. It illustrates how the primary actors, such as General User, Merchant, and Booth Manager, interact with the system to perform tasks such as account registration, booth reservation, payment processing, and event management. By modeling these interactions, the Use Case Diagram helps identify the core system features and clarifies the system boundary by distinguishing between internal system functionality and external services such as the MOI identity verification API and payment gateways.
+The system models were developed based on the requirements of the Booth Organizer System to clearly show how the system works, how it is built, and how data moves through it. Each model gives a different view of the project and helps explain our key design choices, such as deciding what is built inside the system versus what uses external services.
 
-The **Context Diagram** presents the Booth Organizer System at the highest level and defines the overall system boundary. It shows how external actors, including General Users, Merchants, Booth Managers, and Executives, interact with the system, as well as how the system communicates with external services such as the MOI API, Credit Card Gateway, TrueMoney Wallet API, and the Banking System. This model supports an important design decision by clearly separating internal system responsibilities from external services, ensuring that identity verification and payment processing are handled by dedicated external systems rather than implemented internally.
+The **Use Case Diagram** shows the system from the user’s point of view. It highlights how the active users, such as General Users, Merchants, and Booth Managers, interact with the system to perform tasks including registering, booking booths, paying, and managing events. This diagram helps clearly draw the line between our system's internal features (such as generating in-app notifications) and the external APIs we connect to.
 
-The **Container Diagram** describes the high-level technical architecture of the system by dividing it into major containers: the Web Application (Frontend), Backend API Server, and Database. The frontend provides the user interface that allows general users, merchants, and booth managers to interact with the system. The backend server implements the core business logic, including authentication, reservation management, payment processing, and report generation. The database stores persistent system data such as user accounts, events, booths, reservations, and payment records. This architectural separation supports key non-functional requirements including scalability, maintainability, and security by separating the presentation layer, application logic, and data storage.
+The **Context Diagram** shows the big picture of the Booth Organizer System. It maps out all the human actorsincluding Executives, who act as stakeholders receiving reports from the Booth Manager outside the main software and the external systems we rely on. A major design decision shown here is keeping the MOI API, Credit Card Gateway, TrueMoney Wallet, and the Bank System as external services, while choosing to handle notifications internally rather than relying on a third-party messaging app.
 
-The **Component Diagram** further decomposes the backend system into smaller functional modules, including Authentication, User Management, Event Management, Booth Management, Reservation Management, Payment Processing, Notification Triggering and Reporting components. Each component is responsible for a clearly defined part of the system functionality. For example, the Reservation component manages booth booking operations and ensures that booths cannot be double-booked, while the Payment component handles financial transactions and manages integration with external payment gateways. This modular design supports maintainability and scalability by assigning clear responsibilities to each component and enabling loosely coupled interactions between modules.
+The **Container Diagram** breaks down the high-level technical setup into three main parts: the Web Application (Frontend), Backend API Server, and Database. The frontend gives users their interface, while the backend API handles the core logic, including login security, booking workflows, payment processing, and creating in-app alerts. The database stores all persistent information, such as user accounts, events, and payment records. This standard three-tier setup makes the system secure, easy to maintain, and ready to grow.
 
-The **Data Flow Diagram (DFD)** focuses on how information moves through the system. It illustrates how data such as user registration information, reservation details, and payment data flows between external actors, system processes, data stores, and external services. By modeling these data flows, the DFD helps define clear process boundaries and ensures that key workflows such as merchant registration, booth reservation, payment verification, and reservation confirmation follow the required sequence of operations. The DFD also clarifies how the system interacts with external services, including the MOI identity verification API and payment processing systems.
+The **Component Diagram** zooms in on the backend API and breaks it down into smaller, focused modules: Authentication, User, Event, Booth, Reservation, Payment, Reporting, and Notification components. Each part has a specific job. For example, the Reservation Component makes sure a booth cannot be double-booked, the Payment Component talks to the external gateways, and the Notification Component handles alerts for the Booth Manager. Breaking the code down this way keeps the system organized and easier for developers to update.
 
-Finally, the **Class Diagram** models the internal structure of the system by defining the main domain entities and their relationships. Key classes include User, Merchant, BoothManager, Event, Booth, Reservation, and Payment. The diagram reflects role-based system functionality through the inheritance relationship between User, Merchant, and BoothManager, allowing shared user attributes to be reused while enabling role-specific behavior. The relationships between Reservation, Booth, and Payment represent the reservation and payment workflow defined in the functional requirements, ensuring that booth bookings and payment transactions are properly linked within the system.
+The **Data Flow Diagram (DFD)** shows exactly how information travels. It maps out how a General User submits registration data to become a Merchant, and how booking details and payment data flow between users, the database, and external services. The DFD makes sure our core workflows, particularly separating automated gateway payments from manual bank transfer verifications, follow a logical, step-by-step path.
 
-Together, these models provide a comprehensive representation of the Booth Organizer System from multiple perspectives. The Use Case Diagram defines the system functionality, the Context Diagram establishes the system boundary and external interactions, the Data Flow Diagram explains how data moves through the system, the Container and Component diagrams describe the system architecture and internal modular structure, and the Class Diagram represents the internal data model and object relationships. This layered modeling approach supports modularity, scalability, maintainability, and clear separation of responsibilities within the system design.
+Finally, the **Class Diagram** maps out the database structure by defining the main entities (including User, Merchant, BoothManager, Event, Booth, Reservation, and Payment) and how they connect. It uses inheritance to show that Merchants and Booth Managers are specialized types of Users. The links between Reservations, Booths, and Payments directly match our business rules, making sure every booking is properly tied to a financial transaction.
+
+Together, these models give a complete, multi-layered view of the Booth Organizer System. From defining the user goals in the Use Case Diagram to mapping the code structure in the Component Diagram, this approach proves our system is well-organized, scalable, and has clearly separated responsibilities.
