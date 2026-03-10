@@ -3,7 +3,10 @@ from passlib.context import CryptContext
 import jwt
 import os
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# use a pure-Python hash scheme to avoid bcrypt backend detection bugs
+# pbkdf2_sha256 is sufficiently secure for this demo and has no external 
+# dependencies, which keeps the test environment lightweight.
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 SECRET_KEY = os.getenv("JWT_SECRET", "secret")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 1 day
