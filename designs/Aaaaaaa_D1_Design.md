@@ -3,19 +3,19 @@
 
 # C4 Context Diagram
 
-<img width="1229" height="661" alt="C4_Context" src="https://github.com/user-attachments/assets/98481ecd-1011-4871-b3ca-6fbcdc84a7e3" />
+<img width="3344" height="1418" alt="C4_Context" src="https://github.com/user-attachments/assets/464c0898-ea69-4725-9e52-86a4506f9277" />
 
 ---
 
 # C4 Container Diagram
 
-<img width="1401" height="711" alt="C4_Container" src="https://github.com/user-attachments/assets/438c874e-3a3a-4287-8066-2c90792ee507" />
+<img width="3424" height="1542" alt="C4_Container" src="https://github.com/user-attachments/assets/094225f1-dc20-435a-8144-e3f03953f6dc" />
 
 ---
 
 # C4 Component Diagram
 
-<img width="625" height="827" alt="C4_Component" src="https://github.com/user-attachments/assets/b7f2262b-939d-49eb-80e1-453657e40371" />
+<img width="3264" height="3418" alt="C4_Component" src="https://github.com/user-attachments/assets/f7890ab1-823e-4fe4-92d5-8e6c91b1e5c0" />
 
 ---
 
