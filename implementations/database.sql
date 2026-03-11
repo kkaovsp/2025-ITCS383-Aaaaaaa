@@ -83,3 +83,7 @@ CREATE TABLE IF NOT EXISTS notifications (
   created_at TEXT,
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+-- Insert booth manager user
+INSERT INTO users (id, username, password, name, contact_info, role, created_at) 
+VALUES ('booth-manager-001', 'boothManager', '$pbkdf2-sha256$29000$hJCyVkoJwZjzPqdUKkXovQ$4ujuXesDRMOLmZ5SPeiZ9EtMydHU6xSGi1iQEsa/BOI', 'Booth Manager', '', 'BOOTH_MANAGER', '2026-03-11T00:00:00');

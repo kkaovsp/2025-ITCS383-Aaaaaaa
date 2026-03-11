@@ -26,15 +26,37 @@ function PaymentApprovalPage() {
   };
 
   return (
-    <div>
-      <h2>Payment Approvals</h2>
-      <ul>
-        {payments.map((p) => (
-          <li key={p.payment_id}>
-            {p.reservation_id} - {p.amount} <button onClick={() => approve(p.payment_id)}>Approve</button>
-          </li>
-        ))}
-      </ul>
+    <div className="page-content">
+      <div className="page-header"><h2>✅ Payment Approvals</h2></div>
+      {payments.length === 0 && (
+        <div className="empty-state"><div className="empty-state-icon">✅</div>No pending payments.</div>
+      )}
+      <div className="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Payment ID</th>
+              <th>Reservation ID</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {payments.map((p) => (
+              <tr key={p.payment_id}>
+                <td style={{ color: 'var(--text-muted)', fontSize: '.8rem' }}>{p.payment_id}</td>
+                <td>{p.reservation_id}</td>
+                <td style={{ fontWeight: 700 }}>${p.amount}</td>
+                <td><span className="badge badge-warning">PENDING</span></td>
+                <td>
+                  <button className="btn btn-success btn-sm" onClick={() => approve(p.payment_id)}>Approve</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

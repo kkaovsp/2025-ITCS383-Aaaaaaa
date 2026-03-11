@@ -46,6 +46,32 @@ This repository contains a FastAPI backend and React frontend for the system, cr
 
 The backend will be available at `http://localhost:8000` and API docs at `http://localhost:8000/docs`.
 
+### Create One Booth Manager Account
+
+If the customer-facing app should not expose booth manager registration, use this backend utility to create exactly one booth manager:
+
+```bash
+cd implementations/backend
+python create_booth_manager_app.py --username boothManager --password strongPassword123 --name "Booth Manager"
+```
+
+Behavior:
+- Creates one `BOOTH_MANAGER` account in the database.
+- Prevents creating a second booth manager account.
+- If the same manager username already exists as `BOOTH_MANAGER`, the script exits successfully.
+
+### Quick Run Without Virtual Environment
+
+If you want a very easy command using only Python standard library, run this API-based script:
+
+```bash
+python3 implementations/register_booth_manager_api.py --base-url http://localhost:8000 --username boothManager --password strongPassword123 --name "Booth Manager"
+```
+
+Notes:
+- No virtual environment is required for this script.
+- Backend must be running first.
+
 ### Frontend
 
 1. Change to frontend directory:

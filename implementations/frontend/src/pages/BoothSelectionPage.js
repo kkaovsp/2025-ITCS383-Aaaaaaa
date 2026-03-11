@@ -10,6 +10,7 @@ function BoothSelectionPage() {
   const [editingId, setEditingId] = useState(null);
   const query = new URLSearchParams(useLocation().search);
   const eventId = query.get('event');
+  const eventName = query.get('eventName');
 
   useEffect(() => {
     if (!eventId) return;
@@ -122,81 +123,130 @@ function BoothSelectionPage() {
   }
 
   return (
-    <div>
-      <h2>Booths for Event {eventId}</h2>
-      <ul>
-        {booths.map((b) => (
-          <li key={b.booth_id} style={{ marginBottom: '0.5rem' }}>
-            {b.booth_number} - {b.status} - {b.size} - {b.price}
-            <div style={{ fontSize: '0.9em' }}>
-              <span>Type: {b.type || 'N/A'}</span> | <span>Classification: {b.classification || 'N/A'}</span> | <span>Electricity: {b.electricity ? 'Yes' : 'No'}</span> | <span>Water: {b.water_supply ? 'Yes' : 'No'}</span> | <span>Outlets: {b.outlets ?? '0'}</span>
+    <div className="page-content">
+      <div className="page-header">
+        <h2>🏪 Booths — {eventName || `Event ${eventId}`}</h2>
+      </div>
+
+      {booths.length === 0 && (
+        <div className="empty-state">
+          <div className="empty-state-icon">🏪</div>
+          No booths have been added to this event yet.
+        </div>
+      )}
+
+      <div className="booth-grid">
+        {booths.map((b) => {
+          const statusCls = b.status === 'AVAILABLE' ? 'available' : b.status === 'RESERVED' ? 'reserved' : 'unavailable';
+          const badgeCls  = b.status === 'AVAILABLE' ? 'badge-success' : b.status === 'RESERVED' ? 'badge-warning' : 'badge-gray';
+          return (
+            <div key={b.booth_id} className={`booth-card ${statusCls}`}>
+              <div className="booth-card-header">
+                <span className="booth-card-number">#{b.booth_number}</span>
+                <span className={`badge ${badgeCls}`}>{b.status}</span>
+              </div>
+              <div className="booth-card-price">${b.price}</div>
+              <div className="booth-card-meta">
+                <span>📏 {b.size}</span>
+                {b.location && <span>📍 {b.location}</span>}
+                <span>{b.type === 'INDOOR' ? '🏠 Indoor' : '🌳 Outdoor'}</span>
+                <span>{b.classification}</span>
+                {b.electricity && <span>⚡ Electricity ({b.outlets} outlets)</span>}
+                {b.water_supply && <span>💧 Water</span>}
+              </div>
+              <div className="booth-card-actions">
+                {isMerchant && b.status === 'AVAILABLE' && (
+                  <button className="btn btn-success btn-sm" onClick={() => reserveBooth(b.booth_id)}>Reserve</button>
+                )}
+                {isManager && (
+                  <>
+                    <button className="btn btn-secondary btn-sm" onClick={() => startEditBooth(b)}>Edit</button>
+                    <button className="btn btn-danger btn-sm" onClick={() => removeBooth(b.booth_id)}>Delete</button>
+                  </>
+                )}
+              </div>
             </div>
-            {isManager && (
-              <button style={{ marginLeft: '0.5rem' }} onClick={() => removeBooth(b.booth_id)}>Delete</button>
-            )}
-            {isManager && (
-              <button style={{ marginLeft: '0.5rem' }} onClick={() => startEditBooth(b)}>Edit</button>
-            )}
-            {isMerchant && b.status === 'AVAILABLE' && (
-              <button style={{ marginLeft: '0.5rem' }} onClick={() => reserveBooth(b.booth_id)}>Reserve</button>
-            )}
-          </li>
-        ))}
-      </ul>
+          );
+        })}
+      </div>
 
       {isManager && (
-        <form onSubmit={addBooth} style={{ marginTop: '1rem' }}>
-          <h3>{editingId ? 'Edit Booth' : 'Add Booth'}</h3>
-          <div>
-            <label>Booth Number: </label>
-            <input value={form.booth_number} onChange={(e) => setForm({ ...form, booth_number: e.target.value })} required />
+        <div className="panel" style={{ marginTop: '2rem', maxWidth: 620 }}>
+          <div className="panel-header">
+            <h3>{editingId ? '✏️ Edit Booth' : '➕ Add Booth'}</h3>
           </div>
-          <div>
-            <label>Size: </label>
-            <input value={form.size} onChange={(e) => setForm({ ...form, size: e.target.value })} required />
+          <div className="panel-body">
+            <form onSubmit={addBooth}>
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Booth Number</label>
+                  <input className="form-control" placeholder="e.g. A-01" value={form.booth_number} onChange={(e) => setForm({ ...form, booth_number: e.target.value })} required />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Size</label>
+                  <input className="form-control" placeholder="e.g. 3x3m" value={form.size} onChange={(e) => setForm({ ...form, size: e.target.value })} required />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Price (THB)</label>
+                  <input className="form-control" type="number" step="0.01" placeholder="0.00" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Location</label>
+                  <input className="form-control" placeholder="e.g. Zone B, Row 2" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Type</label>
+                  <select className="form-control" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
+                    <option value="INDOOR">Indoor</option>
+                    <option value="OUTDOOR">Outdoor</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Duration</label>
+                  <select className="form-control" value={form.duration_type} onChange={(e) => setForm({ ...form, duration_type: e.target.value })}>
+                    <option value="SHORT_TERM">Short-term</option>
+                    <option value="LONG_TERM">Long-term</option>
+                  </select>
+                </div>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Classification</label>
+                <select className="form-control" style={{ maxWidth: 200 }} value={form.classification} onChange={(e) => setForm({ ...form, classification: e.target.value })}>
+                  <option value="FIXED">Fixed</option>
+                  <option value="TEMPORARY">Temporary</option>
+                </select>
+              </div>
+              <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+                <label className="form-check">
+                  <input type="checkbox" checked={form.electricity} onChange={(e) => setForm({ ...form, electricity: e.target.checked })} />
+                  <span>Electricity</span>
+                </label>
+                {form.electricity && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}>
+                    <label className="form-label" style={{ margin: 0 }}>Outlets:</label>
+                    <input className="form-control" type="number" value={form.outlets} onChange={(e) => setForm({ ...form, outlets: e.target.value })} style={{ width: 80 }} />
+                  </div>
+                )}
+                <label className="form-check">
+                  <input type="checkbox" checked={form.water_supply} onChange={(e) => setForm({ ...form, water_supply: e.target.checked })} />
+                  <span>Water Supply</span>
+                </label>
+              </div>
+              <div style={{ display: 'flex', gap: '.75rem' }}>
+                <button type="submit" className="btn btn-primary">{editingId ? 'Save Changes' : 'Add Booth'}</button>
+                {editingId && (
+                  <button type="button" className="btn btn-secondary" onClick={() => { setEditingId(null); setForm({ booth_number: '', size: '', price: '', location: '', electricity: false, outlets: 0, water_supply: false, type: 'INDOOR', duration_type: 'SHORT_TERM', classification: 'FIXED' }); }}>
+                    Cancel
+                  </button>
+                )}
+              </div>
+            </form>
           </div>
-          <div>
-            <label>Price: </label>
-            <input type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required />
-            </div>
-            <div>
-              <label>Location: </label>
-              <input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
-            </div>
-            <div>
-              <label>Electricity: </label>
-              <input type="checkbox" checked={form.electricity} onChange={(e) => setForm({ ...form, electricity: e.target.checked })} />
-              <label style={{ marginLeft: '1rem' }}>Outlets: </label>
-              <input type="number" value={form.outlets} onChange={(e) => setForm({ ...form, outlets: e.target.value })} style={{ width: '80px' }} />
-            </div>
-            <div>
-              <label>Water supply: </label>
-              <input type="checkbox" checked={form.water_supply} onChange={(e) => setForm({ ...form, water_supply: e.target.checked })} />
-            </div>
-            <div>
-              <label>Type: </label>
-              <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}>
-                <option value="INDOOR">Indoor</option>
-                <option value="OUTDOOR">Outdoor</option>
-              </select>
-            </div>
-            <div>
-              <label>Reservation duration: </label>
-              <select value={form.duration_type} onChange={(e) => setForm({ ...form, duration_type: e.target.value })}>
-                <option value="SHORT_TERM">Short-term</option>
-                <option value="LONG_TERM">Long-term</option>
-              </select>
-            </div>
-            <div>
-              <label>Classification: </label>
-              <select value={form.classification} onChange={(e) => setForm({ ...form, classification: e.target.value })}>
-                <option value="FIXED">Fixed</option>
-                <option value="TEMPORARY">Temporary</option>
-              </select>
-            </div>
-          <button type="submit">Add Booth</button>
-            {editingId && <button type="button" onClick={() => { setEditingId(null); setForm({ booth_number: '', size: '', price: '', location: '', electricity: false, outlets: 0, water_supply: false, type: 'INDOOR', duration_type: 'SHORT_TERM', classification: 'FIXED' }); }}>Cancel Edit</button>}
-        </form>
+        </div>
       )}
     </div>
   );

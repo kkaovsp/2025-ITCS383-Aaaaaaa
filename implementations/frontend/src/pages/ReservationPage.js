@@ -83,47 +83,73 @@ function ReservationPage() {
     }
   }
 
+  function statusBadge(status) {
+    const map = { PENDING_PAYMENT: 'badge-warning', WAITING_FOR_APPROVAL: 'badge-info', CONFIRMED: 'badge-success', CANCELLED: 'badge-danger' };
+    return <span className={`badge ${map[status] || 'badge-gray'}`}>{status?.replace(/_/g, ' ')}</span>;
+  }
+
   return (
-    <div>
-      <h2>Your Reservations</h2>
-      <ul>
-        {reservations.map((r) => (
-          <li key={r.reservation_id} style={{ marginBottom: '0.5rem' }}>
-            Booth: {r.booth?.booth_number || r.booth_id} &nbsp;|&nbsp; Status: {r.status} &nbsp;|&nbsp; Price: ${r.booth?.price ?? 'N/A'}
+    <div className="page-content">
+      <div className="page-header"><h2>📋 Your Reservations</h2></div>
+
+      {reservations.length === 0 && (
+        <div className="empty-state">
+          <div className="empty-state-icon">📋</div>
+          No reservations found. <a href="/events">Browse events</a> to get started.
+        </div>
+      )}
+
+      {reservations.map((r) => (
+        <div key={r.reservation_id} className="reservation-item">
+          <div className="reservation-item-info">
+            <div style={{ fontWeight: 700, marginBottom: '.25rem' }}>
+              Booth #{r.booth?.booth_number || r.booth_id}
+            </div>
+            <div style={{ fontSize: '.85rem', color: 'var(--text-secondary)', display: 'flex', gap: '.75rem', flexWrap: 'wrap' }}>
+              {statusBadge(r.status)}
+              {r.booth?.price != null && <span>💰 ${r.booth.price}</span>}
+              {r.reservation_id && <span style={{ fontSize: '.78rem', color: 'var(--text-muted)' }}>ID: {r.reservation_id}</span>}
+            </div>
+          </div>
+          <div className="reservation-item-actions">
             {user && user.role === 'BOOTH_MANAGER' && r.status === 'WAITING_FOR_APPROVAL' && (
-              <button style={{ marginLeft: '0.5rem' }} onClick={() => approveReservation(r.reservation_id)}>Confirm</button>
+              <button className="btn btn-success btn-sm" onClick={() => approveReservation(r.reservation_id)}>Confirm</button>
             )}
             {user && user.role === 'MERCHANT' && r.status === 'PENDING_PAYMENT' && (
               <>
-                <button style={{ marginLeft: '0.5rem' }} onClick={() => setPayForm({ ...payForm, reservation_id: r.reservation_id, amount: r.booth?.price ?? '' })}>Pay</button>
-                <button style={{ marginLeft: '0.5rem' }} onClick={() => cancelReservation(r.reservation_id)}>Cancel</button>
+                <button className="btn btn-primary btn-sm" onClick={() => setPayForm({ ...payForm, reservation_id: r.reservation_id, amount: r.booth?.price ?? '' })}>Pay</button>
+                <button className="btn btn-danger btn-sm" onClick={() => cancelReservation(r.reservation_id)}>Cancel</button>
               </>
             )}
-          </li>
-        ))}
-      </ul>
+          </div>
+        </div>
+      ))}
 
       {user && user.role === 'MERCHANT' && (
-        <form onSubmit={createPayment} style={{ marginTop: '1rem' }}>
-          <h3>Create Payment (Merchant)</h3>
-          <div>
-            <label>Reservation ID:</label>
-            <input value={payForm.reservation_id} onChange={(e) => setPayForm({ ...payForm, reservation_id: e.target.value })} required />
+        <div className="panel" style={{ marginTop: '2rem', maxWidth: 480 }}>
+          <div className="panel-header"><h3>💳 Create Payment</h3></div>
+          <div className="panel-body">
+            <form onSubmit={createPayment}>
+              <div className="form-group">
+                <label className="form-label">Reservation ID</label>
+                <input className="form-control" placeholder="Reservation ID" value={payForm.reservation_id} onChange={(e) => setPayForm({ ...payForm, reservation_id: e.target.value })} required />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Amount (THB)</label>
+                <input className="form-control" type="number" step="0.01" placeholder="0.00" value={payForm.amount} onChange={(e) => setPayForm({ ...payForm, amount: e.target.value })} required />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Payment Method</label>
+                <select className="form-control" value={payForm.method} onChange={(e) => setPayForm({ ...payForm, method: e.target.value })}>
+                  <option value="CREDIT_CARD">Credit Card</option>
+                  <option value="TRUEMONEY">TrueMoney Wallet</option>
+                  <option value="BANK_TRANSFER">Bank Transfer</option>
+                </select>
+              </div>
+              <button type="submit" className="btn btn-primary">Submit Payment</button>
+            </form>
           </div>
-          <div>
-            <label>Amount:</label>
-            <input type="number" step="0.01" value={payForm.amount} onChange={(e) => setPayForm({ ...payForm, amount: e.target.value })} required />
-          </div>
-          <div>
-            <label>Method:</label>
-            <select value={payForm.method} onChange={(e) => setPayForm({ ...payForm, method: e.target.value })}>
-              <option value="CREDIT_CARD">Credit Card</option>
-              <option value="TRUEMONEY">TrueMoney Wallet</option>
-              <option value="BANK_TRANSFER">Bank Transfer</option>
-            </select>
-          </div>
-          <button type="submit">Create Payment</button>
-        </form>
+        </div>
       )}
     </div>
   );

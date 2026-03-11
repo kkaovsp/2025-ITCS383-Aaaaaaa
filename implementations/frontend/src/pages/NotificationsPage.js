@@ -13,15 +13,20 @@ function NotificationsPage() {
   }, []);
 
   return (
-    <div>
-      <h2>Notifications</h2>
-      <ul>
+    <div className="page-content">
+      <div className="page-header"><h2>🔔 Notifications</h2></div>
+      {notes.length === 0 && (
+        <div className="empty-state"><div className="empty-state-icon">🔔</div>No notifications yet.</div>
+      )}
+      <div className="panel" style={{ maxWidth: 640 }}>
         {notes.map((n) => (
-          <li key={n.notification_id} style={{ fontWeight: n.is_read ? 'normal' : 'bold' }}>
-            {n.title}: {n.message}
-          </li>
+          <div key={n.notification_id} className={`notif-item ${n.is_read ? '' : 'unread'}`}>
+            <div className="notif-item-title">{n.title}</div>
+            <div className="notif-item-msg">{n.message}</div>
+            {!n.is_read && <span className="badge badge-info" style={{ marginTop: '.35rem', display: 'inline-block' }}>Unread</span>}
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }

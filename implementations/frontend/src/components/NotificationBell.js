@@ -30,24 +30,36 @@ function NotificationBell() {
   }
 
   return (
-    <div style={{ display: 'inline-block', position: 'relative', marginLeft: '1rem' }}>
-      <button onClick={() => setOpen((v) => !v)}>🔔{unread > 0 ? ` (${unread})` : ''}</button>
+    <div className="notif-bell-wrapper">
+      <button className="notif-bell-btn" onClick={() => setOpen((v) => !v)} aria-label="Notifications">
+        🔔
+        {unread > 0 && <span className="notif-badge">{unread > 9 ? '9+' : unread}</span>}
+      </button>
       {open && (
-        <div style={{ position: 'absolute', right: 0, background: 'white', border: '1px solid #ccc', padding: '0.5rem', width: '300px', zIndex: 1000 }}>
-          <div style={{ maxHeight: '300px', overflow: 'auto' }}>
-            {notes.length === 0 && <div>No notifications</div>}
+        <div className="notif-dropdown">
+          <div className="notif-dropdown-header">Notifications</div>
+          <div className="notif-list">
+            {notes.length === 0 && (
+              <div style={{ padding: '1rem', color: 'var(--text-muted)', textAlign: 'center', fontSize: '.88rem' }}>No notifications</div>
+            )}
             {notes.map((n) => (
-              <div key={n.notification_id} style={{ padding: '0.25rem', borderBottom: '1px solid #eee' }}>
-                <div style={{ fontWeight: n.is_read ? 'normal' : 'bold' }}>{n.title}</div>
-                <div style={{ fontSize: '0.9em' }}>{n.message}</div>
-                <div style={{ marginTop: '0.25rem' }}>
-                  {!n.is_read && <button onClick={() => markRead(n.notification_id)}>Mark read</button>}
-                </div>
+              <div key={n.notification_id} className={`notif-item ${n.is_read ? '' : 'unread'}`}>
+                <div className="notif-item-title">{n.title}</div>
+                <div className="notif-item-msg">{n.message}</div>
+                {!n.is_read && (
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    style={{ marginTop: '.35rem', fontSize: '.75rem', padding: '.2rem .55rem' }}
+                    onClick={() => markRead(n.notification_id)}
+                  >
+                    Mark read
+                  </button>
+                )}
               </div>
             ))}
           </div>
-          <div style={{ marginTop: '0.5rem' }}>
-            <Link to="/notifications">View all</Link>
+          <div className="notif-footer">
+            <Link to="/notifications" onClick={() => setOpen(false)}>View all notifications</Link>
           </div>
         </div>
       )}

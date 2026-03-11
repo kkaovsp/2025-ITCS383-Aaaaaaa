@@ -33,34 +33,30 @@ function NavBar() {
   };
 
   return (
-    <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <div>
-        <Link to="/">Home</Link> |{' '}
-        <Link to="/events">Events</Link>
-        {user && (
-          <>
-            {' '}
-            | <Link to="/reservations">Reservations</Link> | <Link to="/profile">Profile</Link>
-          </>
-        )}
-        {user && user.role === 'BOOTH_MANAGER' && (
-          <>
-            {' '}
-            | <Link to="/create-event">Create Event</Link> | <Link to="/admin">Admin</Link>
-          </>
-        )}
+    <nav className="navbar">
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+        <Link to="/" className="navbar-brand">🏪 BoothOrganizer</Link>
+        <div className="navbar-links">
+          <Link to="/">Home</Link>
+          <Link to="/events">Events</Link>
+          {user && <Link to="/reservations">Reservations</Link>}
+          {user && <Link to="/profile">Profile</Link>}
+          {user && user.role === 'BOOTH_MANAGER' && <Link to="/create-event">Create Event</Link>}
+          {user && user.role === 'BOOTH_MANAGER' && <Link to="/admin">Admin</Link>}
+        </div>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      <div className="navbar-right">
         {!user && (
           <>
-            <Link to="/login">Login</Link> | <Link to="/register">Register</Link>
+            <Link to="/login" className="btn btn-ghost btn-sm">Login</Link>
+            <Link to="/register" className="btn btn-primary btn-sm">Register</Link>
           </>
         )}
         {user && <NotificationBell />}
         {user && (
           <>
-            <span>{user.name || user.username} {user.role}</span>
-            <button onClick={handleLogout}>Logout</button>
+            <span className="navbar-user-chip">{user.name || user.username} · {user.role}</span>
+            <button className="btn btn-logout btn-sm" onClick={handleLogout}>Logout</button>
           </>
         )}
       </div>

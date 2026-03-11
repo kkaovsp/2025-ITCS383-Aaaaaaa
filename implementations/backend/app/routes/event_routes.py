@@ -10,6 +10,7 @@ from ..models.booth import Booth
 from ..models.reservation import Reservation
 from ..models.payment import Payment
 from ..models.merchant import Merchant
+from ..models.user import User
 from ..models.notification import Notification, NotificationType
 from ..schemas.event_schema import EventCreate
 from ..services.dependencies import get_current_user, require_role
@@ -29,7 +30,30 @@ def get_db():
 def list_events(
     db: Annotated[Session, Depends(get_db)]
 ):
-    return db.query(Event).all()
+    rows = db.query(Event).all()
+    out = []
+
+    for e in rows:
+        creator = db.query(User).filter(User.id == e.created_by).first()
+        created_by_name = None
+        if creator:
+            created_by_name = creator.name or creator.username
+
+        out.append(
+            {
+                "event_id": e.event_id,
+                "name": e.name,
+                "description": e.description,
+                "location": e.location,
+                "start_date": e.start_date,
+                "end_date": e.end_date,
+                "created_by": e.created_by,
+                "created_by_name": created_by_name,
+                "created_at": e.created_at,
+            }
+        )
+
+    return out
 
 
 @router.post("/events", status_code=status.HTTP_201_CREATED)

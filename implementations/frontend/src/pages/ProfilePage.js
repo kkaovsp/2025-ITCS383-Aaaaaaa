@@ -43,37 +43,56 @@ function ProfilePage() {
     }
   };
 
-  if (!profile) return <div>Loading profile...</div>;
+  if (!profile) return <div className="loading">Loading profile…</div>;
 
   return (
-    <div>
-      <h2>My Profile</h2>
-      {msg && <div style={{ color: 'green' }}>{msg}</div>}
-      <div style={{ marginBottom: '1rem' }}>
-        <div><strong>Username:</strong> {profile.username}</div>
-        <div>
-          <label>Name: <input value={edit.name} onChange={(e) => setEdit({ ...edit, name: e.target.value })} /></label>
-        </div>
-        <div>
-          <label>Contact info: <input value={edit.contact_info} onChange={(e) => setEdit({ ...edit, contact_info: e.target.value })} /></label>
-        </div>
-        <button onClick={saveProfile}>Save Profile</button>
-      </div>
+    <div className="page-content">
+      <div className="page-header"><h2>👤 My Profile</h2></div>
+      {msg && (
+        <div className={`alert ${msg.toLowerCase().includes('fail') ? 'alert-error' : 'alert-success'}`}>{msg}</div>
+      )}
 
-      <h3>Seller Information</h3>
-      <div>
-        <div><strong>Merchant Status:</strong> {profile.approval_status || 'N/A'}</div>
-        <div>
-          <label>Seller information:<br />
-            <textarea rows={4} style={{ width: '100%' }} value={seller.seller_information} onChange={(e) => setSeller({ ...seller, seller_information: e.target.value })} />
-          </label>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.5rem' }}>
+        <div className="panel">
+          <div className="panel-header"><h3>Account Info</h3></div>
+          <div className="panel-body">
+            <div className="form-group">
+              <label className="form-label">Username</label>
+              <div style={{ padding: '.55rem .85rem', background: 'var(--surface-alt)', borderRadius: 'var(--radius-sm)', fontWeight: 600, border: '1.5px solid var(--border)' }}>{profile.username}</div>
+            </div>
+            <div className="form-group">
+              <label className="form-label">Full Name</label>
+              <input className="form-control" value={edit.name} onChange={(e) => setEdit({ ...edit, name: e.target.value })} />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Contact Info</label>
+              <input className="form-control" placeholder="Email or phone" value={edit.contact_info} onChange={(e) => setEdit({ ...edit, contact_info: e.target.value })} />
+            </div>
+            <button className="btn btn-primary" onClick={saveProfile}>Save Profile</button>
+          </div>
         </div>
-        <div>
-          <label>Product description:<br />
-            <textarea rows={3} style={{ width: '100%' }} value={seller.product_description} onChange={(e) => setSeller({ ...seller, product_description: e.target.value })} />
-          </label>
+
+        <div className="panel">
+          <div className="panel-header">
+            <h3>Seller Information</h3>
+            {profile.approval_status && (
+              <span className={`badge ${{ APPROVED: 'badge-success', REJECTED: 'badge-danger', PENDING: 'badge-warning' }[profile.approval_status] || 'badge-gray'}`}>
+                {profile.approval_status}
+              </span>
+            )}
+          </div>
+          <div className="panel-body">
+            <div className="form-group">
+              <label className="form-label">Seller Information</label>
+              <textarea className="form-control" rows={4} value={seller.seller_information} onChange={(e) => setSeller({ ...seller, seller_information: e.target.value })} />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Product Description</label>
+              <textarea className="form-control" rows={3} value={seller.product_description} onChange={(e) => setSeller({ ...seller, product_description: e.target.value })} />
+            </div>
+            <button className="btn btn-primary" onClick={saveSeller}>Save Seller Info</button>
+          </div>
         </div>
-        <button onClick={saveSeller}>Save Seller Info</button>
       </div>
     </div>
   );

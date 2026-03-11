@@ -254,10 +254,12 @@ def set_merchant_status(
 )
 def set_user_merchant_status(
     user_id: str,
-    status_value: Annotated[str, Body(..., embed=True)],
+    payload: Annotated[dict, Body(...)],
     user: Annotated[User, Depends(require_role(["BOOTH_MANAGER"]))],
     db: Annotated[Session, Depends(get_db)],
 ):
+    status_value = payload.get("status") or payload.get("status_value")
+
     if status_value not in ("PENDING", "APPROVED", "REJECTED"):
         raise HTTPException(status_code=400, detail=INVALID_STATUS)
 

@@ -24,19 +24,25 @@ function LoginPage() {
   };
 
   return (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Username:</label>
-          <input value={username} onChange={(e) => setUsername(e.target.value)} />
+    <div className="auth-wrapper">
+      <div className="auth-card">
+        <h2>Welcome back</h2>
+        <p className="auth-subtitle">Sign in to your BoothOrganizer account</p>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label">Username</label>
+            <input className="form-control" placeholder="Enter your username" value={username} onChange={(e) => setUsername(e.target.value)} required />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Password</label>
+            <input className="form-control" type="password" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          </div>
+          <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '.5rem' }}>Sign In</button>
+        </form>
+        <div className="auth-footer">
+          Don't have an account? <a href="/register">Register here</a>
         </div>
-        <div>
-          <label>Password:</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        </div>
-        <button type="submit">Login</button>
-      </form>
+      </div>
     </div>
   );
 }

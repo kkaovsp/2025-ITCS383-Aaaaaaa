@@ -61,7 +61,18 @@ def register(user: UserCreate, db: Annotated[Session, Depends(get_db)]):
     if existing:
         raise HTTPException(status_code=400, detail="Username already exists")
 
-    role_value = UserRole(user.role) if user.role else UserRole.GENERAL_USER
+    _role_alias = {
+        "general": UserRole.GENERAL_USER,
+        "general_user": UserRole.GENERAL_USER,
+        "merchant": UserRole.MERCHANT,
+        "booth_manager": UserRole.BOOTH_MANAGER,
+        "boothmanager": UserRole.BOOTH_MANAGER,
+    }
+    if user.role:
+        _key = user.role.strip().lower()
+        role_value = _role_alias.get(_key) or UserRole(user.role.strip().upper())
+    else:
+        role_value = UserRole.GENERAL_USER
 
     new_user = User(
         id=str(uuid.uuid4()),
