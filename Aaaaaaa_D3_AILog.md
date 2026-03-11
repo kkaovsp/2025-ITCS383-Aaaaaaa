@@ -1,4 +1,5 @@
-<img width="886" height="1107" alt="image" src="https://github.com/user-attachments/assets/3eea4ae7-99e0-4dcd-ae99-219213e70fdf" />## AI Usage Log
+## AI Usage Log
+<img width="886" height="1107" alt="image" src="https://github.com/user-attachments/assets/3eea4ae7-99e0-4dcd-ae99-219213e70fdf" />
 <img width="438" height="747" alt="image" src="https://github.com/user-attachments/assets/4a993334-4c64-45ec-8e08-9ffdd350519d" />
 
 <img width="431" height="594" alt="image" src="https://github.com/user-attachments/assets/59e33aac-d049-458d-bca6-99ef9a0e2deb" />
