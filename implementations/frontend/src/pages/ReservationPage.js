@@ -54,7 +54,6 @@ function ReservationPage() {
         }
       })();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
 
   useEffect(() => {
