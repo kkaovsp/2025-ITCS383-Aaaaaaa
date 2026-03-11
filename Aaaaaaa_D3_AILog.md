@@ -28,6 +28,7 @@ Prompt for failed case
 <img width="425" height="495" alt="image" src="https://github.com/user-attachments/assets/a32eb4f3-3c22-443a-98b3-ea631da117a6" />
 
 Verify by running the manual test
+
 ---
 ### SonaQube Analysis: Issues
 
