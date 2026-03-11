@@ -28,3 +28,12 @@ Prompt for failed case
 <img width="425" height="495" alt="image" src="https://github.com/user-attachments/assets/a32eb4f3-3c22-443a-98b3-ea631da117a6" />
 
 Verify by running the manual test
+---
+### SonaQube Analysis: Issues
+
+https://chatgpt.com/share/69b15748-a584-800b-9b54-af543f8dcfe8 <br>
+https://chatgpt.com/share/69b15765-d968-800b-818f-d649ca25914f <br>
+https://chatgpt.com/share/69b15773-3b60-800b-b9eb-2b4b1089eb05 <br>
+https://chatgpt.com/share/69b15781-18a4-800b-a0ea-c2b47a00e412
+
+We accept the code that passes pytest and the static analysis output of SonaQube and reject code that fails pytest and has issues (blocker/high severity) in the static analysis output of SonaQube.
