@@ -2,11 +2,11 @@
 
 A **Booth Organizer** is a web application designed to help event organizers manage booth inventory, merchant registrations, reservations, and payments. Merchants can sign up and reserve temporary or fixed booths for events; booth managers create events and approve merchants, reservations and payments. The platform includes notification support and role-based access control.
 
-This repository contains a FastAPI backend and React frontend for the system, created as a university class project.  It demonstrates a full-stack architecture with a MySQL database, JWT authentication, and a simple React UI.
+This repository contains a FastAPI backend and React frontend for the system, created as a university class project.  It demonstrates a full-stack architecture with a SQLite database, JWT authentication, and a simple React UI.
 
 ## Setup Instructions
 
-### Initial Setup
+### Initial Setup (For Docker)
 
 1. Run this command in terminal:
     ```bash
@@ -33,23 +33,24 @@ This repository contains a FastAPI backend and React frontend for the system, cr
     Open the Codespaces Ports tab, the backend will be available at Port 8000.
 
 ### Frontend Setup
+Do Step 1-4 if using Docker in Codespace. Can Skip to Step 5 if download and run on windows:
 1. Open new terminal Install Node Version Manager
     ```bash
 	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
     ```
 
-3. Reload your shell
+2. Reload your shell
     ```bash
 	source ~/.bashrc
     ```
 
-5. Install Node
+3. Install Node
     ```bash
 	nvm install --lts
 	nvm use --lts
     ```
 
-7. Check version
+4. Check version
     ```bash
 	node -v
 	npm -v
@@ -61,22 +62,22 @@ This repository contains a FastAPI backend and React frontend for the system, cr
     ```
     Some older version of node doesn't work with our code.
 
-9. Change to frontend directory:
+5. Change to frontend directory:
     ```bash
 	cd implementations/frontend
     ```
 
-11. Install Node dependencies:
+6. Install Node dependencies:
     ```bash
 	npm install
     ```
 
-13. Start development server:
+7. Start development server:
     ```bash
 	npm start
     ```
 
-15. Open Frontend in a browser
+8. Open Frontend in a browser
     - Open the Codespaces Ports tab, locate port 3000, then select Open in Browser.
 
 
@@ -87,18 +88,25 @@ This repository contains a FastAPI backend and React frontend for the system, cr
 	pytest --cov=app --cov-report=xml
     ```
 
-- Register a BOOTH_MANAGER
+- Register a BOOTH_MANAGER (Codespace)
     ```bash
 	cd implementations/
 	python3 register_booth_manager_api.py
     ```
+    
+- Register a BOOTH_MANAGER (Windows)
+    ```bash
+	cd implementations/
+	python register_booth_manager_api.py
+    ```
+    
     Login with
     ```bash
 	Username: boothManager
 	Password: boothManager123
     ```
 
-### SonarQube Setup
+### SonarQube Setup 
 1. Open new terminal Pull the latest SonarQube Community Build image
     ```bash
 	docker pull sonarqube:community
