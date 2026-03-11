@@ -89,3 +89,30 @@ def test_mock_moi_validation_and_merchant_citizen_flag():
     me_bad = client.get("/api/users/me", headers={"Authorization": f"Bearer {token_bad}"})
     assert me_bad.status_code == 200
     assert me_bad.json().get("citizen_valid") == 0
+
+
+def test_update_profile_success():
+    register_resp = client.post("/api/auth/register", json={
+        "username": "profile_user",
+        "password": TEST_PASSWORD,
+        "name": "Before Name",
+        "contact_info": "before@example.com",
+        "role": "GENERAL_USER",
+    })
+    assert register_resp.status_code == 201
+
+    login_resp = client.post("/api/auth/login", data={
+        "username": "profile_user",
+        "password": TEST_PASSWORD,
+    })
+    assert login_resp.status_code == 200
+    token = login_resp.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    update_resp = client.patch("/api/users/me", headers=headers, json={
+        "name": "After Name",
+        "contact_info": "after@example.com",
+    })
+    assert update_resp.status_code == 200
+    assert update_resp.json().get("name") == "After Name"
+    assert update_resp.json().get("contact_info") == "after@example.com"

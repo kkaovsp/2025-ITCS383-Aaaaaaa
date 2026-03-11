@@ -16,14 +16,14 @@ function AdminDashboard() {
         </div>
       </div>
       <div className="cards-grid" style={{ maxWidth: 640 }}>
-        <Link to="/admin/merchants" style={{ textDecoration: 'none' }}>
+        <Link to="/admin/merchants" className="card-link">
           <div className="card" style={{ borderLeft: '4px solid var(--primary)', cursor: 'pointer' }}>
             <div style={{ fontSize: '2rem', marginBottom: '.5rem' }}>👥</div>
             <div className="card-title">Approve Merchants</div>
             <p style={{ fontSize: '.86rem', color: 'var(--text-secondary)', margin: 0 }}>Review pending merchant applications and update their approval status.</p>
           </div>
         </Link>
-        <Link to="/admin/payments" style={{ textDecoration: 'none' }}>
+        <Link to="/admin/payments" className="card-link">
           <div className="card" style={{ borderLeft: '4px solid var(--success)', cursor: 'pointer' }}>
             <div style={{ fontSize: '2rem', marginBottom: '.5rem' }}>💳</div>
             <div className="card-title">Review Payments</div>

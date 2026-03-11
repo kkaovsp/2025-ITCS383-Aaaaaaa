@@ -2,13 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordRequestForm
 
-from ..database.db_connection import SessionLocal
 from ..models.user import User, UserRole
 from ..models.merchant import Merchant, ApprovalStatus
 from ..models.notification import Notification, NotificationType
 from ..schemas.user_schema import UserCreate, UserLogin
 from ..services import auth_service
-from ..services.dependencies import get_current_user
+from ..services.dependencies import get_current_user, get_db
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 import uuid
@@ -25,14 +24,6 @@ import os
 from typing import Annotated
 
 router = APIRouter()
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def _is_valid_thai_citizen_id(citizen_id: str) -> bool:

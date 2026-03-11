@@ -77,7 +77,7 @@ function App() {
           <Route path="/booths" element={<BoothSelectionPage />} />
           <Route path="/reservations" element={<ReservationPage />} />
           <Route path="/admin" element={<ProtectedRoute requiredRole="BOOTH_MANAGER"><AdminDashboard /></ProtectedRoute>} />
-          <Route path="/notifications" element={<NotificationsPage />} />
+          <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
           <Route path="/create-event" element={<ProtectedRoute requiredRole="BOOTH_MANAGER"><CreateEventPage /></ProtectedRoute>} />
           <Route path="/admin/merchants" element={<ProtectedRoute requiredRole="BOOTH_MANAGER"><MerchantApprovalPage /></ProtectedRoute>} />
           <Route path="/admin/payments" element={<ProtectedRoute requiredRole="BOOTH_MANAGER"><PaymentApprovalPage /></ProtectedRoute>} />

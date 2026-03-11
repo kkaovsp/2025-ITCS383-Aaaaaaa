@@ -256,6 +256,12 @@ tbody tr:hover { background: var(--surface-alt); }
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.25rem;
 }
+.card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+.card-link:hover { text-decoration: none; }
 .booth-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -317,6 +323,18 @@ tbody tr:hover { background: var(--surface-alt); }
   padding: 1.5rem;
   text-align: center;
   box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition), transform var(--transition), border-color var(--transition);
+}
+.feature-card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+.feature-card-link:hover { text-decoration: none; }
+.feature-card-link:hover .feature-card {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  border-color: var(--primary-light);
 }
 .feature-card .feature-icon { font-size: 2rem; margin-bottom: .65rem; }
 .feature-card h3 { font-size: 1rem; margin-bottom: .35rem; }
