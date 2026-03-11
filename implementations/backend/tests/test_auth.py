@@ -3,20 +3,25 @@ from app.main import app
 
 client = TestClient(app)
 
+TEST_PASSWORD = "test_password_123"
+
 def test_register_and_login():
     # register a user
     resp = client.post("/api/auth/register", json={
         "username": "testuser",
-        "password": "secret",
+        "password": TEST_PASSWORD,
         "name": "Test User",
         "contact_info": "test@example.com",
         "role": "GENERAL_USER"
     })
+
     assert resp.status_code == 201
+
     # login
     resp = client.post("/api/auth/login", data={
         "username": "testuser",
-        "password": "secret"
+        "password": TEST_PASSWORD
     })
+
     assert resp.status_code == 200
     assert "access_token" in resp.json()

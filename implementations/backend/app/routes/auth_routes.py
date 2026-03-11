@@ -16,6 +16,10 @@ import datetime
 import re
 import logging
 
+import os
+
+from typing import Annotated
+
 router = APIRouter()
 
 
@@ -27,69 +31,92 @@ def get_db():
         db.close()
 
 
-@router.post("/auth/register", status_code=status.HTTP_201_CREATED)
-def register(user: UserCreate, db: Session = Depends(get_db)):
-    # check existing username
+def verify_citizen_with_moi(citizen_id: str | None) -> bool:
+    if not citizen_id:
+        return False
+    return bool(re.fullmatch(r"\d{13}", citizen_id))
+
+
+def create_merchant(db: Session, user: User, data: UserCreate):
+    merchant = Merchant(
+        merchant_id=str(uuid.uuid4()),
+        user_id=user.id,
+        citizen_id=data.citizen_id,
+        seller_information=data.seller_information,
+        product_description=data.product_description,
+        approval_status=ApprovalStatus.PENDING,
+        citizen_valid=1 if verify_citizen_with_moi(data.citizen_id) else 0,
+    )
+    db.add(merchant)
+    return merchant
+
+@router.post(
+    "/auth/register",
+    status_code=status.HTTP_201_CREATED,
+    responses={400: {"description": "Username already exists"}}
+)
+def register(user: UserCreate, db: Annotated[Session, Depends(get_db)]):
+
     existing = db.query(User).filter(User.username == user.username).first()
     if existing:
         raise HTTPException(status_code=400, detail="Username already exists")
 
-    hashed = auth_service.hash_password(user.password)
-    # always create user as GENERAL_USER; merchant status is granted after manager approval
+    role_value = UserRole(user.role) if user.role else UserRole.GENERAL_USER
+
     new_user = User(
         id=str(uuid.uuid4()),
         username=user.username,
-        password=hashed,
+        password=auth_service.hash_password(user.password),
         name=user.name,
         contact_info=user.contact_info,
-        role=UserRole.GENERAL_USER,
-        created_at=datetime.datetime.utcnow(),
+        role=role_value,
+        created_at=datetime.datetime.now(datetime.timezone.utc),
     )
+
     db.add(new_user)
-    # perform MOI citizen ID verification (stubbed)
-    def verify_citizen_with_moi(citizen_id: str) -> bool:
-        # simple stub: valid if 13 digits
-        return bool(re.fullmatch(r"\d{13}", citizen_id))
 
-    moi_ok = verify_citizen_with_moi(user.citizen_id)
+    merchant = None
+    if user.citizen_id or user.seller_information or user.product_description:
+        merchant = create_merchant(db, new_user, user)
 
-    merchant = Merchant(
-        merchant_id=str(uuid.uuid4()),
-        user_id=new_user.id,
-        citizen_id=user.citizen_id,
-        seller_information=user.seller_information,
-        product_description=user.product_description,
-        approval_status=ApprovalStatus.PENDING,
-        citizen_valid=1 if moi_ok else 0,
-    )
-    db.add(merchant)
     try:
         db.commit()
     except OperationalError:
-        # existing sqlite DB may not have `citizen_valid` column — add it and retry
         db.rollback()
         db.execute(text("ALTER TABLE merchants ADD COLUMN citizen_valid INTEGER DEFAULT 0"))
         db.commit()
-    # notify booth managers about new merchant registration
-    managers = db.query(User).filter(User.role == UserRole.BOOTH_MANAGER).all()
-    for m in managers:
-        note = Notification(
-            notification_id=str(uuid.uuid4()),
-            user_id=m.id,
-            title="New merchant registration",
-            message=f"Merchant {new_user.username} registered and awaits approval",
-            type=NotificationType.MERCHANT_APPROVAL,
-            reference_id=merchant.merchant_id,
-            is_read=False,
-            created_at=datetime.datetime.utcnow(),
-        )
-        db.add(note)
-    db.commit()
+
+    if merchant:
+        managers = db.query(User).filter(User.role == UserRole.BOOTH_MANAGER).all()
+
+        for m in managers:
+            note = Notification(
+                notification_id=str(uuid.uuid4()),
+                user_id=m.id,
+                title="New merchant registration",
+                message=f"Merchant {new_user.username} registered and awaits approval",
+                type=NotificationType.MERCHANT_APPROVAL,
+                reference_id=merchant.merchant_id,
+                is_read=False,
+                created_at=datetime.datetime.now(datetime.timezone.utc),
+            )
+            db.add(note)
+
+        db.commit()
+
     return {"msg": "registration successful"}
 
 
-@router.post("/auth/login")
-def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+@router.post(
+    "/auth/login",
+    responses={401: {"description": "Invalid credentials"}}
+)
+
+def login(
+    response: Response,
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    db: Annotated[Session, Depends(get_db)]
+):
     user = db.query(User).filter(User.username == form_data.username).first()
     if not user:
         logging.warning(f"Login failed: user '{form_data.username}' not found")
@@ -104,14 +131,14 @@ def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends(), 
         key="access_token",
         value=token,
         httponly=True,
-        secure=False,  # set True if serving over HTTPS in production
+        secure=os.getenv("ENVIRONMENT") == "production",
         samesite="lax",
     )
     return {"access_token": token, "token_type": "bearer"}
 
 
 @router.get('/auth/me')
-def me(user=Depends(get_current_user)):
+def me(user: Annotated[User, Depends(get_current_user)]):
     # return a minimal user profile for the frontend
     return {
         "id": user.id,
@@ -122,7 +149,10 @@ def me(user=Depends(get_current_user)):
 
 
 @router.get('/users/me')
-def users_me(user=Depends(get_current_user), db: Session = Depends(get_db)):
+def users_me(
+    user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)]
+):
     """Return the authenticated user's profile including merchant info if present."""
     m = db.query(Merchant).filter(Merchant.user_id == user.id).first()
     return {
@@ -141,7 +171,11 @@ def users_me(user=Depends(get_current_user), db: Session = Depends(get_db)):
 
 
 @router.patch('/users/me')
-def update_profile(payload: dict, user=Depends(get_current_user), db: Session = Depends(get_db)):
+def update_profile(
+    payload: dict,
+    user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)]
+):
     """Update the authenticated user's basic profile fields (name, contact_info)."""
     allowed = ['name', 'contact_info']
     updated = False
@@ -163,7 +197,11 @@ def update_profile(payload: dict, user=Depends(get_current_user), db: Session = 
 
 
 @router.patch('/users/me/seller')
-def update_seller_info(payload: dict, user=Depends(get_current_user), db: Session = Depends(get_db)):
+def update_seller_info(
+    payload: dict,
+    user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)]
+):
     """Allow the user to edit their seller information (seller_information, product_description)."""
     seller_info = payload.get('seller_information')
     product_info = payload.get('product_description')
@@ -204,7 +242,7 @@ def logout(response: Response):
         key="access_token",
         value="",
         httponly=True,
-        secure=False,
+        secure=os.getenv("ENVIRONMENT") == "production",
         samesite="lax",
         max_age=0,
     )

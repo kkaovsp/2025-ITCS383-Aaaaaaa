@@ -1,20 +1,19 @@
 import os
 import sys
+import pytest
+from fastapi.testclient import TestClient
 
-# ensure the project root (backend) is on PYTHONPATH so that "app" can be imported
+# ensure backend root is importable
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
 from app.database.db_connection import engine, SessionLocal
 from app.models import base
+from app.main import app
 
-import pytest
 
-# Automatically wipe all data from tables before each test to ensure a
-# clean slate.  We avoid dropping tables because the MySQL user may not have
-# DROP privileges; deleting rows only requires basic DELETE rights.
-# The loop iterates in reverse order to respect foreign key dependencies.
+# Reset database before each test
 @pytest.fixture(autouse=True)
 def reset_db():
     db = SessionLocal()
@@ -25,3 +24,33 @@ def reset_db():
     finally:
         db.close()
     yield
+
+
+# Reset FastAPI dependency overrides after each test
+@pytest.fixture(autouse=True)
+def reset_overrides():
+    yield
+    app.dependency_overrides = {}
+
+
+# -----------------------------
+# ADD THESE FIXTURES
+# -----------------------------
+
+@pytest.fixture
+def client():
+    return TestClient(app)
+
+
+@pytest.fixture
+def app_fixture():
+    return app
+
+
+@pytest.fixture
+def db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

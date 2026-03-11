@@ -3,21 +3,33 @@ from app.main import app
 
 client = TestClient(app)
 
+TEST_MANAGER_USERNAME = "mgr2"
+TEST_MANAGER_PASSWORD = "test_manager_password_123"
+
 
 def get_manager_token():
     client.post("/api/auth/register", json={
-        "username": "mgr2",
-        "password": "pass",
+        "username": TEST_MANAGER_USERNAME,
+        "password": TEST_MANAGER_PASSWORD,
         "name": "Mgr2",
         "contact_info": "mgr2@example.com",
         "role": "BOOTH_MANAGER",
     })
-    resp = client.post("/api/auth/login", data={"username": "mgr2", "password": "pass"})
+
+    resp = client.post(
+        "/api/auth/login",
+        data={
+            "username": TEST_MANAGER_USERNAME,
+            "password": TEST_MANAGER_PASSWORD
+        }
+    )
+
     return resp.json()["access_token"]
 
 
 def test_booth_crud():
     token = get_manager_token()
+
     # create event
     ev_resp = client.post(
         "/api/events",
@@ -30,6 +42,7 @@ def test_booth_crud():
         },
         headers={"Authorization": f"Bearer {token}"},
     )
+
     assert ev_resp.status_code == 201
     event_id = ev_resp.json()["event_id"]
 
@@ -44,6 +57,7 @@ def test_booth_crud():
         },
         headers={"Authorization": f"Bearer {token}"},
     )
+
     assert booth_resp.status_code == 201
     booth_id = booth_resp.json()["booth_id"]
 
@@ -63,6 +77,7 @@ def test_booth_crud():
         },
         headers={"Authorization": f"Bearer {token}"},
     )
+
     assert upd_resp.status_code == 200
     assert upd_resp.json()["size"] == "20x20"
 
@@ -71,6 +86,7 @@ def test_booth_crud():
         f"/api/booths/{booth_id}",
         headers={"Authorization": f"Bearer {token}"},
     )
+
     assert del_resp.status_code == 204
 
     # ensure removed

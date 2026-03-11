@@ -6,34 +6,45 @@ import datetime
 
 client = TestClient(app)
 
+TEST_USERNAME = "user1"
+TEST_PASSWORD = "test_user_password_123"
+
 
 def test_notifications_flow():
     # register user
     client.post("/api/auth/register", json={
-        "username": "user1",
-        "password": "pass",
+        "username": TEST_USERNAME,
+        "password": TEST_PASSWORD,
         "name": "User1",
         "contact_info": "u1@example.com",
         "role": "GENERAL_USER",
     })
-    token = client.post("/api/auth/login", data={"username": "user1", "password": "pass"}).json()["access_token"]
+
+    token = client.post(
+        "/api/auth/login",
+        data={
+            "username": TEST_USERNAME,
+            "password": TEST_PASSWORD
+        }
+    ).json()["access_token"]
 
     # insert notification directly
     db = SessionLocal()
+
+    from app.models.user import User
+    user = db.query(User).filter(User.username == TEST_USERNAME).first()
+
     n = Notification(
         notification_id="notif1",
-        user_id=db.query(Notification).first().user_id if db.query(Notification).first() else "",
+        user_id=user.id,
         title="Test",
         message="Hello",
         type=NotificationType.SYSTEM,
         reference_id="",
         is_read=False,
-        created_at=datetime.datetime.utcnow(),
+        created_at=datetime.datetime.now(datetime.timezone.utc),
     )
-    # adjust user_id to the created user id
-    from app.models.user import User
-    user = db.query(User).filter(User.username == "user1").first()
-    n.user_id = user.id
+
     db.add(n)
     db.commit()
     db.close()
@@ -44,6 +55,11 @@ def test_notifications_flow():
 
     # mark read
     nid = resp.json()[0]["notification_id"]
-    resp2 = client.patch(f"/api/notifications/{nid}/read", headers={"Authorization": f"Bearer {token}"})
+
+    resp2 = client.patch(
+        f"/api/notifications/{nid}/read",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
     assert resp2.status_code == 200
-    assert resp2.json()["is_read"] == True
+    assert resp2.json()["is_read"] is True

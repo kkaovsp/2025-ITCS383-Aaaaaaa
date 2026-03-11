@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from typing import Annotated
 import datetime
 import uuid
 
@@ -20,12 +21,19 @@ def get_db():
 
 
 @router.get("/events/{event_id}/booths")
-def list_booths(event_id: str, db: Session = Depends(get_db)):
+def list_booths(
+    event_id: str,
+    db: Annotated[Session, Depends(get_db)]
+):
     return db.query(Booth).filter(Booth.event_id == event_id).all()
 
 
 @router.post("/booths", status_code=status.HTTP_201_CREATED)
-def create_booth(booth: BoothCreate, user=Depends(require_role(["BOOTH_MANAGER"])) , db: Session = Depends(get_db)):
+def create_booth(
+    booth: BoothCreate,
+    user: Annotated[dict, Depends(require_role(["BOOTH_MANAGER"]))],
+    db: Annotated[Session, Depends(get_db)]
+):
     new = Booth(
         booth_id=str(uuid.uuid4()),
         event_id=booth.event_id,
@@ -40,17 +48,28 @@ def create_booth(booth: BoothCreate, user=Depends(require_role(["BOOTH_MANAGER"]
         duration_type=getattr(booth, 'duration_type', None),
         classification=getattr(booth, 'classification', None),
     )
+
     db.add(new)
     db.commit()
     db.refresh(new)
     return new
 
 
-@router.put("/booths/{booth_id}")
-def update_booth(booth_id: str, booth: BoothCreate, user=Depends(require_role(["BOOTH_MANAGER"])) , db: Session = Depends(get_db)):
+@router.put(
+    "/booths/{booth_id}",
+    responses={404: {"description": "Booth not found"}}
+)
+def update_booth(
+    booth_id: str,
+    booth: BoothCreate,
+    user: Annotated[dict, Depends(require_role(["BOOTH_MANAGER"]))],
+    db: Annotated[Session, Depends(get_db)]
+):
     existing = db.query(Booth).filter(Booth.booth_id == booth_id).first()
+
     if not existing:
         raise HTTPException(status_code=404, detail="Booth not found")
+
     existing.event_id = booth.event_id
     existing.booth_number = booth.booth_number
     existing.size = booth.size
@@ -62,17 +81,27 @@ def update_booth(booth_id: str, booth: BoothCreate, user=Depends(require_role(["
     existing.type = getattr(booth, 'type', None)
     existing.duration_type = getattr(booth, 'duration_type', None)
     existing.classification = getattr(booth, 'classification', None)
+
     db.commit()
-    # refresh so that returned object contains the latest column values
     db.refresh(existing)
     return existing
 
 
-@router.delete("/booths/{booth_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_booth(booth_id: str, user=Depends(require_role(["BOOTH_MANAGER"])) , db: Session = Depends(get_db)):
+@router.delete(
+    "/booths/{booth_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={404: {"description": "Booth not found"}}
+)
+def delete_booth(
+    booth_id: str,
+    user: Annotated[dict, Depends(require_role(["BOOTH_MANAGER"]))],
+    db: Annotated[Session, Depends(get_db)]
+):
     existing = db.query(Booth).filter(Booth.booth_id == booth_id).first()
+
     if not existing:
         raise HTTPException(status_code=404, detail="Booth not found")
+
     db.delete(existing)
     db.commit()
     return None

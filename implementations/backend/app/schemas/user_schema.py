@@ -1,5 +1,5 @@
-from pydantic import BaseModel
 from typing import Optional
+from pydantic import BaseModel
 
 
 class UserCreate(BaseModel):
@@ -7,10 +7,11 @@ class UserCreate(BaseModel):
     password: str
     name: str
     contact_info: str
-    # require merchant application details during registration
-    citizen_id: str
-    seller_information: str
-    product_description: str
+    role: str | None = None
+
+    citizen_id: Optional[str] = None
+    seller_information: Optional[str] = None
+    product_description: Optional[str] = None
 
 
 class UserLogin(BaseModel):

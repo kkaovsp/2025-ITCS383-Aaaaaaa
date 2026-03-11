@@ -17,3 +17,15 @@ env/
 # Temporary files
 tmp_*
 cookies.txt
+
+# Sonar scanner download
+sonar-scanner-cli-*.zip
+
+# Sonar analysis output
+.scannerwork
+.sonar
+
+# Coverage files
+.coverage
+coverage.xml
+htmlcov/
