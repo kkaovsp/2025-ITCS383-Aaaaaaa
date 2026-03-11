@@ -7,6 +7,9 @@ creating a virtual environment.
 
 import argparse
 import json
+import os
+import pathlib
+import sqlite3
 import sys
 import urllib.error
 import urllib.request
@@ -22,6 +25,76 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--name", default="Booth Manager", help="Display name")
     parser.add_argument("--contact-info", default="", help="Contact information")
     return parser.parse_args()
+
+
+def _read_backend_database_url() -> str | None:
+    script_dir = pathlib.Path(__file__).resolve().parent
+    env_path = script_dir / "backend" / ".env"
+    if not env_path.exists():
+        return None
+
+    for raw_line in env_path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if not line.startswith("DATABASE_URL="):
+            continue
+        return line.split("=", 1)[1].strip()
+
+    return None
+
+
+def _resolve_sqlite_db_path(database_url: str) -> pathlib.Path | None:
+    prefix = "sqlite:///"
+    if not database_url.startswith(prefix):
+        return None
+
+    raw_path = database_url[len(prefix):]
+    if not raw_path:
+        return None
+
+    env_dir = pathlib.Path(__file__).resolve().parent / "backend"
+
+    if raw_path.startswith("./"):
+        return (env_dir / raw_path[2:]).resolve()
+    if raw_path.startswith("/"):
+        return pathlib.Path(raw_path)
+    return (env_dir / raw_path).resolve()
+
+
+def delete_existing_booth_manager(username: str) -> tuple[bool, str]:
+    database_url = _read_backend_database_url() or os.getenv("DATABASE_URL")
+    if not database_url:
+        return False, "DATABASE_URL not found; skipping pre-delete"
+
+    db_path = _resolve_sqlite_db_path(database_url)
+    if not db_path:
+        return False, f"DATABASE_URL is not SQLite ({database_url}); skipping pre-delete"
+
+    if not db_path.exists():
+        return False, f"SQLite DB not found at {db_path}; skipping pre-delete"
+
+    with sqlite3.connect(str(db_path), timeout=20) as connection:
+        connection.execute("PRAGMA foreign_keys=ON")
+
+        row = connection.execute(
+            "SELECT id, role FROM users WHERE username = ?",
+            (username,),
+        ).fetchone()
+
+        if not row:
+            return False, "No existing user found"
+
+        user_id, role = row
+        if str(role) != "BOOTH_MANAGER":
+            return False, f"User '{username}' exists but role is '{role}', not BOOTH_MANAGER"
+
+        connection.execute("DELETE FROM notifications WHERE user_id = ?", (user_id,))
+        connection.execute("DELETE FROM merchants WHERE user_id = ?", (user_id,))
+        connection.execute("DELETE FROM users WHERE id = ?", (user_id,))
+        connection.commit()
+
+    return True, f"Deleted existing BOOTH_MANAGER user '{username}'"
 
 
 def post_register(base_url: str, payload: dict) -> tuple[int, str]:
@@ -47,6 +120,11 @@ def post_register(base_url: str, payload: dict) -> tuple[int, str]:
 
 def main() -> int:
     args = parse_args()
+
+    deleted, delete_message = delete_existing_booth_manager(args.username)
+    print(delete_message)
+    if delete_message.endswith("not BOOTH_MANAGER"):
+        return 1
 
     payload = {
         "username": args.username,

@@ -1,5 +1,6 @@
 from fastapi.testclient import TestClient
 from app.main import app
+from io import BytesIO
 
 client = TestClient(app)
 
@@ -47,6 +48,19 @@ def setup_reservation():
         }
     ).json()["access_token"]
 
+    # Merchant must be approved before they can create reservations.
+    me = client.get(
+        "/api/users/me",
+        headers={"Authorization": f"Bearer {merch_token}"},
+    )
+    merchant_user_id = me.json()["id"]
+    approve = client.patch(
+        f"/api/users/{merchant_user_id}/merchant_status",
+        json={"status": "APPROVED"},
+        headers={"Authorization": f"Bearer {mgr_token}"},
+    )
+    assert approve.status_code == 200
+
     # create event
     ev = client.post(
         "/api/events",
@@ -84,9 +98,12 @@ def setup_reservation():
             "reservation_type": "SHORT_TERM",
         },
         headers={"Authorization": f"Bearer {merch_token}"},
-    ).json()
+    )
 
-    return mgr_token, merch_token, r["reservation_id"]
+    assert r.status_code == 201
+    reservation_payload = r.json()
+
+    return mgr_token, merch_token, reservation_payload["reservation_id"]
 
 
 def test_payment_and_approval():
@@ -114,3 +131,49 @@ def test_payment_and_approval():
 
     assert appr.status_code == 200
     assert appr.json()["payment_status"] == "APPROVED"
+
+
+def test_bank_transfer_requires_and_serves_slip():
+    mgr_token, merch_token, reservation_id = setup_reservation()
+
+    pay = client.post(
+        "/api/payments",
+        json={
+            "reservation_id": reservation_id,
+            "amount": 75.0,
+            "method": "BANK_TRANSFER",
+        },
+        headers={"Authorization": f"Bearer {merch_token}"},
+    )
+
+    assert pay.status_code == 201
+    pid = pay.json()["payment_id"]
+
+    # approval should fail before a slip is uploaded
+    before_upload = client.patch(
+        f"/api/payments/{pid}/approve",
+        headers={"Authorization": f"Bearer {mgr_token}"},
+    )
+    assert before_upload.status_code == 400
+
+    upload = client.post(
+        f"/api/payments/upload-slip?payment_id={pid}",
+        headers={"Authorization": f"Bearer {merch_token}"},
+        files={"file": ("slip.png", BytesIO(b"fake-slip-bytes"), "image/png")},
+    )
+    assert upload.status_code == 200
+
+    # manager can fetch slip file for validation
+    slip = client.get(
+        f"/api/payments/{pid}/slip",
+        headers={"Authorization": f"Bearer {mgr_token}"},
+    )
+    assert slip.status_code == 200
+    assert slip.content == b"fake-slip-bytes"
+
+    after_upload = client.patch(
+        f"/api/payments/{pid}/approve",
+        headers={"Authorization": f"Bearer {mgr_token}"},
+    )
+    assert after_upload.status_code == 200
+    assert after_upload.json()["payment_status"] == "APPROVED"

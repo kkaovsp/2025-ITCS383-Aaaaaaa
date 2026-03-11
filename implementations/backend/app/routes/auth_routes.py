@@ -15,6 +15,10 @@ import uuid
 import datetime
 import re
 import logging
+import json
+import urllib.parse
+import urllib.request
+import urllib.error
 
 import os
 
@@ -31,10 +35,68 @@ def get_db():
         db.close()
 
 
+def _is_valid_thai_citizen_id(citizen_id: str) -> bool:
+    if not re.fullmatch(r"\d{13}", citizen_id):
+        return False
+
+    digits = [int(ch) for ch in citizen_id]
+    weighted_sum = sum(digits[i] * (13 - i) for i in range(12))
+    check_digit = (11 - (weighted_sum % 11)) % 10
+    return check_digit == digits[12]
+
+
+def _mock_moi_result(citizen_id: str | None) -> dict:
+    if not citizen_id:
+        return {
+            "citizen_id": citizen_id,
+            "is_valid": False,
+            "reason": "missing_citizen_id",
+            "source": "mock_moi",
+        }
+
+    mode = os.getenv("MOI_MOCK_MODE", "len13").strip().lower()
+    if mode == "checksum":
+        is_valid = _is_valid_thai_citizen_id(citizen_id)
+        reason = "ok" if is_valid else "invalid_format_or_checksum"
+    else:
+        is_valid = bool(re.fullmatch(r"\d{13}", citizen_id))
+        reason = "ok" if is_valid else "invalid_format"
+
+    return {
+        "citizen_id": citizen_id,
+        "is_valid": is_valid,
+        "reason": reason,
+        "mode": mode,
+        "source": "mock_moi",
+    }
+
+
+@router.get("/mock/moi/verify")
+def mock_moi_verify(citizen_id: str):
+    """Mock MOI endpoint for development/testing citizen validation."""
+    return _mock_moi_result(citizen_id)
+
+
 def verify_citizen_with_moi(citizen_id: str | None) -> bool:
     if not citizen_id:
         return False
-    return bool(re.fullmatch(r"\d{13}", citizen_id))
+
+    moi_url = os.getenv("MOI_API_URL", "mock://moi/verify")
+
+    # Use in-process mock logic when explicitly requested.
+    if moi_url.startswith("mock://"):
+        return bool(_mock_moi_result(citizen_id).get("is_valid"))
+
+    query = urllib.parse.urlencode({"citizen_id": citizen_id})
+    url = f"{moi_url}{'&' if '?' in moi_url else '?'}{query}"
+
+    try:
+        with urllib.request.urlopen(url, timeout=5) as response:
+            payload = json.loads(response.read().decode("utf-8", errors="replace"))
+            return bool(payload.get("is_valid", False))
+    except (urllib.error.URLError, urllib.error.HTTPError, json.JSONDecodeError, TimeoutError):
+        # Fallback keeps registration resilient in dev if mock endpoint is unreachable.
+        return bool(_mock_moi_result(citizen_id).get("is_valid"))
 
 
 def create_merchant(db: Session, user: User, data: UserCreate):

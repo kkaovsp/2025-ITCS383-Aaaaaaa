@@ -74,7 +74,7 @@ function PaymentPage() {
           </div>
           {p.method === 'BANK_TRANSFER' && !p.slip_url && user && user.role === 'MERCHANT' && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem', marginTop: '.5rem', paddingTop: '.5rem', borderTop: '1px solid var(--border)' }}>
-              <input type="file" onChange={(e) => setFileMap({ ...fileMap, [p.payment_id]: e.target.files[0] })} style={{ fontSize: '.85rem' }} />
+              <input type="file" accept="image/*,.pdf" onChange={(e) => setFileMap({ ...fileMap, [p.payment_id]: e.target.files[0] })} style={{ fontSize: '.85rem' }} />
               <button className="btn btn-primary btn-sm" onClick={() => uploadSlip(p.payment_id)}>Upload Slip</button>
             </div>
           )}

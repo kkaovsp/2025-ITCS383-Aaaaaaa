@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.services.dependencies import get_current_user, require_role
 from app.database.db_connection import SessionLocal
-from app.models.merchant import Merchant
+from app.models.merchant import Merchant, ApprovalStatus
 
 
 class DummyUser:
@@ -72,7 +72,12 @@ def client():
 
 
 def test_list_reservations(client):
-    app.dependency_overrides[get_current_user] = lambda: DummyUser(role="MERCHANT")
+    app.dependency_overrides[get_current_user] = lambda: DummyUser(id=1, role="MERCHANT")
+
+    db = SessionLocal()
+    db.add(Merchant(merchant_id=1, user_id=1, approval_status=ApprovalStatus.APPROVED))
+    db.commit()
+    db.close()
 
     resp = client.get("/api/reservations")
 
@@ -100,7 +105,8 @@ def test_create_reservation_success(client):
 
     merchant = Merchant(
         merchant_id=1,
-        user_id=1
+        user_id=1,
+        approval_status=ApprovalStatus.APPROVED,
     )
     db.add(merchant)
     db.commit()
@@ -181,7 +187,7 @@ def test_create_reservation_already_reserved(client):
 
     db = SessionLocal()
 
-    db.add(Merchant(merchant_id=1, user_id=1))
+    db.add(Merchant(merchant_id=1, user_id=1, approval_status=ApprovalStatus.APPROVED))
 
     db.add(
         Reservation(
@@ -253,7 +259,7 @@ def test_list_reservations_as_merchant(client):
 
     db = SessionLocal()
 
-    merchant = Merchant(merchant_id=1, user_id=10)
+    merchant = Merchant(merchant_id=1, user_id=10, approval_status=ApprovalStatus.APPROVED)
     db.add(merchant)
 
     res = Reservation(
@@ -275,6 +281,24 @@ def test_list_reservations_as_merchant(client):
     db.close()
     app.dependency_overrides = {}
 
+
+def test_list_reservations_forbidden_for_general_user(client):
+    from app.main import app
+    from app.services.dependencies import get_current_user
+
+    class DummyGeneralUser:
+        id = 77
+        role = "GENERAL_USER"
+
+    app.dependency_overrides[get_current_user] = lambda: DummyGeneralUser()
+
+    resp = client.get("/api/reservations")
+
+    assert resp.status_code == 403
+    assert resp.json()["detail"] == "Only approved merchants can access reservations"
+
+    app.dependency_overrides = {}
+
 def test_create_reservation_without_merchant_profile(client):
     from app.main import app
     from app.services.dependencies import get_current_user
@@ -292,8 +316,8 @@ def test_create_reservation_without_merchant_profile(client):
 
     resp = client.post("/api/reservations", json=payload)
 
-    assert resp.status_code == 400
-    assert resp.json()["detail"] == "Merchant profile not found"
+    assert resp.status_code == 403
+    assert resp.json()["detail"] == "Only approved merchants can access reservations"
 
     app.dependency_overrides = {}
 
@@ -385,7 +409,7 @@ def test_cancel_reservation_with_approved_payment(client):
 
     db = SessionLocal()
 
-    merchant = Merchant(merchant_id=1, user_id=1)
+    merchant = Merchant(merchant_id=1, user_id=1, approval_status=ApprovalStatus.APPROVED)
     db.add(merchant)
 
     res = Reservation(
@@ -429,7 +453,7 @@ def test_cancel_reservation_rejects_pending_payment(client):
 
     db = SessionLocal()
 
-    merchant = Merchant(merchant_id=1, user_id=1)
+    merchant = Merchant(merchant_id=1, user_id=1, approval_status=ApprovalStatus.APPROVED)
     db.add(merchant)
 
     res = Reservation(

@@ -6,7 +6,7 @@ import datetime
 
 from ..database.db_connection import SessionLocal
 from ..models.reservation import Reservation, ReservationStatus
-from ..models.merchant import Merchant
+from ..models.merchant import Merchant, ApprovalStatus
 from ..models.booth import Booth, BoothStatus
 from ..models.notification import Notification, NotificationType
 from ..models.user import User, UserRole
@@ -29,6 +29,18 @@ def now_utc():
     return datetime.datetime.now(datetime.timezone.utc)
 
 
+def get_approved_merchant_or_403(db: Session, user: User) -> Merchant:
+    merchant = db.query(Merchant).filter(Merchant.user_id == user.id).first()
+    if not merchant:
+        raise HTTPException(status_code=403, detail="Only approved merchants can access reservations")
+
+    status_val = getattr(merchant.approval_status, "value", merchant.approval_status)
+    if status_val != getattr(ApprovalStatus.APPROVED, "value", ApprovalStatus.APPROVED):
+        raise HTTPException(status_code=403, detail="Only approved merchants can access reservations")
+
+    return merchant
+
+
 @router.get("/reservations")
 def list_reservations(
     user: Annotated[User, Depends(get_current_user)],
@@ -37,6 +49,12 @@ def list_reservations(
     def enrich(res):
         booth = db.query(Booth).filter(Booth.booth_id == res.booth_id).first()
         merchant = db.query(Merchant).filter(Merchant.merchant_id == res.merchant_id).first()
+        latest_payment = (
+            db.query(Payment)
+            .filter(Payment.reservation_id == res.reservation_id)
+            .order_by(Payment.created_at.desc())
+            .first()
+        )
 
         return {
             "reservation_id": res.reservation_id,
@@ -52,15 +70,25 @@ def list_reservations(
                 "merchant_id": getattr(merchant, "merchant_id", None),
                 "user_id": getattr(merchant, "user_id", None),
             },
+            "payment": {
+                "payment_id": getattr(latest_payment, "payment_id", None),
+                "amount": float(getattr(latest_payment, "amount", 0)) if latest_payment else None,
+                "method": getattr(latest_payment, "method", None),
+                "payment_status": getattr(getattr(latest_payment, "payment_status", None), "value", getattr(latest_payment, "payment_status", None)) if latest_payment else None,
+                "slip_url": getattr(latest_payment, "slip_url", None),
+                "created_at": latest_payment.created_at.isoformat() if latest_payment and latest_payment.created_at else None,
+            },
         }
 
     if getattr(user.role, "value", user.role) == "BOOTH_MANAGER":
         rows = db.query(Reservation).all()
         return [enrich(r) for r in rows]
 
-    merchant = db.query(Merchant).filter(Merchant.user_id == user.id).first()
-    if not merchant:
-        return []
+    role = getattr(user.role, "value", user.role)
+    if role != "MERCHANT":
+        raise HTTPException(status_code=403, detail="Only approved merchants can access reservations")
+
+    merchant = get_approved_merchant_or_403(db, user)
 
     rows = db.query(Reservation).filter(
         Reservation.merchant_id == merchant.merchant_id
@@ -82,8 +110,8 @@ def create_reservation(
     user: Annotated[User, Depends(get_current_user)],
     db: Annotated[Session, Depends(get_db)],
 ):
-
-    if user.role != "MERCHANT":
+    role = getattr(user.role, "value", user.role)
+    if role != "MERCHANT":
         raise HTTPException(status_code=403, detail="Only merchants can reserve booths")
 
     existing = db.query(Reservation).filter(
@@ -94,10 +122,7 @@ def create_reservation(
     if existing:
         raise HTTPException(status_code=400, detail="Booth already reserved")
 
-    merchant = db.query(Merchant).filter(Merchant.user_id == user.id).first()
-
-    if not merchant:
-        raise HTTPException(status_code=400, detail="Merchant profile not found")
+    merchant = get_approved_merchant_or_403(db, user)
 
     new = Reservation(
         reservation_id=str(uuid.uuid4()),
@@ -178,7 +203,7 @@ def check_cancel_permissions(user, db, res):
         return
 
     if role == "MERCHANT":
-        merchant = db.query(Merchant).filter(Merchant.user_id == user.id).first()
+        merchant = get_approved_merchant_or_403(db, user)
 
         if not merchant or merchant.merchant_id != res.merchant_id:
             raise HTTPException(status_code=403, detail="Not allowed to cancel this reservation")

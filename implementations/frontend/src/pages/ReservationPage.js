@@ -5,7 +5,8 @@ import { useLocation } from 'react-router-dom';
 
 function ReservationPage() {
   const [reservations, setReservations] = useState([]);
-  const [payForm, setPayForm] = useState({ reservation_id: '', amount: '', method: 'BANK_TRANSFER' });
+  const [payFormMap, setPayFormMap] = useState({});
+  const [fileMap, setFileMap] = useState({});
   const { user } = useAuth();
   const location = useLocation();
 
@@ -13,6 +14,18 @@ function ReservationPage() {
     try {
       const resp = await api.get('/reservations');
       setReservations(resp.data);
+      setPayFormMap((prev) => {
+        const next = { ...prev };
+        resp.data.forEach((r) => {
+          if (!next[r.reservation_id]) {
+            next[r.reservation_id] = {
+              amount: r.booth?.price ?? '',
+              method: 'BANK_TRANSFER',
+            };
+          }
+        });
+        return next;
+      });
     } catch (err) {
       console.error(err);
     }
@@ -30,7 +43,13 @@ function ReservationPage() {
         await load();
         const found = reservations.find((r) => r.reservation_id === focus);
         if (found) {
-          setPayForm({ reservation_id: found.reservation_id, amount: found.booth?.price ?? '', method: 'BANK_TRANSFER' });
+          setPayFormMap((prev) => ({
+            ...prev,
+            [found.reservation_id]: {
+              amount: found.booth?.price ?? '',
+              method: prev[found.reservation_id]?.method || 'BANK_TRANSFER',
+            },
+          }));
           window.scrollTo(0, 0);
         }
       })();
@@ -42,16 +61,31 @@ function ReservationPage() {
     // handled by the search-based effect above which sets `payForm`
   }, [location.search, reservations]);
 
-  async function createPayment(e) {
-    e.preventDefault();
+  async function createPayment(reservation) {
+    const form = payFormMap[reservation.reservation_id] || {};
     try {
-      await api.post('/payments', {
-        reservation_id: payForm.reservation_id,
-        amount: parseFloat(payForm.amount),
-        method: payForm.method,
+      const payResp = await api.post('/payments', {
+        reservation_id: reservation.reservation_id,
+        amount: parseFloat(form.amount),
+        method: form.method,
       });
-      alert('Payment record created. If bank transfer, upload slip on Payments page.');
-      setPayForm({ reservation_id: '', amount: '', method: 'BANK_TRANSFER' });
+
+      if (form.method === 'BANK_TRANSFER') {
+        const selectedFile = fileMap[reservation.reservation_id];
+        if (!selectedFile) {
+          alert('Payment created. Please upload your bank slip to continue validation.');
+          await load();
+          return;
+        }
+
+        const fd = new FormData();
+        fd.append('file', selectedFile, selectedFile.name);
+        await api.post(`/payments/upload-slip?payment_id=${payResp.data.payment_id}`, fd, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      }
+
+      alert('Payment submitted. Please wait for Booth Manager validation.');
       load();
     } catch (err) {
       console.error(err);
@@ -59,15 +93,36 @@ function ReservationPage() {
     }
   }
 
-  async function approveReservation(resId) {
-    if (!window.confirm('Confirm reservation?')) return;
+  async function uploadSlipForPayment(paymentId, reservationId) {
+    const selectedFile = fileMap[reservationId];
+    if (!selectedFile) {
+      alert('Please select a slip file first.');
+      return;
+    }
+
     try {
-      await api.patch(`/reservations/${resId}/confirm`);
-      alert('Reservation confirmed');
+      const fd = new FormData();
+      fd.append('file', selectedFile, selectedFile.name);
+      await api.post(`/payments/upload-slip?payment_id=${paymentId}`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      alert('Slip uploaded. Booth Manager has been notified.');
       load();
     } catch (err) {
       console.error(err);
-      alert('Failed to confirm reservation');
+      alert(err?.response?.data?.detail || 'Failed to upload slip');
+    }
+  }
+
+  async function approvePaymentForReservation(paymentId) {
+    if (!window.confirm('Approve this payment and occupy the booth?')) return;
+    try {
+      await api.patch(`/payments/${paymentId}/approve`);
+      alert('Payment approved and reservation confirmed.');
+      load();
+    } catch (err) {
+      console.error(err);
+      alert(err?.response?.data?.detail || 'Failed to approve payment');
     }
   }
 
@@ -109,48 +164,84 @@ function ReservationPage() {
               {statusBadge(r.status)}
               {r.booth?.price != null && <span>💰 ${r.booth.price}</span>}
               {r.reservation_id && <span style={{ fontSize: '.78rem', color: 'var(--text-muted)' }}>ID: {r.reservation_id}</span>}
+              {r.payment?.payment_status && <span className="badge badge-purple">Payment: {r.payment.payment_status}</span>}
+              {r.payment?.slip_url && <span className="badge badge-info">Slip Uploaded</span>}
             </div>
+
+            {user && user.role === 'MERCHANT' && r.status === 'PENDING_PAYMENT' && (
+              <div style={{ marginTop: '.75rem', borderTop: '1px solid var(--border)', paddingTop: '.75rem' }}>
+                <div style={{ fontWeight: 600, marginBottom: '.5rem' }}>Submit payment for validation</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '.5rem' }}>
+                  <input
+                    className="form-control"
+                    type="number"
+                    step="0.01"
+                    value={payFormMap[r.reservation_id]?.amount ?? (r.booth?.price ?? '')}
+                    onChange={(e) => setPayFormMap((prev) => ({
+                      ...prev,
+                      [r.reservation_id]: {
+                        ...(prev[r.reservation_id] || {}),
+                        amount: e.target.value,
+                      },
+                    }))}
+                    placeholder="Amount"
+                  />
+                  <select
+                    className="form-control"
+                    value={payFormMap[r.reservation_id]?.method || 'BANK_TRANSFER'}
+                    onChange={(e) => setPayFormMap((prev) => ({
+                      ...prev,
+                      [r.reservation_id]: {
+                        ...(prev[r.reservation_id] || {}),
+                        method: e.target.value,
+                      },
+                    }))}
+                  >
+                    <option value="CREDIT_CARD">Credit Card</option>
+                    <option value="TRUEMONEY">TrueMoney Wallet</option>
+                    <option value="BANK_TRANSFER">Bank Transfer</option>
+                  </select>
+                </div>
+
+                {(payFormMap[r.reservation_id]?.method || 'BANK_TRANSFER') === 'BANK_TRANSFER' && (
+                  <div style={{ marginTop: '.5rem', display: 'flex', gap: '.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <input type="file" onChange={(e) => setFileMap((prev) => ({ ...prev, [r.reservation_id]: e.target.files?.[0] }))} />
+                    <span style={{ fontSize: '.8rem', color: 'var(--text-secondary)' }}>Upload slip before manager approval</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {user && user.role === 'MERCHANT' && r.status === 'WAITING_FOR_APPROVAL' && r.payment && r.payment.method === 'BANK_TRANSFER' && !r.payment.slip_url && (
+              <div style={{ marginTop: '.75rem', borderTop: '1px solid var(--border)', paddingTop: '.75rem' }}>
+                <div style={{ marginBottom: '.35rem', color: 'var(--danger-dark)', fontSize: '.85rem' }}>Slip not uploaded yet. Upload now to notify Booth Manager.</div>
+                <div style={{ display: 'flex', gap: '.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <input type="file" onChange={(e) => setFileMap((prev) => ({ ...prev, [r.reservation_id]: e.target.files?.[0] }))} />
+                  <button className="btn btn-primary btn-sm" onClick={() => uploadSlipForPayment(r.payment.payment_id, r.reservation_id)}>Upload Slip</button>
+                </div>
+              </div>
+            )}
           </div>
           <div className="reservation-item-actions">
-            {user && user.role === 'BOOTH_MANAGER' && r.status === 'WAITING_FOR_APPROVAL' && (
-              <button className="btn btn-success btn-sm" onClick={() => approveReservation(r.reservation_id)}>Confirm</button>
+            {user && user.role === 'BOOTH_MANAGER' && r.status === 'WAITING_FOR_APPROVAL' && r.payment?.payment_id && (
+              <button
+                className="btn btn-success btn-sm"
+                onClick={() => approvePaymentForReservation(r.payment.payment_id)}
+                disabled={r.payment.method === 'BANK_TRANSFER' && !r.payment.slip_url}
+                title={r.payment.method === 'BANK_TRANSFER' && !r.payment.slip_url ? 'Slip is required before approval' : 'Approve payment'}
+              >
+                Approve Payment
+              </button>
             )}
             {user && user.role === 'MERCHANT' && r.status === 'PENDING_PAYMENT' && (
               <>
-                <button className="btn btn-primary btn-sm" onClick={() => setPayForm({ ...payForm, reservation_id: r.reservation_id, amount: r.booth?.price ?? '' })}>Pay</button>
+                <button className="btn btn-primary btn-sm" onClick={() => createPayment(r)}>Submit Payment</button>
                 <button className="btn btn-danger btn-sm" onClick={() => cancelReservation(r.reservation_id)}>Cancel</button>
               </>
             )}
           </div>
         </div>
       ))}
-
-      {user && user.role === 'MERCHANT' && (
-        <div className="panel" style={{ marginTop: '2rem', maxWidth: 480 }}>
-          <div className="panel-header"><h3>💳 Create Payment</h3></div>
-          <div className="panel-body">
-            <form onSubmit={createPayment}>
-              <div className="form-group">
-                <label className="form-label">Reservation ID</label>
-                <input className="form-control" placeholder="Reservation ID" value={payForm.reservation_id} onChange={(e) => setPayForm({ ...payForm, reservation_id: e.target.value })} required />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Amount (THB)</label>
-                <input className="form-control" type="number" step="0.01" placeholder="0.00" value={payForm.amount} onChange={(e) => setPayForm({ ...payForm, amount: e.target.value })} required />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Payment Method</label>
-                <select className="form-control" value={payForm.method} onChange={(e) => setPayForm({ ...payForm, method: e.target.value })}>
-                  <option value="CREDIT_CARD">Credit Card</option>
-                  <option value="TRUEMONEY">TrueMoney Wallet</option>
-                  <option value="BANK_TRANSFER">Bank Transfer</option>
-                </select>
-              </div>
-              <button type="submit" className="btn btn-primary">Submit Payment</button>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
