@@ -28,6 +28,14 @@ Verify by running the manual test. We reject the failed test case and ask AI age
 
 <img width="425" height="495" alt="image" src="https://github.com/user-attachments/assets/a32eb4f3-3c22-443a-98b3-ea631da117a6" />
 
+<img width="298" height="662" alt="image" src="https://github.com/user-attachments/assets/c526704a-d133-4bf5-96dc-647d4828d83c" />
+
+<img width="290" height="639" alt="image" src="https://github.com/user-attachments/assets/ce0f0422-1086-494a-9de6-afaef747a14e" />
+
+<img width="286" height="646" alt="image" src="https://github.com/user-attachments/assets/04ff0f28-c9e4-4a61-ab67-0441be65c28b" />
+
+<img width="288" height="642" alt="image" src="https://github.com/user-attachments/assets/444d9933-95b4-41eb-a0dc-50deda1e895c" />
+
 Verify by running the manual test
 
 ---
