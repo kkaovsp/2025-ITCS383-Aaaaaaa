@@ -66,3 +66,41 @@ https://chatgpt.com/share/69b15781-18a4-800b-a0ea-c2b47a00e412
 
 We accept the code that passes pytest and the static analysis output of SonaQube and reject code that fails pytest and has issues (blocker/high severity) in the static analysis output of SonaQube.
 
+## Verification Steps
+
+### 1. Run the system
+We started the backend (**FastAPI with Uvicorn**) and the frontend (**React**) to confirm the project builds successfully and runs without runtime errors.
+
+### 2. Test system features
+We manually tested major features such as:
+- User registration
+- Login
+- Event creation
+- Booth management
+- Reservations
+- Payment workflows
+
+This confirmed that the functions behave as expected.
+
+### 3. Check API functionality
+We verified that API endpoints respond correctly and that requests from the frontend are processed properly by the backend.
+
+### 4. Debug and fix errors
+When errors occurred (such as **CORS issues** or incorrect API configuration), we inspected browser console messages and backend logs, then updated the code and retested the system.
+
+### 5. Verify database operations
+We confirmed that the **SQLite database** was created correctly and that operations such as creating users, events, booths, and reservations were saved and updated in the database.
+
+### 6. Confirm UI behavior
+We checked that the user interface updates correctly after actions such as login, reservation, and payment approval.
+
+These verification steps ensured that the AI-generated code works correctly and integrates properly with the system.
+
+## Summary
+
+AI tools were used to assist in generating code, debugging issues, and implementing features such as database configuration, reservation management, and payment workflows. The generated outputs were carefully reviewed before integration into the project.
+
+Some suggestions from AI were accepted directly, while others were modified or rejected to better match the system design and requirements.
+
+To verify the correctness of AI-generated code, we ran the system, tested major features through the frontend and API endpoints, reviewed the code manually, and confirmed that database operations and workflows function correctly. Static analysis using SonarQube was also checked to ensure the code meets quality standards.
+
