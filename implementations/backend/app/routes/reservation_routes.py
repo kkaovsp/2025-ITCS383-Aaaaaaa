@@ -15,7 +15,7 @@ from ..schemas.reservation_schema import ReservationCreate
 from ..services.dependencies import get_current_user, require_role
 
 router = APIRouter()
-
+MERCHANT_ACCESS_REQUIRED = "Only approved merchants can access reservations"
 
 def get_db():
     db = SessionLocal()
@@ -32,16 +32,21 @@ def now_utc():
 def get_approved_merchant_or_403(db: Session, user: User) -> Merchant:
     merchant = db.query(Merchant).filter(Merchant.user_id == user.id).first()
     if not merchant:
-        raise HTTPException(status_code=403, detail="Only approved merchants can access reservations")
+        raise HTTPException(status_code=403, detail=MERCHANT_ACCESS_REQUIRED)
 
     status_val = getattr(merchant.approval_status, "value", merchant.approval_status)
     if status_val != getattr(ApprovalStatus.APPROVED, "value", ApprovalStatus.APPROVED):
-        raise HTTPException(status_code=403, detail="Only approved merchants can access reservations")
+        raise HTTPException(status_code=403, detail=MERCHANT_ACCESS_REQUIRED)
 
     return merchant
 
 
-@router.get("/reservations")
+@router.get(
+    "/reservations",
+    responses={
+        403: {"description": MERCHANT_ACCESS_REQUIRED}
+    },
+)
 def list_reservations(
     user: Annotated[User, Depends(get_current_user)],
     db: Annotated[Session, Depends(get_db)],
@@ -86,7 +91,7 @@ def list_reservations(
 
     role = getattr(user.role, "value", user.role)
     if role != "MERCHANT":
-        raise HTTPException(status_code=403, detail="Only approved merchants can access reservations")
+        raise HTTPException(status_code=403, detail=MERCHANT_ACCESS_REQUIRED)
 
     merchant = get_approved_merchant_or_403(db, user)
 

@@ -188,7 +188,11 @@ def create_payment(
 
 @router.post(
     "/payments/upload-slip",
-    responses={404: {"description": PAYMENT_NOT_FOUND}},
+    responses={
+        404: {"description": PAYMENT_NOT_FOUND},
+        403: {"description": NOT_ALLOWED},
+        400: {"description": INVALID_SLIP_FILE},
+    },
 )
 def upload_slip(
     payment_id: str,
@@ -249,7 +253,11 @@ def upload_slip(
 
 @router.get(
     "/payments/{payment_id}/slip",
-    responses={404: {"description": SLIP_NOT_FOUND}},
+    responses={
+        404: {"description": SLIP_NOT_FOUND},
+        403: {"description": NOT_ALLOWED},
+        415: {"description": UNSUPPORTED_SLIP_FILE},
+    },
 )
 def get_payment_slip(
     payment_id: str,
@@ -291,7 +299,10 @@ def get_payment_slip(
 
 @router.patch(
     "/payments/{payment_id}/approve",
-    responses={404: {"description": PAYMENT_NOT_FOUND}},
+    responses={
+        404: {"description": PAYMENT_NOT_FOUND},
+        400: {"description": SLIP_REQUIRED},
+    },
 )
 def approve_payment(
     payment_id: str,
