@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Node
+node_modules/
+package-lock.json
+
+# Environment variables
+.env
+env/
+
+# Database
+*.db
+
+# Temporary files
+tmp_*
+cookies.txt
+
+# Sonar scanner download
+sonar-scanner-cli-*.zip
+
+# Sonar analysis output
+.scannerwork
+.sonar
+
+# Coverage files
+.coverage
+coverage.xml
+htmlcov/
+
+# folder
+uploads/
