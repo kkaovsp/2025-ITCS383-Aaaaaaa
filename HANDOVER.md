@@ -50,7 +50,7 @@ The application code works well. Once I used the correct commands for my Mac, th
 
 # D2: Project Review
 
-## 1. You must explain the features of the project that you received.
+## 1. You must explain the features of the project that you received
 
 ### 1. User Management & Authentication
 
@@ -90,38 +90,23 @@ The application code works well. Once I used the correct commands for my Mac, th
 ---
 
 ## 2. Verification results of the design (C4 and others) compared to the actual implementation. You must report consistencies and update the C4 diagram.
-The code does not perfectly match the original D1 design diagrams:
 
-1. **No Reports:** The design showed a reporting feature, but the code has none.
-2. **No Search:** The design said users could search booths, but there is no search function.
-3. **No Floor Map:** The design expected a floor plan picture, but it's not made.
+After reviewing the codebase (FastAPI routes, models, and React frontend) against the original D1 design diagrams, here are the verification results classifying what was correctly implemented and where the system deviates from the initial plan.
 
-### Real Use Case Diagram (What is actually working)
+### Consistencies (What Matches the Design)
 
-```mermaid
-C4Context
-    title Booth System (What Really Works)
+1. **Three-Tier Architecture:** The system strictly follows the Container Diagram using a React Web Frontend, a FastAPI Backend application, and a SQLite Database.
+2. **Role-Based Users:** The class and use case designs for the three primary actors (`General User`, `Merchant`, and `Booth Manager`) are perfectly implemented with Role-Based Access Control (RBAC).
+3. **Core Backend Components:** The Component Diagram's core logic modules—Authentication, Event, Booth, Reservation, Payment, and Notification—are completely present. For instance, `notification_routes.py` successfully triggers in-app alerts between users and managers.
+4. **Data Models & Inheritance:** The Class Diagram correctly maps to the SQLAlchemy tables (e.g., Merchants inheriting from Users, Reservations tying to Booths and Payments).
 
-    Person(gu, "Customer", "Looks at events and registers.")
-    Person(merchant, "Seller", "Reserves and pays for booths.")
-    Person(bm, "Manager", "Makes events, checks payments.")
+### Inconsistencies (What Does NOT Match the Design)
 
-    System(booth_sys, "Booth System", "Manages everything.")
-
-    System_Ext(moi, "Fake ID API", "Checks Citizen ID.")
-    System_Ext(cc, "Credit Card", "Takes CC payment.")
-    System_Ext(tm, "TrueMoney", "Takes wallet payment.")
-    System_Ext(bank, "Bank", "Checks slips.")
-
-    Rel(gu, booth_sys, "Registers account")
-    Rel(merchant, booth_sys, "Books booth, pays")
-    Rel(bm, booth_sys, "Manages events and booths")
-
-    Rel(booth_sys, moi, "Asks for ID check")
-    Rel(booth_sys, cc, "Sends CC charge")
-    Rel(booth_sys, tm, "Sends TrueMoney charge")
-    Rel(booth_sys, bank, "Verifies bank slip")
-```
+1. **Missing External API Integrations:** The Context Diagram showed the system communicating with external services (MOI API, Credit Card Gateway, TrueMoney). In reality:
+   - The MOI API is an **internal mock function** (`_mock_moi_result`), not a real external HTTP call.
+   - Credit Card and TrueMoney payments are merely simulated internal state changes without real external payment gateway processing.
+2. **Missing Features (Search & Floor Map):** The Use Case diagram explicitly mentioned searching booths and viewing floor plan UIs, but there is no search or map logic in the backend.
+3. **No Reporting Component:** The design planned for a Reporting component for the Booth Manager, but no reporting endpoints or services exist.
 
 ---
 
