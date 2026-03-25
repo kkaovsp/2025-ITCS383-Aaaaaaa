@@ -128,14 +128,19 @@ C4Context
 ## 3. Report the reflections on receiving the handover project.
 
 ### a. What technologies are used?
+This project uses FastAPI (Python) for backend, React for frontend, SQLite for database, and SonarQube for code quality check. It also uses pytest for backend testing.
 - **Backend:** Python, FastAPI, and SQLite Database.
 - **Frontend:** React and simple CSS.
 
 ### b. What is the required information to successfully hand over the project?
+The required information is setup steps, how to run backend and frontend, test command, SonarQube command, environment settings, and sample data or database seed. Without data, some features cannot be tested.
+
 To pass this project to the next team, they must know:
+
 1. **Missing Features:** Tell them exactly what is missing (like Reports and Search).
 2. **Setup Steps:** Give them simple steps to run the code on Mac, Linux, and Windows.
 3. **Fake Payments:** Explain how the fake payment API works so they don't break it.
+4. **MOI API / Citizen ID Validation:** Warn them that the current `citizen_id` implementation allows users to type letters and other text instead of strictly 13-digit numbers. The next team needs to fix this validation so it closely matches the real MOI system requirements.
 
 ### c. What is the code quality of the handover project (by running SonarQube)?
 #### 1. SonarQube Dashboard Overview
