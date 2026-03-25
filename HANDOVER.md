@@ -1,3 +1,10 @@
+**Received from:** Aaaaaaa
+
+**Received by:** FolkliyGrunt
+
+---
+
+
 # D1: System Run and Handoff Report
 
 ## 1. Did the System Run?
@@ -50,7 +57,7 @@ The application code works well. Once I used the correct commands for my Mac, th
 
 # D2: Project Review
 
-## 1. You must explain the features of the project that you received
+## 1. Features of the Received Project
 
 ### 1. User Management & Authentication
 
@@ -110,7 +117,7 @@ After reviewing the codebase (FastAPI routes, models, and React frontend) agains
 
 ---
 
-## 3. Report the reflections on receiving the handover project.
+## 3. Reflections on Receiving the Handover
 
 ### a. What technologies are used?
 This project uses FastAPI (Python) for backend, React for frontend, SQLite for database, and SonarQube for code quality check. It also uses pytest for backend testing.
