@@ -50,7 +50,7 @@ The application code works well. Once I used the correct commands for my Mac, th
 
 # D2: Project Review
 
-## 1. What Features Are Done?
+## 1. You must explain the features of the project that you received.
 
 ### User Accounts
 - ✅ **Done:** User Registration.
@@ -82,7 +82,7 @@ The application code works well. Once I used the correct commands for my Mac, th
 
 ---
 
-## 2. Does the Code Match the Design?
+## 2. Verification results of the design (C4 and others) compared to the actual implementation. You must report consistencies and update the C4 diagram.
 The code does not perfectly match the original D1 design diagrams:
 
 1. **No Reports:** The design showed a reporting feature, but the code has none.
@@ -118,19 +118,19 @@ C4Context
 
 ---
 
-## 3. Thoughts on the Handover
+## 3. Report the reflections on receiving the handover project.
 
-### a. What tools are used?
+### a. What technologies are used?
 - **Backend:** Python, FastAPI, and SQLite Database.
 - **Frontend:** React and simple CSS.
 
-### b. What to tell the next team?
+### b. What is the required information to successfully hand over the project?
 To pass this project to the next team, they must know:
 1. **Missing Features:** Tell them exactly what is missing (like Reports and Search).
 2. **Setup Steps:** Give them simple steps to run the code on Mac, Linux, and Windows.
 3. **Fake Payments:** Explain how the fake payment API works so they don't break it.
 
-### c.What is the code quality of the handover project (by running SonarQube)?
+### c. What is the code quality of the handover project (by running SonarQube)?
 #### 1. SonarQube Dashboard Overview
 <img width="2541" height="1257" alt="image" src="https://github.com/user-attachments/assets/8d2c4db9-4311-4110-9041-1f17384fdf20" />
 
