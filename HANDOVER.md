@@ -130,4 +130,9 @@ To pass this project to the next team, they must know:
 2. **Setup Steps:** Give them simple steps to run the code on Mac, Linux, and Windows.
 3. **Fake Payments:** Explain how the fake payment API works so they don't break it.
 
-### c. Is the code good?
+###  What is the code quality of the handover project (by running SonarQube)?
+#### 1. SonarQube Dashboard Overview
+<img width="2541" height="1257" alt="image" src="https://github.com/user-attachments/assets/8d2c4db9-4311-4110-9041-1f17384fdf20" />
+
+#### 2. Maintainability Issues
+<img width="2542" height="1256" alt="image" src="https://github.com/user-attachments/assets/bafa4610-502d-4f49-bc87-9b5954820e98" />
