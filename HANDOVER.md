@@ -54,7 +54,7 @@ The application code works well. Once I used the correct commands for my Mac, th
 
 ### User Accounts
 - ✅ **Done:** User Registration.
-- ❌ **Not Done:** Citizen ID check.
+- ⚠️ **Half Done:** Citizen ID check.
 - ✅ **Done:** Fake API for ID check.
 - ✅ **Done:** Login and Logout.
 
