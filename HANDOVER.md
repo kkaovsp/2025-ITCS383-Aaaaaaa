@@ -52,33 +52,40 @@ The application code works well. Once I used the correct commands for my Mac, th
 
 ## 1. You must explain the features of the project that you received.
 
-### User Accounts
-- ✅ **Done:** User Registration.
-- ⚠️ **Half Done:** Citizen ID check.
-- ✅ **Done:** Fake API for ID check.
-- ✅ **Done:** Login and Logout.
+### 1. User Management & Authentication
 
-### General Customer (Frontend)
-- ❌ **Not Done:** Searching for events or booths (no search bar).
-- ⚠️ **Half Done:** Viewing events (cannot see promotions).
-- ❌ **Not Done:** Floor Map picture.
-- ❌ **Not Done:** Reserving from the Floor Map.
-- ✅ **Done:** Short and long booth reservations.
+- ✅ **Done:** Registration: General users must be able to register for an account. The registration form is simple and functional.
+- ⚠️ **Partial:** Mandatory Field: The system must collect the user's "Citizen ID" during registration. The schema supports `citizen_id` and there is some mock validation, but it is not strictly enforced as a mandatory field for all user registrations at the base schema level.
+- ⚠️ **Partial:** Identity Verification: The system must integrate (or be designed to integrate) with the Ministry of Interior's database to verify the authenticity of the Citizen ID. A mock API (`/api/mock/moi/verify`) was implemented for testing, but not a real integration.
+- ✅ **Done:** Login/Logout: Support authentication for both General Users and Booth Managers. Standard JWT-based login/logout works easily.
 
-### Booth Manager Features
-- ✅ **Done:** Making new events.
-- ❌ **Not Done:** Drawing Floor Maps.
-- ✅ **Done:** Changing booth size, price, and electricity.
-- ✅ **Done:** Checking payment slips.
-- ❌ **Not Done:** Revenue or Booking reports.
+### 2. General User / Member Features (Front-end)
 
-### Payments
-- ✅ **Done:** Paying full price at once.
-- ✅ **Done:** Credit Card, TrueMoney Wallet, and Bank Transfer with slip.
+- ❌ **Not Done:** Search: Users can search for events by "Event Name" or flea markets by "Location". There is no search bar or functionality implemented on the frontend.
+- ⚠️ **Partial:** Browse: Users can view event details, booth information, and promotions. Users can view event and booth details, but promotions are not supported yet.
+- ❌ **Not Done:** Floor Plan UI: The system must display a visual floor plan showing the overall layout and booth positions. No floor plan picture or interactive map is available.
+- ❌ **Not Done:** Direct Reservation: Users can click and reserve a booth directly from the floor plan interface. Without a floor map, this is omitted.
+- ✅ **Done:** Reservation Types: Must support both short-term bookings (e.g., 1-3 day events) and long-term bookings (e.g., monthly/yearly flea market rentals). Short and long booth reservations are fully supported.
 
-### Other Rules
-- ❌ **Not Done:** Thai Language (only English).
-- ✅ **Done:** Easy to use design.
+### 3. Booth Manager / Back-office Features
+
+- ✅ **Done:** Event Management: Ability to create and configure event details (date, time, location). Making new events is functional and easy to use.
+- ❌ **Not Done:** Floor Plan Management: Ability to create and modify the event's floor plan. Not implemented.
+- ✅ **Done:** Booth Configuration: Ability to specify booth details including size, price, and specific facilities (e.g., electrical outlets, water pipes). Booth managers can specify sizing, price, and electricity when creating booths.
+- ✅ **Done:** Reservation Approval: Ability to review uploaded bank transfer slips and manually approve/confirm reservations. Checking payment slips works properly in the manager dashboard.
+- ❌ **Not Done:** Reporting: Ability to generate summary reports covering booking data, payment/revenue, and overall event statistics. No reporting or revenue metrics are present.
+
+### 4. Payment Integration
+
+- ✅ **Done:** Payment Terms: Must enforce one-time/full-price payments only (no installment plans supported). Only full-price payment logic is allowed.
+- ✅ **Done:** Payment Method 1: Support for Credit Card payments. The UI allows selecting credit card.
+- ✅ **Done:** Payment Method 2: Support for TrueMoney Wallet. The UI allows selecting TrueMoney.
+- ✅ **Done:** Payment Method 3: Support for Bank Transfer, which strictly requires a feature for users to upload their payment slip. Both the upload and the verification by the manager are implemented.
+
+### 5. Non-Functional Requirements
+
+- ❌ **Not Done:** Localization: The User Interface must support two languages: Thai and English. Only English is handled currently.
+- ✅ **Done:** Usability: The system must be designed with a user-friendly interface. The application's design is clean, straightforward, and easy to use.
 
 ---
 
