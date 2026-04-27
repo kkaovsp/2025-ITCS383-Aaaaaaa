@@ -1,9 +1,8 @@
 ﻿name: Build
 
 on:
+  workflow_dispatch:
   push:
-    branches:
-      - master
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -89,4 +88,3 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
