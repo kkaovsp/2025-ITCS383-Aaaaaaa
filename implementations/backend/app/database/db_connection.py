@@ -1,4 +1,4 @@
-﻿# Database connection placeholder
+# Database connection placeholder
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
@@ -24,4 +24,4 @@ def init_db():
     # Enable foreign keys for SQLite
     with engine.connect() as conn:
         conn.execute(text("PRAGMA foreign_keys=ON"))
-
+        conn.commit()

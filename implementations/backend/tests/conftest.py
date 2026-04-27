@@ -1,4 +1,4 @@
-﻿import os
+import os
 import sys
 import pytest
 from fastapi.testclient import TestClient
@@ -8,7 +8,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
-from app.database.db_connection import engine, SessionLocal, init_db
+from app.database.db_connection import engine, SessionLocal
 from app.models import base
 from app.main import app
 
@@ -16,7 +16,6 @@ from app.main import app
 # Reset database before each test
 @pytest.fixture(autouse=True)
 def reset_db():
-    init_db()
     db = SessionLocal()
     try:
         for table in reversed(base.Base.metadata.sorted_tables):
