@@ -173,6 +173,35 @@ Do Step 1-4 if using Docker in Codespace. Can Skip to Step 5 if download and run
     ```bash
 	sonar-scanner \
 		-Dsonar.host.url=http://localhost:9000 \
- 		-Dsonar.login=YOUR_TOKEN
+		-Dsonar.login=YOUR_TOKEN
     ```
+
+---
+
+## Maintenance Phase Progress
+
+This section records the current Phase 2 Part 2 maintenance work completed by the receiving team.
+
+| Area | Current Status |
+|---|---|
+| Cloud database | Supabase PostgreSQL project connected and initial schema migration applied |
+| Backend migration | Supabase Edge Function API foundation deployed at `https://uaoufhdysqcivheauwyf.supabase.co/functions/v1/api` |
+| Backend endpoints done | `/health`, `/events`, `/events/:event_id/booths`, auth/profile, reservations, payments |
+| Backend endpoints next | merchant approval, notifications, reports, full slip storage |
+| Web frontend | React app still uses existing UI; API base URL can be configured with `REACT_APP_API_URL` |
+| Android app | Required feature; implementation starts after backend/web behavior is stable |
+| Quality | GitHub Actions and SonarCloud baseline are configured; final D2 scan will be updated after all changes |
+
+Current backend API base:
+
+```txt
+https://uaoufhdysqcivheauwyf.supabase.co/functions/v1/api
+```
+
+For detailed cloud database and API notes, see:
+
+```txt
+docs/CLOUD_DATABASE_GUIDE.md
+docs/WORK_LOG.md
+```
 

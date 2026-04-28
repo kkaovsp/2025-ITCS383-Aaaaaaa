@@ -26,8 +26,19 @@ The first Edge Function API slice is deployed as `api` and currently supports:
 | GET | `/users/me` | Current user profile with merchant details |
 | PATCH | `/users/me` | Update profile fields |
 | PATCH | `/users/me/seller` | Update or create seller information |
+| GET | `/reservations` | List merchant or manager reservations |
+| POST | `/reservations` | Create booth reservation for approved merchant |
+| PATCH | `/reservations/:reservation_id/confirm` | Manager confirms reservation |
+| PATCH | `/reservations/:reservation_id/cancel` | Merchant/manager cancels reservation |
+| GET | `/payments` | List merchant or manager payments |
+| POST | `/payments` | Create payment for reservation |
+| POST | `/payments/upload-slip?payment_id=...` | Mark bank transfer slip uploaded |
+| GET | `/payments/:payment_id/slip` | Return slip placeholder info |
+| PATCH | `/payments/:payment_id/approve` | Manager approves payment and confirms reservation |
 
 Edge Function auth uses `JWT_SECRET` stored as a Supabase function secret. New users are hashed by the Edge Function using PBKDF2-SHA256.
+
+Payment slip storage is not fully migrated yet. The current Edge Function records a `slip_url` marker so approval flow can be tested. Final storage should use a Supabase Storage bucket.
 
 ---
 
