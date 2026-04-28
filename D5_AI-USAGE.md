@@ -11,26 +11,26 @@ AI was used to support planning, implementation, testing, documentation, and rev
 | Area | How AI Was Used | Human Verification |
 |---|---|---|
 | Planning | Helped divide features into change requests and team tasks | Team reviewed scope and simplified the plan |
-| Backend | Helped implement reporting API logic and tests | Backend tests and API inspection |
-| Web Frontend | Helped implement localization and report UI | Browser inspection and frontend tests |
-| Mobile | Helped create Android app structure and screens | Emulator run, build result, and mobile tests |
+| Backend | Helped migrate backend planning to Supabase Edge Functions and implement API endpoints | Backend tests, deployed API smoke checks, and API inspection |
+| Web Frontend | Helped wire the React app to the deployed Edge Function API | Frontend build, test command, and local startup check |
+| Mobile | Planned Android app structure and API usage for later implementation | Android build and emulator checks will be recorded after implementation |
 | Documentation | Helped organize D2, D3, D4, and D5 reports | Team reviewed final markdown before submission |
 
 ## 3. AI Usage by Team Member
 
 | Member | Main Work | AI Support Used | Verification |
 |---|---|---|---|
-| Person 1 | Architecture, skeleton, CI, planning | Planning and setup assistance | Checked project structure and shared-file plan |
-| Person 2 | Backend reporting API | Backend implementation and test suggestions | Ran backend tests and checked API output |
-| Person 3 | Web localization and reports | React component and test assistance | Ran frontend tests and inspected UI |
-| Person 4 | Android mobile app | Android screen/API/test assistance | Built app and checked emulator behavior |
-| Person 5 | QA, deployment, documentation | Documentation and verification assistance | Checked evidence, deployment, and final reports |
+| Person 1 | Architecture, Supabase database, Edge Function backend, frontend API wiring, CI/SonarCloud setup | Planning, implementation support, and documentation consistency checks | Ran backend tests, frontend build/test commands, deployed API smoke checks, and local frontend startup |
+| Person 2 | QA test plan, regression checks, bug list, and integration evidence | Test planning and evidence organization | Will run documented checks before Person 3 starts |
+| Person 3 | Web localization EN/TH toggle and static UI text | React localization implementation support | Will run frontend build/tests and inspect UI |
+| Person 4 | Web reporting UI and CSV download UI | React reporting UI implementation support | Will run frontend build/tests and inspect UI |
+| Person 5 | Native Android app | Android screen/API/test assistance | Will build app and check emulator behavior |
 
 ## 4. Example AI Prompts
 
 | Purpose | Example Prompt |
 |---|---|
-| Backend reporting | Implement FastAPI reporting endpoints for event list, reservation/payment report, and CSV export using existing project patterns. |
+| Backend reporting | Implement Supabase Edge Function reporting endpoints for event list, reservation/payment report, and CSV export using the deployed cloud database. |
 | Web localization | Implement a simple English/Thai static UI language toggle without translating database content. |
 | Web reporting | Build a Reports page with event dropdown, generate button, report table, empty/error states, and CSV export. |
 | Android app | Build a simple native Android app with login, event list, language toggle, and reports screen using the backend API. |

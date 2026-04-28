@@ -188,7 +188,8 @@ This section records the current Phase 2 Part 2 maintenance work completed by th
 | Backend migration | Supabase Edge Function API foundation deployed at `https://uaoufhdysqcivheauwyf.supabase.co/functions/v1/api` |
 | Backend endpoints done | `/health`, `/events`, `/events/:event_id/booths`, auth/profile, reservations, payments, merchant approval, notifications, reports with CSV export |
 | Backend endpoints next | full slip file storage |
-| Web frontend | React app still uses existing UI; API base URL can be configured with `REACT_APP_API_URL` |
+| Web frontend | React app can use the deployed Edge API with `REACT_APP_API_URL`; login stores the Edge bearer token for protected requests |
+| Current handoff | Person 1 backend/platform work is ready for Person 2 QA and regression testing |
 | Android app | Required feature; implementation starts after backend/web behavior is stable |
 | Quality | GitHub Actions and SonarCloud baseline are configured; final D2 scan will be updated after all changes |
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import api from '../services/api';
+import api, { setAccessToken } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../services/AuthContext';
 
@@ -12,10 +12,10 @@ function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Login will set an HttpOnly cookie; we don't store the token in
-      // localStorage to avoid token leakage and stale tokens across accounts.
-      await api.post('/auth/login', new URLSearchParams({ username, password }));
-      // refresh current user in context
+      const resp = await api.post('/auth/login', new URLSearchParams({ username, password }));
+      if (resp.data?.access_token) {
+        setAccessToken(resp.data.access_token);
+      }
       if (typeof refresh === 'function') await refresh();
       navigate('/');
     } catch (err) {

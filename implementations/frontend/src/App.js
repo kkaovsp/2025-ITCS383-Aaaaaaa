@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './services/AuthContext';
-import api from './services/api';
+import api, { clearAccessToken } from './services/api';
 import ProtectedRoute from './components/ProtectedRoute';
 import NotificationBell from './components/NotificationBell';
 import HomePage from './pages/HomePage';
@@ -25,10 +25,12 @@ function NavBar() {
   const handleLogout = async () => {
     try {
       await api.post('/auth/logout');
-      await refresh();
-      navigate('/');
     } catch (err) {
       console.error('logout failed', err);
+    } finally {
+      clearAccessToken();
+      await refresh();
+      navigate('/');
     }
   };
 

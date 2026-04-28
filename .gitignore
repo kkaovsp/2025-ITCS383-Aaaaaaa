@@ -6,6 +6,7 @@ __pycache__/
 # Node
 node_modules/
 package-lock.json
+implementations/frontend/build/
 
 # Environment variables
 .env
@@ -32,3 +33,7 @@ htmlcov/
 
 # folder
 uploads/
+
+# Local planning and assignment reference files
+.agent/
+Project Phase 2 Part 2 (The Maintenance) Description.pdf

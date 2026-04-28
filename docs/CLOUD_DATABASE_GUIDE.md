@@ -52,6 +52,8 @@ The first Edge Function API slice is deployed as `api` and currently supports:
 
 Edge Function auth uses `JWT_SECRET` stored as a Supabase function secret. New users are hashed by the Edge Function using PBKDF2-SHA256.
 
+The React frontend should set `REACT_APP_API_URL` to the Edge Function base URL and send protected requests with `Authorization: Bearer <access_token>` after login. The old Create React App local proxy is not used for cloud testing.
+
 Payment slip storage is not fully migrated yet. The current Edge Function records a `slip_url` marker so approval flow can be tested. Final storage should use a Supabase Storage bucket.
 
 ---

@@ -66,7 +66,7 @@ The maintenance work focuses on:
 graph TD
   Requirements[Requirements]
   Design[Design]
-  Backend[Backend Reporting API]
+  Backend[Edge Reporting API]
   Web[Web Frontend]
   Mobile[Android App]
   Tests[Tests]
