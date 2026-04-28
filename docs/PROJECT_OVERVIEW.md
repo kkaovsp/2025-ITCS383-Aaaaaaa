@@ -20,13 +20,13 @@ The team inherited a **Booth Organizer System** built with FastAPI (backend) and
 
 | Layer | Service |
 |---|---|
-| Backend | FastAPI → deployed to Railway/Render |
+| Backend | Supabase Edge Functions (TypeScript/Deno) |
 | Database | **Supabase PostgreSQL** — managed cloud database (project ref: `uaoufhdysqcivheauwyf`) |
 | Frontend | React → Vercel (deployed later) |
-| Mobile | Native Android → same deployed backend API |
+| Mobile | Native Android → same Supabase Edge Function API |
 | Local/CI | SQLite (unchanged) |
 
-**Cloud-first quality approach:** Cloud migration is handled first by Person 1 before teammates start feature work. This provides a stable deployed backend for web and Android clients to integrate against.
+**Cloud-first quality approach:** Person 1 replaces the inherited FastAPI runtime with Supabase Edge Functions before teammates start feature work. This provides a stable cloud API for web and Android clients to integrate against.
 
 ## Out of Scope
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Supabase PostgreSQL database is the production cloud database for this project. Local development and CI testing continue to use SQLite.
+The Supabase PostgreSQL database is the production cloud database for this project. The backend is being migrated from FastAPI to Supabase Edge Functions written in TypeScript/Deno.
 
 | Item | Value |
 |---|---|
@@ -10,6 +10,15 @@ The Supabase PostgreSQL database is the production cloud database for this proje
 | Initial Migration | `supabase/migrations/20260428120000_initial_schema.sql` |
 | Cloud Tables | `users`, `events`, `booths`, `merchants`, `reservations`, `payments`, `notifications` |
 | ID Format | `varchar(36)` to match existing SQLAlchemy `String(36)` models |
+| Edge Function Base | `https://uaoufhdysqcivheauwyf.supabase.co/functions/v1/api` |
+
+The first Edge Function API slice is deployed as `api` and currently supports:
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/health` | Deployment health check |
+| GET | `/events` | Public event list |
+| GET | `/events/:event_id/booths` | Public booth list by event |
 
 ---
 
@@ -45,7 +54,7 @@ The Supabase PostgreSQL database is the production cloud database for this proje
 
 | Variable | Description |
 |---|---|
-| `REACT_APP_API_URL` | Full URL to the deployed backend API (e.g. `https://my-backend.onrender.com/api`). If omitted, defaults to `/api` (dev proxy). |
+| `REACT_APP_API_URL` | Full URL to the deployed Edge Function API (e.g. `https://uaoufhdysqcivheauwyf.supabase.co/functions/v1/api`). If omitted, defaults to `/api` (dev proxy). |
 
 ---
 
@@ -76,3 +85,11 @@ DATABASE_URL=postgresql+psycopg2://postgres.xxx:yyyy@aws-0-xx.pooler.supabase.co
 cd implementations/backend
 DATABASE_URL=sqlite:///./test.db pytest --cov=app --cov-report=xml --cov-report=term-missing
 ```
+
+### Deploy Edge Function API
+
+```bash
+npx supabase functions deploy api --no-verify-jwt
+```
+
+The router uses `--no-verify-jwt` so public endpoints can work while protected endpoints check authentication inside the function.

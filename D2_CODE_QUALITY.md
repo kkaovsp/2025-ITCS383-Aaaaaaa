@@ -50,7 +50,7 @@ Phase 2 Part 2 maintenance scope includes:
 
 **Current SonarCloud results above reflect the baseline before cloud migration changes.**
 
-After Person 1 commits cloud migration (Supabase PostgreSQL, backend cloud deployment configuration), another SonarCloud analysis run is required to capture post-migration code quality. Do not use the results above as final post-migration evidence.
+The project is now changing backend architecture from inherited FastAPI to Supabase Edge Functions. D2 will keep the current screenshot as the **before/baseline** result and should be updated one final time after all implementation work is complete. Do not replace the baseline screenshots after each intermediate migration step.
 
 ---
 
