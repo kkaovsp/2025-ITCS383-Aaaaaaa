@@ -1,11 +1,17 @@
 import { corsHeaders } from "./cors.ts"
 
-export function jsonResponse(request: Request, body: unknown, status = 200): Response {
+export function jsonResponse(
+  request: Request,
+  body: unknown,
+  status = 200,
+  extraHeaders: HeadersInit = {},
+): Response {
   return new Response(JSON.stringify(body), {
     status,
     headers: {
       ...corsHeaders(request),
       "Content-Type": "application/json",
+      ...extraHeaders,
     },
   })
 }

@@ -19,6 +19,15 @@ The first Edge Function API slice is deployed as `api` and currently supports:
 | GET | `/health` | Deployment health check |
 | GET | `/events` | Public event list |
 | GET | `/events/:event_id/booths` | Public booth list by event |
+| POST | `/auth/register` | Register user and optional merchant profile |
+| POST | `/auth/login` | Login and return bearer token |
+| POST | `/auth/logout` | Clear auth cookie |
+| GET | `/auth/me` | Current user summary |
+| GET | `/users/me` | Current user profile with merchant details |
+| PATCH | `/users/me` | Update profile fields |
+| PATCH | `/users/me/seller` | Update or create seller information |
+
+Edge Function auth uses `JWT_SECRET` stored as a Supabase function secret. New users are hashed by the Edge Function using PBKDF2-SHA256.
 
 ---
 
@@ -93,3 +102,11 @@ npx supabase functions deploy api --no-verify-jwt
 ```
 
 The router uses `--no-verify-jwt` so public endpoints can work while protected endpoints check authentication inside the function.
+
+### Required Edge Function Secrets
+
+```bash
+npx supabase secrets set JWT_SECRET=<secret> ENVIRONMENT=production
+```
+
+Do not commit real secret values.
