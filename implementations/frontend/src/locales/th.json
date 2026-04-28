@@ -7,6 +7,7 @@
     "profile": "โปรไฟล์",
     "createEvent": "สร้างงาน",
     "admin": "แอดมิน",
+    "reports": "รายงาน",
     "login": "เข้าสู่ระบบ",
     "register": "สมัครสมาชิก",
     "logout": "ออกจากระบบ"
@@ -174,7 +175,9 @@
     "approveMerchants": "อนุมัติผู้ค้า",
     "approveMerchantsDesc": "ตรวจสอบใบสมัครผู้ค้าที่รอดำเนินการและอัปเดตสถานะ",
     "reviewPayments": "ตรวจสอบการชำระเงิน",
-    "reviewPaymentsDesc": "ตรวจสอบและอนุมัติการชำระเงินที่รอดำเนินการจากผู้ค้า"
+    "reviewPaymentsDesc": "ตรวจสอบและอนุมัติการชำระเงินที่รอดำเนินการจากผู้ค้า",
+    "viewReports": "ดูรายงาน",
+    "viewReportsDesc": "สร้างรายงานการจองและการชำระเงินตามงาน พร้อมส่งออก CSV"
   },
   "createEvent": {
     "title": "🎪 สร้างงาน",
@@ -263,5 +266,37 @@
     "approved": "อนุมัติการชำระเงินแล้ว",
     "approveFailed": "อนุมัติล้มเหลว",
     "selectFile": "กรุณาเลือกไฟล์ก่อน"
+  },
+  "reports": {
+    "title": "📊 รายงาน",
+    "selectEvent": "เลือกงาน",
+    "chooseEvent": "— เลือกงานอีเวนต์ —",
+    "loadingEvents": "กำลังโหลดรายการงาน…",
+    "generateReport": "สร้างรายงาน",
+    "generating": "กำลังสร้าง…",
+    "downloadCsv": "ดาวน์โหลด CSV",
+    "downloading": "กำลังดาวน์โหลด…",
+    "loadEventsFailed": "ไม่สามารถโหลดรายการงานได้",
+    "selectEventFirst": "กรุณาเลือกงานอีเวนต์ก่อน",
+    "loadFailed": "ไม่สามารถโหลดรายงานได้",
+    "csvFailed": "ไม่สามารถดาวน์โหลด CSV ได้",
+    "loadingReport": "กำลังโหลดข้อมูลรายงาน…",
+    "totalReservations": "การจองทั้งหมด",
+    "confirmed": "ยืนยันแล้ว",
+    "pending": "รอดำเนินการ",
+    "totalRevenue": "รายได้รวม",
+    "reservationDetails": "รายละเอียดการจอง",
+    "records": "รายการ",
+    "booth": "บูธ",
+    "merchant": "ผู้ค้า",
+    "type": "ประเภท",
+    "status": "สถานะ",
+    "paymentMethod": "วิธีชำระเงิน",
+    "paymentStatus": "สถานะการชำระเงิน",
+    "amount": "จำนวนเงิน",
+    "date": "วันที่",
+    "noReservations": "ไม่พบการจองสำหรับงานนี้",
+    "noReservationsHint": "ลองเลือกงานอื่นหรือกลับมาตรวจสอบภายหลัง",
+    "initialHint": "เลือกงานอีเวนต์และคลิกสร้างรายงานเพื่อดูข้อมูลการจองและการชำระเงิน"
   }
 }

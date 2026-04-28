@@ -18,7 +18,7 @@ function AdminDashboard() {
           <div className="stat-card-value" style={{ fontSize: '1.5rem', color: 'var(--success)' }}>💳</div>
         </div>
       </div>
-      <div className="cards-grid" style={{ maxWidth: 640 }}>
+      <div className="cards-grid" style={{ maxWidth: 960 }}>
         <Link to="/admin/merchants" className="card-link">
           <div className="card" style={{ borderLeft: '4px solid var(--primary)', cursor: 'pointer' }}>
             <div style={{ fontSize: '2rem', marginBottom: '.5rem' }}>👥</div>
@@ -31,6 +31,13 @@ function AdminDashboard() {
             <div style={{ fontSize: '2rem', marginBottom: '.5rem' }}>💳</div>
             <div className="card-title">{t('admin.reviewPayments')}</div>
             <p style={{ fontSize: '.86rem', color: 'var(--text-secondary)', margin: 0 }}>{t('admin.reviewPaymentsDesc')}</p>
+          </div>
+        </Link>
+        <Link to="/reports" className="card-link">
+          <div className="card" style={{ borderLeft: '4px solid var(--secondary)', cursor: 'pointer' }}>
+            <div style={{ fontSize: '2rem', marginBottom: '.5rem' }}>📊</div>
+            <div className="card-title">{t('admin.viewReports')}</div>
+            <p style={{ fontSize: '.86rem', color: 'var(--text-secondary)', margin: 0 }}>{t('admin.viewReportsDesc')}</p>
           </div>
         </Link>
       </div>

@@ -20,6 +20,7 @@ import CreateEventPage from './pages/CreateEventPage';
 import MerchantApprovalPage from './pages/MerchantApprovalPage';
 import PaymentApprovalPage from './pages/PaymentApprovalPage';
 import ProfilePage from './pages/ProfilePage';
+import ReportsPage from './pages/ReportsPage';
 
 function NavBar() {
   const { user, refresh } = useAuth();
@@ -48,6 +49,7 @@ function NavBar() {
           {user && <Link to="/reservations">{t('nav.reservations')}</Link>}
           {user && <Link to="/profile">{t('nav.profile')}</Link>}
           {user && user.role === 'BOOTH_MANAGER' && <Link to="/create-event">{t('nav.createEvent')}</Link>}
+          {user && user.role === 'BOOTH_MANAGER' && <Link to="/reports">{t('nav.reports')}</Link>}
           {user && user.role === 'BOOTH_MANAGER' && <Link to="/admin">{t('nav.admin')}</Link>}
         </div>
       </div>
@@ -89,6 +91,7 @@ function App() {
           <Route path="/admin/merchants" element={<ProtectedRoute requiredRole="BOOTH_MANAGER"><MerchantApprovalPage /></ProtectedRoute>} />
           <Route path="/admin/payments" element={<ProtectedRoute requiredRole="BOOTH_MANAGER"><PaymentApprovalPage /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="/reports" element={<ProtectedRoute requiredRole="BOOTH_MANAGER"><ReportsPage /></ProtectedRoute>} />
         </Routes>
       </Router>
     </AuthProvider>

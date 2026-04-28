@@ -7,6 +7,7 @@
     "profile": "Profile",
     "createEvent": "Create Event",
     "admin": "Admin",
+    "reports": "Reports",
     "login": "Login",
     "register": "Register",
     "logout": "Logout"
@@ -174,7 +175,9 @@
     "approveMerchants": "Approve Merchants",
     "approveMerchantsDesc": "Review pending merchant applications and update their approval status.",
     "reviewPayments": "Review Payments",
-    "reviewPaymentsDesc": "Verify and approve pending payment submissions from merchants."
+    "reviewPaymentsDesc": "Verify and approve pending payment submissions from merchants.",
+    "viewReports": "View Reports",
+    "viewReportsDesc": "Generate event-based reservation and payment reports with CSV export."
   },
   "createEvent": {
     "title": "🎪 Create Event",
@@ -263,5 +266,37 @@
     "approved": "Payment approved",
     "approveFailed": "Approve failed",
     "selectFile": "Select a file first"
+  },
+  "reports": {
+    "title": "📊 Reports",
+    "selectEvent": "Select Event",
+    "chooseEvent": "— Choose an event —",
+    "loadingEvents": "Loading events…",
+    "generateReport": "Generate Report",
+    "generating": "Generating…",
+    "downloadCsv": "Download CSV",
+    "downloading": "Downloading…",
+    "loadEventsFailed": "Failed to load events",
+    "selectEventFirst": "Please select an event first",
+    "loadFailed": "Failed to load report",
+    "csvFailed": "Failed to download CSV",
+    "loadingReport": "Loading report data…",
+    "totalReservations": "Total Reservations",
+    "confirmed": "Confirmed",
+    "pending": "Pending",
+    "totalRevenue": "Total Revenue",
+    "reservationDetails": "Reservation Details",
+    "records": "records",
+    "booth": "Booth",
+    "merchant": "Merchant",
+    "type": "Type",
+    "status": "Status",
+    "paymentMethod": "Payment Method",
+    "paymentStatus": "Payment Status",
+    "amount": "Amount",
+    "date": "Date",
+    "noReservations": "No reservations found for this event.",
+    "noReservationsHint": "Try selecting a different event or check back later.",
+    "initialHint": "Select an event and click Generate Report to view reservation and payment data."
   }
 }
