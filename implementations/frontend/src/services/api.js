@@ -17,7 +17,6 @@ export function clearAccessToken() {
 
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL || DEFAULT_API_URL,
-  withCredentials: true,
 });
 
 api.interceptors.request.use((config) => {
