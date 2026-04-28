@@ -24,7 +24,7 @@ The team inherited a **Booth Organizer System** built with FastAPI (backend) and
 | Database | **Supabase PostgreSQL** — managed cloud database (project ref: `uaoufhdysqcivheauwyf`) |
 | Frontend | React → Vercel (deployed later) |
 | Mobile | Native Android → same Supabase Edge Function API |
-| Local/CI | SQLite (unchanged) |
+| Local/CI | SQLite for inherited backend baseline tests; Edge smoke tests for deployed backend |
 
 **Cloud-first quality approach:** Person 1 replaces the inherited FastAPI runtime with Supabase Edge Functions before teammates start feature work. This provides a stable cloud API for web and Android clients to integrate against.
 
@@ -38,7 +38,7 @@ Search, Floor Plan, real payment gateway, and real MOI integration are not imple
 |--------|--------|
 | CI Pipeline | All builds and tests pass via GitHub Actions |
 | Code Quality | No degradation; SonarCloud monitoring active |
-| Test Coverage | >90% where measurable on new code |
+| Test Evidence | Inherited backend coverage remains above 80%; new Edge backend behavior is verified by smoke tests |
 
 ## Deliverables
 

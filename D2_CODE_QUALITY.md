@@ -29,7 +29,7 @@ Phase 2 Part 2 maintenance scope includes:
 
 > Coverage note: Earlier 44.2% was invalid due to CI pipeline missing DB initialization. Fixed in CI, recovered to 83.6%.
 
-## Final Results (master @ f03f0ea8)
+## Baseline Results (master @ f03f0ea8)
 
 | Metric | Value |
 |---|---|
@@ -50,7 +50,7 @@ Phase 2 Part 2 maintenance scope includes:
 
 **Current SonarCloud results above reflect the baseline before cloud migration changes.**
 
-The project is now changing backend architecture from inherited FastAPI to Supabase Edge Functions. D2 will keep the current screenshot as the **before/baseline** result and should be updated one final time after all implementation work is complete. Do not replace the baseline screenshots after each intermediate migration step.
+The project is now changing backend architecture from inherited FastAPI to Supabase Edge Functions. D2 keeps the current screenshots as the **before/baseline** result and should be updated one final time after all team implementation work is complete. Do not replace the baseline screenshots after each intermediate migration step.
 
 ---
 
@@ -58,7 +58,14 @@ The project is now changing backend architecture from inherited FastAPI to Supab
 
 ```bash
 cd implementations/backend
+python -c "from app.database.db_connection import init_db; init_db()"
 pytest --cov=app --cov-report=xml --cov-report=term-missing
+```
+
+Post-implementation Edge backend smoke checks:
+
+```bash
+node scripts/smoke-test-edge-api.mjs
 ```
 
 ## Evidence

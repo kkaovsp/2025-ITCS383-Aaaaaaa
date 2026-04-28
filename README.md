@@ -98,7 +98,7 @@ This section records the current Phase 2 Part 2 maintenance work completed by th
 | Web frontend | React app can use the deployed Edge API with `REACT_APP_API_URL`; login stores the Edge bearer token for protected requests |
 | Current handoff | Person 1 backend/platform work is ready for Person 2 QA and regression testing |
 | Android app | Required feature; implementation starts after backend/web behavior is stable |
-| Quality | GitHub Actions and SonarCloud baseline are configured; final D2 scan will be updated after all changes |
+| Quality | GitHub Actions runs inherited backend coverage, frontend checks, and Supabase Edge API smoke tests; final D2 scan will be updated after all changes |
 
 Current backend API base:
 

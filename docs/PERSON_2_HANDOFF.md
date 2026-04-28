@@ -51,6 +51,7 @@ Person 2 should do:
 - Create `docs/TEST_PLAN.md` with the planned checks.
 - Create `docs/TEST_RESULTS.md` with actual results, bugs, screenshots, and notes.
 - Test register, login, logout, profile, events, booths, reservations, payments, merchant approval, notifications, and report API readiness.
+- Use `scripts/smoke-test-edge-api.mjs` as the repeatable backend smoke test baseline before doing manual checks.
 - Verify that protected frontend requests use the bearer token after login.
 - Record every completed check in `docs/WORK_LOG.md`.
 - Report bugs before Person 3 starts.
