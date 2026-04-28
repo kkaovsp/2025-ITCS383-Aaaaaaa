@@ -15,6 +15,16 @@ Person 2 is the first receiver after Person 1. The goal is to verify that the cl
 | Payment slip storage | Placeholder only; real file storage is not finished |
 | D2 SonarCloud | Baseline is recorded; final scan waits until all team work is done |
 
+## Branch
+
+Person 2 should continue from this branch:
+
+```txt
+chore/p1-skeleton-ci
+```
+
+Do not commit directly to `master`. `master` is only for approved merge results after the planned work is finished and reviewed.
+
 ## API Base URL
 
 ```txt

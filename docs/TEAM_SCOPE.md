@@ -28,3 +28,15 @@ Team members work in this order only: Person 1, then Person 2, then Person 3, th
 No person should start implementation before the previous person finishes their assigned scope, records verification, and updates `docs/WORK_LOG.md`.
 
 Person 2 starts from the current Person 1 handoff. Person 2 should test and document the integrated system first; Person 3, Person 4, and Person 5 wait until Person 2 is finished.
+
+## Branch Rule
+
+All feature and handoff work must happen on a working branch first. Do not commit directly to `master` during active work.
+
+For the current Person 1 handoff, use:
+
+```txt
+chore/p1-skeleton-ci
+```
+
+Merge into `master` only after the planned work is complete, reviewed, verified, and approved.
