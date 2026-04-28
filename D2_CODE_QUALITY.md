@@ -36,6 +36,8 @@ The backend coverage report is generated from:
 implementations/backend/coverage.xml
 ```
 
+**Note:** The CI pipeline initializes a clean SQLite database before running backend tests, ensuring reproducible coverage results in SonarCloud rather than relying on any pre-existing local database state.
+
 Frontend and Android work will be verified separately through build results, tests added during this phase, screenshots, and manual inspection evidence.
 
 ## 4. New Code Definition

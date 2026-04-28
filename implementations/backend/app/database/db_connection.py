@@ -6,7 +6,17 @@ import os
 
 from dotenv import load_dotenv
 
-from ..models import base  # ensure models are imported for metadata
+from ..models import base  # ensure Base is available
+
+# Import all model modules to ensure they are registered with Base.metadata
+# This is required so that create_all() creates all tables
+from ..models import user
+from ..models import reservation
+from ..models import payment
+from ..models import notification
+from ..models import merchant
+from ..models import event
+from ..models import booth
 
 # load variables from a .env file (if present) so os.getenv() can pick them up
 # Note: this requires python-dotenv which is already listed in requirements.txt
@@ -21,7 +31,6 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 def init_db():
     # create tables
     base.Base.metadata.create_all(bind=engine)
-    # Enable foreign keys for SQLite
-    with engine.connect() as conn:
+    # Enable foreign keys for SQLite using raw connection (SQLAlchemy 1.4 compatible)
+    with engine.begin() as conn:
         conn.execute(text("PRAGMA foreign_keys=ON"))
-        conn.commit()
