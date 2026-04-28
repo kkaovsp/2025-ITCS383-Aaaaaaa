@@ -186,8 +186,8 @@ This section records the current Phase 2 Part 2 maintenance work completed by th
 |---|---|
 | Cloud database | Supabase PostgreSQL project connected and initial schema migration applied |
 | Backend migration | Supabase Edge Function API foundation deployed at `https://uaoufhdysqcivheauwyf.supabase.co/functions/v1/api` |
-| Backend endpoints done | `/health`, `/events`, `/events/:event_id/booths`, auth/profile, reservations, payments |
-| Backend endpoints next | merchant approval, notifications, reports, full slip storage |
+| Backend endpoints done | `/health`, `/events`, `/events/:event_id/booths`, auth/profile, reservations, payments, merchant approval, notifications |
+| Backend endpoints next | reports, full slip storage |
 | Web frontend | React app still uses existing UI; API base URL can be configured with `REACT_APP_API_URL` |
 | Android app | Required feature; implementation starts after backend/web behavior is stable |
 | Quality | GitHub Actions and SonarCloud baseline are configured; final D2 scan will be updated after all changes |

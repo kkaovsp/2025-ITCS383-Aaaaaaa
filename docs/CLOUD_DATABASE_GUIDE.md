@@ -35,6 +35,17 @@ The first Edge Function API slice is deployed as `api` and currently supports:
 | POST | `/payments/upload-slip?payment_id=...` | Mark bank transfer slip uploaded |
 | GET | `/payments/:payment_id/slip` | Return slip placeholder info |
 | PATCH | `/payments/:payment_id/approve` | Manager approves payment and confirms reservation |
+| GET | `/merchants/pending` | Manager lists pending merchant applications |
+| GET | `/merchants/all` | Manager lists user applications |
+| GET | `/users` | Manager lists users with merchant status |
+| GET | `/merchants/:merchant_id` | Manager or owner views merchant record |
+| PATCH | `/merchants/:merchant_id/approve` | Manager approves merchant |
+| PATCH | `/merchants/:merchant_id/reject` | Manager rejects merchant |
+| PATCH | `/merchants/:merchant_id/status` | Manager sets merchant status |
+| PATCH | `/users/:user_id/merchant_status` | Manager sets user merchant status |
+| PATCH | `/merchants/:merchant_id` | Merchant updates seller information |
+| GET | `/notifications` | User lists notifications |
+| PATCH | `/notifications/:notification_id/read` | User marks notification as read |
 
 Edge Function auth uses `JWT_SECRET` stored as a Supabase function secret. New users are hashed by the Edge Function using PBKDF2-SHA256.
 

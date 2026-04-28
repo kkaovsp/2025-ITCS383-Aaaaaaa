@@ -541,6 +541,194 @@ async function approvePayment(request: Request, paymentId: string): Promise<Resp
   return jsonResponse(request, { payment_id: paymentId, reservation_id: payment.reservation_id, payment_status: "APPROVED" })
 }
 
+async function getMerchant(request: Request, merchantId: string): Promise<Response> {
+  const userOrResponse = await requireUser(request)
+  if (userOrResponse instanceof Response) return userOrResponse
+  const user = userOrResponse
+  const supabase = createServerClient()
+  const { data: merchant, error } = await supabase.from("merchants").select("*").eq("merchant_id", merchantId).maybeSingle()
+  if (error) return errorResponse(request, error.message, 500)
+  if (!merchant) return errorResponse(request, "Merchant not found", 404)
+  if (user.role !== "BOOTH_MANAGER" && merchant.user_id !== user.id) return errorResponse(request, "Not allowed", 403)
+  return jsonResponse(request, merchant)
+}
+
+async function listPendingMerchants(request: Request): Promise<Response> {
+  const userOrResponse = await requireUser(request)
+  if (userOrResponse instanceof Response) return userOrResponse
+  if (userOrResponse.role !== "BOOTH_MANAGER") return errorResponse(request, "Forbidden", 403)
+
+  const supabase = createServerClient()
+  const { data: merchants, error } = await supabase.from("merchants").select("*").eq("approval_status", "PENDING")
+  if (error) return errorResponse(request, error.message, 500)
+  const rows = await Promise.all((merchants ?? []).map(async (merchant) => {
+    const { data: user } = await supabase.from("users").select("username,name").eq("id", merchant.user_id).maybeSingle()
+    return {
+      merchant_id: merchant.merchant_id,
+      user_id: merchant.user_id,
+      username: user?.username ?? null,
+      name: user?.name ?? null,
+      citizen_id: merchant.citizen_id,
+      citizen_valid: Boolean(merchant.citizen_valid),
+      seller_information: merchant.seller_information,
+      product_description: merchant.product_description,
+      approval_status: merchant.approval_status,
+    }
+  }))
+  return jsonResponse(request, rows)
+}
+
+async function listUsers(request: Request): Promise<Response> {
+  const userOrResponse = await requireUser(request)
+  if (userOrResponse instanceof Response) return userOrResponse
+  if (userOrResponse.role !== "BOOTH_MANAGER") return errorResponse(request, "Forbidden", 403)
+
+  const supabase = createServerClient()
+  const { data: users, error } = await supabase.from("users").select("id,username,name,contact_info,role,created_at").neq("role", "BOOTH_MANAGER")
+  if (error) return errorResponse(request, error.message, 500)
+  const rows = await Promise.all((users ?? []).map(async (user) => {
+    const { data: merchant } = await supabase.from("merchants").select("merchant_id,approval_status,seller_information,product_description,citizen_valid").eq("user_id", user.id).maybeSingle()
+    return {
+      id: user.id,
+      username: user.username,
+      name: user.name,
+      contact_info: user.contact_info,
+      role: user.role,
+      created_at: user.created_at,
+      merchant_id: merchant?.merchant_id ?? null,
+      approval_status: merchant?.approval_status ?? null,
+      seller_information: merchant?.seller_information ?? null,
+      product_description: merchant?.product_description ?? null,
+      citizen_valid: merchant?.citizen_valid ?? null,
+    }
+  }))
+  return jsonResponse(request, rows)
+}
+
+async function setMerchantStatus(request: Request, merchantId: string, statusValue: string): Promise<Response> {
+  const userOrResponse = await requireUser(request)
+  if (userOrResponse instanceof Response) return userOrResponse
+  const manager = userOrResponse
+  if (manager.role !== "BOOTH_MANAGER") return errorResponse(request, "Forbidden", 403)
+  if (!["PENDING", "APPROVED", "REJECTED"].includes(statusValue)) return errorResponse(request, "Invalid status", 400)
+
+  const supabase = createServerClient()
+  const { data: merchant, error } = await supabase.from("merchants").select("merchant_id,user_id").eq("merchant_id", merchantId).maybeSingle()
+  if (error) return errorResponse(request, error.message, 500)
+  if (!merchant) return errorResponse(request, "Merchant not found", 404)
+
+  const { data: updated, error: updateError } = await supabase
+    .from("merchants")
+    .update({ approval_status: statusValue, approved_by: manager.id, approved_at: new Date().toISOString() })
+    .eq("merchant_id", merchantId)
+    .select("*")
+    .single()
+  if (updateError) return errorResponse(request, updateError.message, 500)
+
+  await supabase.from("users").update({ role: statusValue === "APPROVED" ? "MERCHANT" : "GENERAL_USER" }).eq("id", merchant.user_id)
+  await notifyUsers([merchant.user_id], "Merchant status updated", `Your merchant application status changed to ${statusValue}`, "MERCHANT_APPROVAL", merchantId)
+  return jsonResponse(request, updated)
+}
+
+async function setUserMerchantStatus(request: Request, userId: string): Promise<Response> {
+  const body = await requestBody(request)
+  const statusValue = typeof body.status === "string" ? body.status : typeof body.status_value === "string" ? body.status_value : ""
+  const userOrResponse = await requireUser(request)
+  if (userOrResponse instanceof Response) return userOrResponse
+  const manager = userOrResponse
+  if (manager.role !== "BOOTH_MANAGER") return errorResponse(request, "Forbidden", 403)
+  if (!["PENDING", "APPROVED", "REJECTED"].includes(statusValue)) return errorResponse(request, "Invalid status", 400)
+
+  const supabase = createServerClient()
+  const { data: targetUser, error: userError } = await supabase.from("users").select("id,username").eq("id", userId).maybeSingle()
+  if (userError) return errorResponse(request, userError.message, 500)
+  if (!targetUser) return errorResponse(request, "User not found", 404)
+
+  let merchant = await merchantForUser(userId)
+  if (!merchant) {
+    const merchantId = crypto.randomUUID()
+    const { data, error } = await supabase.from("merchants").insert({
+      merchant_id: merchantId,
+      user_id: userId,
+      approval_status: "PENDING",
+      citizen_valid: 0,
+    }).select("merchant_id,user_id,approval_status").single()
+    if (error) return errorResponse(request, error.message, 500)
+    merchant = data as MerchantRow
+  }
+
+  const { data: updated, error: updateError } = await supabase
+    .from("merchants")
+    .update({ approval_status: statusValue, approved_by: manager.id, approved_at: new Date().toISOString() })
+    .eq("merchant_id", merchant.merchant_id)
+    .select("*")
+    .single()
+  if (updateError) return errorResponse(request, updateError.message, 500)
+
+  const role = statusValue === "APPROVED" ? "MERCHANT" : "GENERAL_USER"
+  await supabase.from("users").update({ role }).eq("id", userId)
+  await notifyUsers([userId], "Merchant status updated", `Your merchant application status changed to ${statusValue}`, "MERCHANT_APPROVAL", merchant.merchant_id)
+
+  return jsonResponse(request, {
+    user_id: userId,
+    username: targetUser.username,
+    role,
+    merchant_id: updated.merchant_id,
+    approval_status: updated.approval_status,
+  })
+}
+
+async function updateMerchant(request: Request, merchantId: string): Promise<Response> {
+  const userOrResponse = await requireUser(request)
+  if (userOrResponse instanceof Response) return userOrResponse
+  const body = await requestBody(request)
+  const supabase = createServerClient()
+  const { data: merchant, error } = await supabase.from("merchants").select("*").eq("merchant_id", merchantId).maybeSingle()
+  if (error) return errorResponse(request, error.message, 500)
+  if (!merchant || merchant.user_id !== userOrResponse.id) return errorResponse(request, "Merchant not found", 404)
+
+  const { data: updated, error: updateError } = await supabase
+    .from("merchants")
+    .update({
+      seller_information: typeof body.seller_information === "string" ? body.seller_information : merchant.seller_information,
+      product_description: typeof body.product_description === "string" ? body.product_description : merchant.product_description,
+    })
+    .eq("merchant_id", merchantId)
+    .select("*")
+    .single()
+  if (updateError) return errorResponse(request, updateError.message, 500)
+  return jsonResponse(request, updated)
+}
+
+async function listNotifications(request: Request): Promise<Response> {
+  const userOrResponse = await requireUser(request)
+  if (userOrResponse instanceof Response) return userOrResponse
+  const supabase = createServerClient()
+  const { data, error } = await supabase
+    .from("notifications")
+    .select("*")
+    .eq("user_id", userOrResponse.id)
+    .order("created_at", { ascending: false })
+  if (error) return errorResponse(request, error.message, 500)
+  return jsonResponse(request, data ?? [])
+}
+
+async function markNotificationRead(request: Request, notificationId: string): Promise<Response> {
+  const userOrResponse = await requireUser(request)
+  if (userOrResponse instanceof Response) return userOrResponse
+  const supabase = createServerClient()
+  const { data, error } = await supabase
+    .from("notifications")
+    .update({ is_read: true })
+    .eq("notification_id", notificationId)
+    .eq("user_id", userOrResponse.id)
+    .select("*")
+    .maybeSingle()
+  if (error) return errorResponse(request, error.message, 500)
+  if (!data) return errorResponse(request, "Notification not found", 404)
+  return jsonResponse(request, data)
+}
+
 async function updateProfile(request: Request): Promise<Response> {
   const user = await currentUser(request)
   if (!user) return errorResponse(request, "Not authenticated", 401)
@@ -661,6 +849,10 @@ Deno.serve(async (request) => {
     if (method === "GET" && path === "/payments") return await listPayments(request)
     if (method === "POST" && path === "/payments") return await createPayment(request)
     if (method === "POST" && path === "/payments/upload-slip") return await uploadSlip(request)
+    if (method === "GET" && path === "/merchants/pending") return await listPendingMerchants(request)
+    if (method === "GET" && path === "/merchants/all") return await listUsers(request)
+    if (method === "GET" && path === "/users") return await listUsers(request)
+    if (method === "GET" && path === "/notifications") return await listNotifications(request)
     if (method === "GET" && path === "/events") return await events(request)
 
     const reservationConfirmMatch = path.match(/^\/reservations\/([^/]+)\/confirm$/)
@@ -674,6 +866,29 @@ Deno.serve(async (request) => {
 
     const paymentApproveMatch = path.match(/^\/payments\/([^/]+)\/approve$/)
     if (method === "PATCH" && paymentApproveMatch) return await approvePayment(request, decodeURIComponent(paymentApproveMatch[1]))
+
+    const merchantApproveMatch = path.match(/^\/merchants\/([^/]+)\/approve$/)
+    if (method === "PATCH" && merchantApproveMatch) return await setMerchantStatus(request, decodeURIComponent(merchantApproveMatch[1]), "APPROVED")
+
+    const merchantRejectMatch = path.match(/^\/merchants\/([^/]+)\/reject$/)
+    if (method === "PATCH" && merchantRejectMatch) return await setMerchantStatus(request, decodeURIComponent(merchantRejectMatch[1]), "REJECTED")
+
+    const merchantStatusMatch = path.match(/^\/merchants\/([^/]+)\/status$/)
+    if (method === "PATCH" && merchantStatusMatch) {
+      const body = await requestBody(request)
+      const statusValue = typeof body.status_value === "string" ? body.status_value : typeof body.status === "string" ? body.status : ""
+      return await setMerchantStatus(request, decodeURIComponent(merchantStatusMatch[1]), statusValue)
+    }
+
+    const merchantMatch = path.match(/^\/merchants\/([^/]+)$/)
+    if (method === "GET" && merchantMatch) return await getMerchant(request, decodeURIComponent(merchantMatch[1]))
+    if (method === "PATCH" && merchantMatch) return await updateMerchant(request, decodeURIComponent(merchantMatch[1]))
+
+    const userMerchantStatusMatch = path.match(/^\/users\/([^/]+)\/merchant_status$/)
+    if (method === "PATCH" && userMerchantStatusMatch) return await setUserMerchantStatus(request, decodeURIComponent(userMerchantStatusMatch[1]))
+
+    const notificationReadMatch = path.match(/^\/notifications\/([^/]+)\/read$/)
+    if (method === "PATCH" && notificationReadMatch) return await markNotificationRead(request, decodeURIComponent(notificationReadMatch[1]))
 
     const boothsMatch = path.match(/^\/events\/([^/]+)\/booths$/)
     if (method === "GET" && boothsMatch) return await eventBooths(request, decodeURIComponent(boothsMatch[1]))
