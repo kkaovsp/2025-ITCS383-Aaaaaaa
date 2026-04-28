@@ -110,6 +110,7 @@ For detailed cloud database and API notes, see:
 
 ```txt
 docs/CLOUD_DATABASE_GUIDE.md
+docs/TEAM_SCOPE.md
 docs/WORK_LOG.md
 ```
 
