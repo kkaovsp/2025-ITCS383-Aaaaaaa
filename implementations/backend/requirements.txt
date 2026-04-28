@@ -5,6 +5,7 @@ pydantic
 python-dotenv
 passlib[bcrypt]
 PyJWT
+psycopg2-binary
 pytest
 requests
 python-multipart

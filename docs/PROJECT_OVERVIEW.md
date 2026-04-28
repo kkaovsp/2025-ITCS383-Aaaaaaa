@@ -16,6 +16,18 @@ The team inherited a **Booth Organizer System** built with FastAPI (backend) and
 | UI Localization (EN/TH) | Static interface toggle between English and Thai languages |
 | Administrative Reporting | Event-filtered reservation/payment table with CSV export |
 
+## Cloud Architecture
+
+| Layer | Service |
+|---|---|
+| Backend | FastAPI → deployed to Railway/Render |
+| Database | **Supabase PostgreSQL** — managed cloud database (project ref: `uaoufhdysqcivheauwyf`) |
+| Frontend | React → Vercel (deployed later) |
+| Mobile | Native Android → same deployed backend API |
+| Local/CI | SQLite (unchanged) |
+
+**Cloud-first quality approach:** Cloud migration is handled first by Person 1 before teammates start feature work. This provides a stable deployed backend for web and Android clients to integrate against.
+
 ## Out of Scope
 
 Search, Floor Plan, real payment gateway, and real MOI integration are not implemented.
@@ -34,7 +46,7 @@ Search, Floor Plan, real payment gateway, and real MOI integration are not imple
 |-------------|-------------|
 | D1 | Working system with CI, deployed backend, and Android build |
 | D2 | Code quality report with before/after SonarCloud evidence |
-| D3 | 8 change requests using standard schema |
+| D3 | 10 change requests using standard schema |
 | D4 | Impact analysis with traceability and connectivity matrix |
 | D5 | AI usage report with verification and limitations |
 

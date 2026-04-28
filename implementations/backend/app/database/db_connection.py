@@ -24,7 +24,16 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-engine = create_engine(DATABASE_URL, echo=True, connect_args={"check_same_thread": False})
+if DATABASE_URL is None:
+    raise ValueError("DATABASE_URL environment variable is not set")
+
+is_sqlite = DATABASE_URL.startswith("sqlite")
+
+if is_sqlite:
+    engine = create_engine(DATABASE_URL, echo=True, connect_args={"check_same_thread": False})
+else:
+    engine = create_engine(DATABASE_URL, echo=True)
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
@@ -32,5 +41,6 @@ def init_db():
     # create tables
     base.Base.metadata.create_all(bind=engine)
     # Enable foreign keys for SQLite using raw connection (SQLAlchemy 1.4 compatible)
-    with engine.begin() as conn:
-        conn.execute(text("PRAGMA foreign_keys=ON"))
+    if is_sqlite:
+        with engine.begin() as conn:
+            conn.execute(text("PRAGMA foreign_keys=ON"))

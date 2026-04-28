@@ -1,10 +1,7 @@
 import axios from 'axios';
 
-// Use a relative URL so the React dev server can proxy requests to the backend
-// (configured via `proxy` in package.json). This avoids cross-origin requests
-// and CORS issues in the Codespaces preview.
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: process.env.REACT_APP_API_URL || '/api',
   withCredentials: true,
 });
 

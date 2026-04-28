@@ -1,34 +1,33 @@
-from fastapi import FastAPI, Response, Request
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+import os
+
+from dotenv import load_dotenv
 from .database.db_connection import init_db
 from .routes import auth_routes, event_routes, booth_routes, reservation_routes, payment_routes, notification_routes, merchant_routes
 
+load_dotenv()
+
 app = FastAPI()
 
+cors_origins_str = os.getenv("CORS_ORIGINS", "")
+if cors_origins_str:
+    cors_origins = [o.strip() for o in cors_origins_str.split(",") if o.strip()]
+else:
+    cors_origins = [
+        "http://localhost:3000",
+        "http://localhost:8080",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:8080",
+    ]
 
-# Simple development CORS middleware that echoes the request Origin and
-# allows credentials. This is suitable for Codespaces/dev previews only;
-# do not use this in production.
-@app.middleware("http")
-async def dev_cors_middleware(request: Request, call_next):
-    origin = request.headers.get("origin")
-    # Handle preflight
-    if request.method == "OPTIONS":
-        headers = {
-            "Access-Control-Allow-Origin": origin or "*",
-            "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS,PATCH",
-            "Access-Control-Allow-Headers": "Authorization,Content-Type",
-            "Access-Control-Allow-Credentials": "true",
-            "Access-Control-Max-Age": "600",
-        }
-        return Response(status_code=200, headers=headers)
-
-    response = await call_next(request)
-    if origin:
-        response.headers["Access-Control-Allow-Origin"] = origin
-    else:
-        response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Credentials"] = "true"
-    return response
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # initialize database tables on startup
 @app.on_event("startup")
@@ -46,3 +45,7 @@ app.include_router(merchant_routes.router, prefix="/api")
 @app.get("/")
 def root():
     return {"message": "Booth Organizer API"}
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}

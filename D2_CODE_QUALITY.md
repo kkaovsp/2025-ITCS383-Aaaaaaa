@@ -2,7 +2,7 @@
 
 ## Overview
 
-Phase 2 Part 2 maintenance covered:
+Phase 2 Part 2 maintenance scope includes:
 - UI Localization (English/Thai toggle)
 - Administrative Reporting System
 - Native Android mobile application
@@ -44,10 +44,21 @@ Phase 2 Part 2 maintenance covered:
 
 **Open Issue (1):** `auth_routes.py:88` — redundant Exception class (low/minor, 1 min fix)
 
+---
+
+## Cloud Migration — SonarCloud Note
+
+**Current SonarCloud results above reflect the baseline before cloud migration changes.**
+
+After Person 1 commits cloud migration (Supabase PostgreSQL, backend cloud deployment configuration), another SonarCloud analysis run is required to capture post-migration code quality. Do not use the results above as final post-migration evidence.
+
+---
+
 ## Test Command
 
 ```bash
-pytest implementations/backend --cov=app --cov-report=xml
+cd implementations/backend
+pytest --cov=app --cov-report=xml --cov-report=term-missing
 ```
 
 ## Evidence

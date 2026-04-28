@@ -1,5 +1,7 @@
 ﻿# D4: Impact Analysis
 
+> **Note:** This document is being updated for the current 10-CR plan. Before final submission, the full traceability graph, affected-only graph, SLO graph, and connectivity matrix must all use the same 10 CRs.
+
 ## 1. Overview
 
 This document analyzes the expected impact of the Phase 2 Part 2 maintenance work on the inherited Booth Organizer System.
@@ -47,14 +49,16 @@ The maintenance work focuses on:
 
 | Change Request | Affected Modules | Test or Evidence |
 |---|---|---|
-| CR-01 | Web and Android localization resources | English/Thai UI screenshots |
-| CR-02 | Language toggle component | Toggle behavior test |
-| CR-03 | Data display components | API content unchanged test |
-| CR-04 | Localization tests | Test coverage result |
-| CR-05 | Report API and event dropdown | API test and dropdown inspection |
-| CR-06 | Report table UI | Report table screenshot and UI test |
-| CR-07 | CSV export endpoint and button | CSV output evidence |
-| CR-08 | Report error handling and tests | Empty/error case tests |
+| CR-01 | Backend report routes, report schemas, report service | Backend API tests and response inspection |
+| CR-02 | Web reports page, event dropdown, report table | Web UI screenshot and browser inspection |
+| CR-03 | Backend CSV endpoint, web CSV download button | CSV output evidence |
+| CR-04 | Backend validation, web empty/error states, tests | Empty/error case tests |
+| CR-05 | Web localization files and static UI text | EN/TH UI screenshots |
+| CR-06 | Language toggle component and data display components | Toggle test and unchanged data inspection |
+| CR-07 | Android project/repository structure | Android build evidence |
+| CR-08 | Android login screen, token storage, API client | Login test/emulator screenshot |
+| CR-09 | Android event and booth browsing screens | Event/booth browsing screenshots |
+| CR-10 | Android reservation, payment, reporting, localization screens | Android user-flow screenshots and build result |
 
 ## 6. Software Lifecycle Object Graph
 
