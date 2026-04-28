@@ -47,15 +47,14 @@ The team used the following review process:
 5. Record evidence for the final report.
 6. Fix or reject AI output if it does not match the project requirements.
 
-## 6. Limitations of AI Usage
+## 6. Limitations and Handling
 
-| Limitation | How the Team Handled It |
+| Limitation | Handling |
 |---|---|
-| AI can suggest extra features outside the scope | The team limited the scope to localization, reporting, and Android support |
-| AI can generate code that does not match the existing project structure | Team members checked existing files before accepting changes |
-| AI can miss edge cases | Tests were added for empty data, invalid events, and unchanged user content |
-| AI can produce documentation that is too formal or too broad | The final reports were simplified to match the assignment requirements |
+| AI suggests out-of-scope features | Team limited work to localization, reporting, and Android |
+| AI code mismatches project structure | Members reviewed existing files before accepting changes |
+| AI misses edge cases | Tests added for empty data, invalid events, unchanged content |
 
 ## 7. Final Statement
 
-AI tools were used as development assistants, but the team controlled the requirements, scope, verification, and final submission. All AI-generated work was reviewed by team members before being accepted into the project.
+The team controlled all requirements, scope, verification, and final submission. AI was used as a development assistant only. All AI-generated work was reviewed before being accepted.
