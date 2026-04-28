@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
+import { useTranslation } from 'react-i18next';
 
 function MerchantApprovalPage() {
   const [users, setUsers] = useState([]);
   const [loadError, setLoadError] = useState('');
+  const { t } = useTranslation();
 
   useEffect(() => {
     async function load() {
@@ -12,11 +14,11 @@ function MerchantApprovalPage() {
         setUsers(resp.data);
       } catch (err) {
         console.error(err);
-        setLoadError('Failed to load users');
+        setLoadError(t('merchantApproval.loadFailed'));
       }
     }
     load();
-  }, []);
+  }, [t]);
 
   const handleStatusChange = async (userId, newStatus) => {
     try {
@@ -25,27 +27,27 @@ function MerchantApprovalPage() {
       setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, approval_status: resp.data.approval_status, role: resp.data.role } : u)));
     } catch (err) {
       console.error(err);
-      alert('Failed to update status');
+      alert(t('merchantApproval.statusFailed'));
     }
   };
 
   return (
     <div className="page-content">
-      <div className="page-header"><h2>👥 Merchant Approvals</h2></div>
+      <div className="page-header"><h2>{t('merchantApproval.title')}</h2></div>
       {loadError && <div className="alert alert-error">{loadError}</div>}
       {!loadError && users.length === 0 && (
-        <div className="empty-state"><div className="empty-state-icon">👥</div>No users found.</div>
+        <div className="empty-state"><div className="empty-state-icon">👥</div>{t('merchantApproval.noUsers')}</div>
       )}
       <div className="table-wrapper">
         <table>
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Role</th>
-              <th>MOI Validation</th>
-              <th>Seller Information</th>
-              <th>Joined</th>
-              <th>Status</th>
+              <th>{t('merchantApproval.name')}</th>
+              <th>{t('merchantApproval.role')}</th>
+              <th>{t('merchantApproval.moiValidation')}</th>
+              <th>{t('merchantApproval.sellerInfo')}</th>
+              <th>{t('merchantApproval.joined')}</th>
+              <th>{t('merchantApproval.status')}</th>
             </tr>
           </thead>
           <tbody>
@@ -60,16 +62,16 @@ function MerchantApprovalPage() {
                   <td><span className="badge badge-purple">{u.role}</span></td>
                   <td>
                     {u.citizen_valid === null || u.citizen_valid === undefined
-                      ? <span className="badge badge-gray">N/A</span>
+                      ? <span className="badge badge-gray">{t('merchantApproval.na')}</span>
                       : u.citizen_valid
-                        ? <span className="badge badge-success">✔ Valid</span>
-                        : <span className="badge badge-danger">✖ Invalid</span>}
+                        ? <span className="badge badge-success">{t('merchantApproval.valid')}</span>
+                        : <span className="badge badge-danger">{t('merchantApproval.invalid')}</span>}
                   </td>
                   <td style={{ maxWidth: 220, fontSize: '.85rem', color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-                    {u.seller_information || 'N/A'}
+                    {u.seller_information || t('merchantApproval.na')}
                   </td>
                   <td style={{ fontSize: '.8rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
-                    {u.created_at ? new Date(u.created_at).toLocaleDateString() : 'N/A'}
+                    {u.created_at ? new Date(u.created_at).toLocaleDateString() : t('merchantApproval.na')}
                   </td>
                   <td>
                     <select

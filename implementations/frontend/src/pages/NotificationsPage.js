@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
+import { useTranslation } from 'react-i18next';
 
 function NotificationsPage() {
   const [notes, setNotes] = useState([]);
+  const { t } = useTranslation();
 
   useEffect(() => {
     async function load() {
@@ -14,16 +16,16 @@ function NotificationsPage() {
 
   return (
     <div className="page-content">
-      <div className="page-header"><h2>🔔 Notifications</h2></div>
+      <div className="page-header"><h2>{t('notifications.title')}</h2></div>
       {notes.length === 0 && (
-        <div className="empty-state"><div className="empty-state-icon">🔔</div>No notifications yet.</div>
+        <div className="empty-state"><div className="empty-state-icon">🔔</div>{t('notifications.noNotifications')}</div>
       )}
       <div className="panel" style={{ maxWidth: 640 }}>
         {notes.map((n) => (
           <div key={n.notification_id} className={`notif-item ${n.is_read ? '' : 'unread'}`}>
             <div className="notif-item-title">{n.title}</div>
             <div className="notif-item-msg">{n.message}</div>
-            {!n.is_read && <span className="badge badge-info" style={{ marginTop: '.35rem', display: 'inline-block' }}>Unread</span>}
+            {!n.is_read && <span className="badge badge-info" style={{ marginTop: '.35rem', display: 'inline-block' }}>{t('notifications.unread')}</span>}
           </div>
         ))}
       </div>

@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
+import { useTranslation } from 'react-i18next';
 
 function PaymentApprovalPage() {
   const [payments, setPayments] = useState([]);
   const [validatedMap, setValidatedMap] = useState({});
+  const { t } = useTranslation();
 
   const fetchSlipBlob = async (paymentId, download = false) => {
     const resp = await api.get(`/payments/${paymentId}/slip${download ? '?download=true' : ''}`, {
@@ -34,7 +36,7 @@ function PaymentApprovalPage() {
       setTimeout(() => window.URL.revokeObjectURL(url), 10000);
     } catch (err) {
       console.error(err);
-      alert(err?.response?.data?.detail || 'Failed to open slip file');
+      alert(err?.response?.data?.detail || t('paymentApproval.viewFailed'));
     }
   };
 
@@ -52,7 +54,7 @@ function PaymentApprovalPage() {
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error(err);
-      alert(err?.response?.data?.detail || 'Failed to download slip file');
+      alert(err?.response?.data?.detail || t('paymentApproval.downloadFailed'));
     }
   };
 
@@ -74,26 +76,26 @@ function PaymentApprovalPage() {
       setPayments((p) => p.filter((x) => x.payment_id !== id));
     } catch (err) {
       console.error(err);
-      alert(err?.response?.data?.detail || 'Failed to approve payment');
+      alert(err?.response?.data?.detail || t('paymentApproval.approveFailed'));
     }
   };
 
   return (
     <div className="page-content">
-      <div className="page-header"><h2>✅ Payment Approvals</h2></div>
+      <div className="page-header"><h2>{t('paymentApproval.title')}</h2></div>
       {payments.length === 0 && (
-        <div className="empty-state"><div className="empty-state-icon">✅</div>No pending payments.</div>
+        <div className="empty-state"><div className="empty-state-icon">✅</div>{t('paymentApproval.noPending')}</div>
       )}
       <div className="table-wrapper">
         <table>
           <thead>
             <tr>
-              <th>Payment ID</th>
-              <th>Reservation ID</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th>Slip</th>
-              <th>Action</th>
+              <th>{t('paymentApproval.paymentId')}</th>
+              <th>{t('paymentApproval.reservationId')}</th>
+              <th>{t('paymentApproval.amount')}</th>
+              <th>{t('paymentApproval.status')}</th>
+              <th>{t('paymentApproval.slip')}</th>
+              <th>{t('paymentApproval.action')}</th>
             </tr>
           </thead>
           <tbody>
@@ -108,21 +110,21 @@ function PaymentApprovalPage() {
                     ? (p.slip_url
                       ? (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem', flexWrap: 'wrap' }}>
-                          <span className="badge badge-success">Uploaded</span>
-                          <button className="btn btn-secondary btn-sm" onClick={() => viewSlip(p.payment_id)}>View Slip</button>
-                          <button className="btn btn-primary btn-sm" onClick={() => downloadSlip(p.payment_id)}>Download</button>
+                          <span className="badge badge-success">{t('paymentApproval.uploaded')}</span>
+                          <button className="btn btn-secondary btn-sm" onClick={() => viewSlip(p.payment_id)}>{t('paymentApproval.viewSlip')}</button>
+                          <button className="btn btn-primary btn-sm" onClick={() => downloadSlip(p.payment_id)}>{t('paymentApproval.download')}</button>
                           <label style={{ display: 'inline-flex', alignItems: 'center', gap: '.35rem', fontSize: '.8rem' }}>
                             <input
                               type="checkbox"
                               checked={!!validatedMap[p.payment_id]}
                               onChange={(e) => setValidatedMap((prev) => ({ ...prev, [p.payment_id]: e.target.checked }))}
                             />
-                            Validated
+                            {t('paymentApproval.validated')}
                           </label>
                         </div>
                       )
-                      : <span className="badge badge-danger">Missing</span>)
-                    : <span className="badge badge-gray">N/A</span>}
+                      : <span className="badge badge-danger">{t('paymentApproval.missing')}</span>)
+                    : <span className="badge badge-gray">{t('merchantApproval.na')}</span>}
                 </td>
                 <td>
                   <button
@@ -131,13 +133,13 @@ function PaymentApprovalPage() {
                     disabled={p.method === 'BANK_TRANSFER' && (!p.slip_url || !validatedMap[p.payment_id])}
                     title={
                       p.method === 'BANK_TRANSFER' && !p.slip_url
-                        ? 'Slip is required before approval'
+                        ? t('paymentApproval.slipRequired')
                         : (p.method === 'BANK_TRANSFER' && !validatedMap[p.payment_id]
-                          ? 'Open and validate slip before approval'
-                          : 'Approve payment')
+                          ? t('paymentApproval.validateFirst')
+                          : t('paymentApproval.approvePayment'))
                     }
                   >
-                    Approve
+                    {t('paymentApproval.approve')}
                   </button>
                 </td>
               </tr>

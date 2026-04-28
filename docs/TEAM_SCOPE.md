@@ -2,13 +2,13 @@
 
 ## Team Members
 
-| Member | Responsibilities |
-|--------|------------------|
+| Member   | Responsibilities                                                                                                                                    |
+| ----------| -----------------------------------------------------------------------------------------------------------------------------------------------------|
 | Person 1 | Team lead — **Supabase PostgreSQL, Edge Function backend rewrite, deployment**, CI/SonarCloud, architecture/integration review, final merge support |
-| Person 2 | First handoff receiver — QA/test plan, regression testing, bug list, and integration evidence after Person 1 |
-| Person 3 | Second handoff receiver — web localization EN/TH toggle and static UI text after Person 2 signs off |
-| Person 4 | Third handoff receiver — web reporting UI, event filter, report table, and CSV download after Person 3 signs off |
-| Person 5 | Final handoff receiver — native Android app after Person 4 signs off |
+| Person 2 | First handoff receiver — QA/test plan, regression testing, bug list, and integration evidence after Person 1                                        |
+| Person 3 | Second handoff receiver — web localization EN/TH toggle and static UI text after Person 2 signs off                                                 |
+| Person 4 | Third handoff receiver — web reporting UI, event filter, report table, and CSV download after Person 3 signs off                                    |
+| Person 5 | Final handoff receiver — native Android app after Person 4 signs off                                                                                |
 
 ## Feature Ownership
 

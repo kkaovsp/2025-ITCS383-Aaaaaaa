@@ -1,9 +1,12 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import './i18n';
 import { AuthProvider, useAuth } from './services/AuthContext';
 import api, { clearAccessToken } from './services/api';
 import ProtectedRoute from './components/ProtectedRoute';
 import NotificationBell from './components/NotificationBell';
+import LanguageToggle from './components/LanguageToggle';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -21,6 +24,7 @@ import ProfilePage from './pages/ProfilePage';
 function NavBar() {
   const { user, refresh } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     try {
@@ -37,28 +41,29 @@ function NavBar() {
   return (
     <nav className="navbar">
       <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-        <Link to="/" className="navbar-brand">🏪 BoothOrganizer</Link>
+        <Link to="/" className="navbar-brand">{t('nav.brand')}</Link>
         <div className="navbar-links">
-          <Link to="/">Home</Link>
-          <Link to="/events">Events</Link>
-          {user && <Link to="/reservations">Reservations</Link>}
-          {user && <Link to="/profile">Profile</Link>}
-          {user && user.role === 'BOOTH_MANAGER' && <Link to="/create-event">Create Event</Link>}
-          {user && user.role === 'BOOTH_MANAGER' && <Link to="/admin">Admin</Link>}
+          <Link to="/">{t('nav.home')}</Link>
+          <Link to="/events">{t('nav.events')}</Link>
+          {user && <Link to="/reservations">{t('nav.reservations')}</Link>}
+          {user && <Link to="/profile">{t('nav.profile')}</Link>}
+          {user && user.role === 'BOOTH_MANAGER' && <Link to="/create-event">{t('nav.createEvent')}</Link>}
+          {user && user.role === 'BOOTH_MANAGER' && <Link to="/admin">{t('nav.admin')}</Link>}
         </div>
       </div>
       <div className="navbar-right">
+        <LanguageToggle />
         {!user && (
           <>
-            <Link to="/login" className="btn btn-ghost btn-sm">Login</Link>
-            <Link to="/register" className="btn btn-primary btn-sm">Register</Link>
+            <Link to="/login" className="btn btn-ghost btn-sm">{t('nav.login')}</Link>
+            <Link to="/register" className="btn btn-primary btn-sm">{t('nav.register')}</Link>
           </>
         )}
         {user && <NotificationBell />}
         {user && (
           <>
             <span className="navbar-user-chip">{user.name || user.username} · {user.role}</span>
-            <button className="btn btn-logout btn-sm" onClick={handleLogout}>Logout</button>
+            <button className="btn btn-logout btn-sm" onClick={handleLogout}>{t('nav.logout')}</button>
           </>
         )}
       </div>

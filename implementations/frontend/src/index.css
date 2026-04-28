@@ -495,6 +495,29 @@ tbody tr:hover { background: var(--surface-alt); }
 /* ===================== DIVIDER ===================== */
 .divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
 
+/* ===================== LANGUAGE TOGGLE ===================== */
+.lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  padding: .3rem .7rem;
+  border: 1.5px solid var(--border);
+  background: var(--surface-alt);
+  color: var(--text-primary);
+  cursor: pointer;
+  border-radius: 999px;
+  font-size: .82rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+  transition: border-color var(--transition), background var(--transition), box-shadow var(--transition);
+  white-space: nowrap;
+}
+.lang-toggle:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  box-shadow: 0 2px 8px rgba(79,70,229,.15);
+}
+
 /* ===================== RESPONSIVE ===================== */
 @media (max-width: 768px) {
   .navbar { padding: 0 1rem; }
