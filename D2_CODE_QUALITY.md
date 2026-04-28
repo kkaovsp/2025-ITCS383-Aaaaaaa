@@ -52,5 +52,7 @@ pytest implementations/backend --cov=app --cov-report=xml
 
 ## Evidence
 
-![SonarCloud Summary](screenshots/sonarcloud-summary-after.png)
-![SonarCloud Issues](screenshots/sonarcloud-issues-after.png)
+<img width="1598" height="837" alt="image" src="https://github.com/user-attachments/assets/febfa46d-a6b1-461a-8d7e-ff090160fa64" />
+<img width="1630" height="856" alt="image" src="https://github.com/user-attachments/assets/2f66b1d4-21ad-4e72-8cc5-5c6c6e27b3f1" />
+
+
