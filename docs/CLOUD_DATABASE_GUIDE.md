@@ -99,7 +99,7 @@ Demo cloud data is loaded from `supabase/seed.sql`. It includes stable accounts 
 
 | Variable | Description |
 |---|---|
-| `REACT_APP_API_URL` | Full URL to the deployed Edge Function API (e.g. `https://uaoufhdysqcivheauwyf.supabase.co/functions/v1/api`). If omitted, defaults to `/api` (dev proxy). |
+| `REACT_APP_API_URL` | Full URL to the deployed Edge Function API (e.g. `https://uaoufhdysqcivheauwyf.supabase.co/functions/v1/api`). If omitted, the frontend code defaults to the deployed Edge API. |
 
 ---
 

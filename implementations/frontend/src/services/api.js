@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 export const ACCESS_TOKEN_KEY = 'boothOrganizerAccessToken';
+export const DEFAULT_API_URL = 'https://uaoufhdysqcivheauwyf.supabase.co/functions/v1/api';
 
 export function getAccessToken() {
   return localStorage.getItem(ACCESS_TOKEN_KEY);
@@ -15,7 +16,7 @@ export function clearAccessToken() {
 }
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || '/api',
+  baseURL: process.env.REACT_APP_API_URL || DEFAULT_API_URL,
   withCredentials: true,
 });
 
