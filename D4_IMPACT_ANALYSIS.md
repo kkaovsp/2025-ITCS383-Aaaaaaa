@@ -1,6 +1,6 @@
 ﻿# D4: Impact Analysis
 
-> **Note:** This document is being updated for the current 10-CR plan. Before final submission, the full traceability graph, affected-only graph, SLO graph, and connectivity matrix must all use the same 10 CRs.
+> **Status:** This document uses the current 10-CR maintenance plan. Person 2 should review evidence links after QA testing, and the team should do a final pass before submission.
 
 ## 1. Overview
 
@@ -26,9 +26,9 @@ The maintenance work focuses on:
 
 | Module | Reason for Impact |
 |---|---|
-| Backend report routes | New reporting endpoints are required |
-| Backend report schemas | Report request and response formats are required |
-| Backend report service | Reservation and payment data must be collected for reports |
+| Supabase Edge reporting API | New reporting endpoints are required |
+| Report response format | Reservation and payment report data must use a stable response shape |
+| Supabase PostgreSQL data model | Reservation and payment data must be collected for reports |
 | Web localization files | Static UI text must support English and Thai |
 | Web language toggle component | Users need a visible language switch |
 | Web reports page | Booth Managers need a report UI |
@@ -41,15 +41,15 @@ The maintenance work focuses on:
 |---|---|---|---|
 | R-LOC-01 | Localization dictionary and language state | Web i18n files, LanguageToggle, Android localization resources | Language toggle tests and UI inspection |
 | R-LOC-02 | Data display rule | Event/report display components | Test that API data stays unchanged |
-| R-REP-01 | Reporting API and report UI | Backend report routes/service, Web Reports page, Android Reports screen | API tests and UI tests |
-| R-REP-02 | CSV export workflow | Backend CSV endpoint, Web/Mobile export action | CSV output test and inspection |
+| R-REP-01 | Reporting API and report UI | Supabase Edge report endpoints, Web Reports page, Android Reports screen | API tests and UI tests |
+| R-REP-02 | CSV export workflow | Supabase Edge CSV endpoint, Web/Mobile export action | CSV output test and inspection |
 | R-MOB-01 | Mobile app screens | Android app source files | Android build, tests, and emulator inspection |
 
 ## 5. Affected-Part Traceability
 
 | Change Request | Affected Modules | Test or Evidence |
 |---|---|---|
-| CR-01 | Backend report routes, report schemas, report service | Backend API tests and response inspection |
+| CR-01 | Supabase Edge report endpoints and response format | Edge API smoke tests and response inspection |
 | CR-02 | Web reports page, event dropdown, report table | Web UI screenshot and browser inspection |
 | CR-03 | Backend CSV endpoint, web CSV download button | CSV output evidence |
 | CR-04 | Backend validation, web empty/error states, tests | Empty/error case tests |

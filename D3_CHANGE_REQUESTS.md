@@ -22,7 +22,7 @@
 | Attribute | Description |
 |---|---|
 | Associated Feature | Administrative Reporting |
-| Description | Add backend reporting endpoints that accept an event_id filter and return reservation/payment data. Endpoints: GET /api/reports/events and GET /api/reports/reservations-payments?event_id=<id>. |
+| Description | Add backend reporting endpoints that accept an event_id filter and return reservation/payment data. Endpoints: GET /reports/events and GET /reports/reservations-payments?event_id=<id> under the Edge API base URL. |
 | Maintenance Type | Adaptive |
 | Priority | High |
 | Severity | Critical |

@@ -980,6 +980,162 @@ async function eventBooths(request: Request, eventId: string): Promise<Response>
   return jsonResponse(request, data ?? [])
 }
 
+async function createEvent(request: Request): Promise<Response> {
+  const userOrResponse = await requireManager(request)
+  if (userOrResponse instanceof Response) return userOrResponse
+  const body = await requestBody(request)
+  const name = typeof body.name === "string" ? body.name.trim() : ""
+  if (!name) return errorResponse(request, "name is required", 400)
+
+  const supabase = createServerClient()
+  const eventId = crypto.randomUUID()
+  const { error } = await supabase.from("events").insert({
+    event_id: eventId,
+    name,
+    description: typeof body.description === "string" ? body.description : null,
+    location: typeof body.location === "string" ? body.location : null,
+    start_date: typeof body.start_date === "string" ? body.start_date : null,
+    end_date: typeof body.end_date === "string" ? body.end_date : null,
+    created_by: userOrResponse.id,
+    created_at: new Date().toISOString(),
+  })
+  if (error) return errorResponse(request, error.message, 500)
+  return jsonResponse(request, { event_id: eventId }, 201)
+}
+
+async function updateEvent(request: Request, eventId: string): Promise<Response> {
+  const userOrResponse = await requireManager(request)
+  if (userOrResponse instanceof Response) return userOrResponse
+  const body = await requestBody(request)
+  const supabase = createServerClient()
+  const { data: existing, error: fetchError } = await supabase
+    .from("events")
+    .select("event_id")
+    .eq("event_id", eventId)
+    .maybeSingle()
+  if (fetchError) return errorResponse(request, fetchError.message, 500)
+  if (!existing) return errorResponse(request, "Event not found", 404)
+
+  const updates: Record<string, unknown> = {}
+  if (typeof body.name === "string" && body.name.trim()) updates.name = body.name.trim()
+  if ("description" in body) updates.description = typeof body.description === "string" ? body.description : null
+  if ("location" in body) updates.location = typeof body.location === "string" ? body.location : null
+  if ("start_date" in body) updates.start_date = typeof body.start_date === "string" ? body.start_date : null
+  if ("end_date" in body) updates.end_date = typeof body.end_date === "string" ? body.end_date : null
+
+  if (Object.keys(updates).length === 0) return errorResponse(request, "No fields to update", 400)
+  const { error: updateError } = await supabase.from("events").update(updates).eq("event_id", eventId)
+  if (updateError) return errorResponse(request, updateError.message, 500)
+  return jsonResponse(request, { event_id: eventId, ...updates })
+}
+
+async function deleteEvent(request: Request, eventId: string): Promise<Response> {
+  const userOrResponse = await requireManager(request)
+  if (userOrResponse instanceof Response) return userOrResponse
+  const supabase = createServerClient()
+  const { data: event, error: eventError } = await supabase
+    .from("events")
+    .select("event_id")
+    .eq("event_id", eventId)
+    .maybeSingle()
+  if (eventError) return errorResponse(request, eventError.message, 500)
+  if (!event) return errorResponse(request, "Event not found", 404)
+
+  const { data: booths } = await supabase.from("booths").select("booth_id").eq("event_id", eventId)
+  const boothIds = booths?.map((b) => b.booth_id) ?? []
+  if (boothIds.length) {
+    await supabase.from("reservations").delete().in("booth_id", boothIds)
+    await supabase.from("booths").delete().eq("event_id", eventId)
+  }
+  await supabase.from("events").delete().eq("event_id", eventId)
+  return jsonResponse(request, { msg: "event deleted", event_id: eventId })
+}
+
+async function createBooth(request: Request): Promise<Response> {
+  const userOrResponse = await requireManager(request)
+  if (userOrResponse instanceof Response) return userOrResponse
+  const body = await requestBody(request)
+  const eventId = typeof body.event_id === "string" ? body.event_id : ""
+  const boothNumber = typeof body.booth_number === "string" ? body.booth_number.trim() : ""
+  if (!eventId || !boothNumber) return errorResponse(request, "event_id and booth_number are required", 400)
+
+  const supabase = createServerClient()
+  const { data: existingEvent, error: eventError } = await supabase.from("events").select("event_id").eq("event_id", eventId).maybeSingle()
+  if (eventError) return errorResponse(request, eventError.message, 500)
+  if (!existingEvent) return errorResponse(request, "Event not found", 404)
+
+  const boothId = crypto.randomUUID()
+  const { error } = await supabase.from("booths").insert({
+    booth_id: boothId,
+    event_id: eventId,
+    booth_number: boothNumber,
+    size: typeof body.size === "string" ? body.size : null,
+    price: Number(body.price) || 0,
+    location: typeof body.location === "string" ? body.location : null,
+    type: typeof body.type === "string" ? body.type : "INDOOR",
+    classification: typeof body.classification === "string" ? body.classification : "FIXED",
+    duration_type: typeof body.duration_type === "string" ? body.duration_type : "SHORT_TERM",
+    electricity: Boolean(body.electricity),
+    outlets: Number(body.outlets) || 0,
+    water_supply: Boolean(body.water_supply),
+    status: "AVAILABLE",
+  })
+  if (error) return errorResponse(request, error.message, 500)
+  return jsonResponse(request, { booth_id: boothId }, 201)
+}
+
+async function updateBooth(request: Request, boothId: string): Promise<Response> {
+  const userOrResponse = await requireManager(request)
+  if (userOrResponse instanceof Response) return userOrResponse
+  const body = await requestBody(request)
+  const supabase = createServerClient()
+  const { data: existing, error: fetchError } = await supabase.from("booths").select("booth_id").eq("booth_id", boothId).maybeSingle()
+  if (fetchError) return errorResponse(request, fetchError.message, 500)
+  if (!existing) return errorResponse(request, "Booth not found", 404)
+
+  const updates: Record<string, unknown> = {}
+  if (typeof body.booth_number === "string" && body.booth_number.trim()) updates.booth_number = body.booth_number.trim()
+  if ("size" in body) updates.size = typeof body.size === "string" ? body.size : null
+  if ("price" in body) updates.price = Number(body.price) || 0
+  if ("location" in body) updates.location = typeof body.location === "string" ? body.location : null
+  if ("type" in body) updates.type = typeof body.type === "string" ? body.type : "INDOOR"
+  if ("classification" in body) updates.classification = typeof body.classification === "string" ? body.classification : "FIXED"
+  if ("duration_type" in body) updates.duration_type = typeof body.duration_type === "string" ? body.duration_type : "SHORT_TERM"
+  if ("electricity" in body) updates.electricity = Boolean(body.electricity)
+  if ("outlets" in body) updates.outlets = Number(body.outlets) || 0
+  if ("water_supply" in body) updates.water_supply = Boolean(body.water_supply)
+
+  if (Object.keys(updates).length === 0) return errorResponse(request, "No fields to update", 400)
+  const { error: updateError } = await supabase.from("booths").update(updates).eq("booth_id", boothId)
+  if (updateError) return errorResponse(request, updateError.message, 500)
+  return jsonResponse(request, { booth_id: boothId, ...updates })
+}
+
+async function deleteBooth(request: Request, boothId: string): Promise<Response> {
+  const userOrResponse = await requireManager(request)
+  if (userOrResponse instanceof Response) return userOrResponse
+  const supabase = createServerClient()
+  const { data: existing, error: fetchError } = await supabase.from("booths").select("booth_id").eq("booth_id", boothId).maybeSingle()
+  if (fetchError) return errorResponse(request, fetchError.message, 500)
+  if (!existing) return errorResponse(request, "Booth not found", 404)
+
+  await supabase.from("reservations").delete().eq("booth_id", boothId)
+  await supabase.from("booths").delete().eq("booth_id", boothId)
+  return jsonResponse(request, { msg: "booth deleted", booth_id: boothId })
+}
+
+async function getEvent(request: Request, eventId: string): Promise<Response> {
+  const supabase = createServerClient()
+  const { data, error } = await supabase
+    .from("events")
+    .select("event_id,name,description,location,start_date,end_date,created_by,created_at")
+    .eq("event_id", eventId)
+    .maybeSingle()
+  if (error) return errorResponse(request, error.message, 500)
+  if (!data) return errorResponse(request, "Event not found", 404)
+  return jsonResponse(request, data)
+}
+
 Deno.serve(async (request) => {
   const optionsResponse = handleOptions(request)
   if (optionsResponse) return optionsResponse
@@ -1011,6 +1167,26 @@ Deno.serve(async (request) => {
     if (method === "GET" && path === "/reports/reservations-payments") return await reportReservationsPayments(request)
     if (method === "GET" && path === "/reports/reservations-payments.csv") return await reportReservationsPaymentsCsv(request)
     if (method === "GET" && path === "/events") return await events(request)
+    if (method === "POST" && path === "/events") return await createEvent(request)
+    if (method === "POST" && path === "/booths") return await createBooth(request)
+
+    const eventMatch = path.match(/^\/events\/([^/]+)$/)
+    if (eventMatch) {
+      const eventId = decodeURIComponent(eventMatch[1])
+      if (method === "GET") return await getEvent(request, eventId)
+      if (method === "PUT") return await updateEvent(request, eventId)
+      if (method === "DELETE") return await deleteEvent(request, eventId)
+    }
+
+    const boothsMatch = path.match(/^\/events\/([^/]+)\/booths$/)
+    if (method === "GET" && boothsMatch) return await eventBooths(request, decodeURIComponent(boothsMatch[1]))
+
+    const boothMatch = path.match(/^\/booths\/([^/]+)$/)
+    if (boothMatch) {
+      const boothId = decodeURIComponent(boothMatch[1])
+      if (method === "PUT") return await updateBooth(request, boothId)
+      if (method === "DELETE") return await deleteBooth(request, boothId)
+    }
 
     const reservationConfirmMatch = path.match(/^\/reservations\/([^/]+)\/confirm$/)
     if (method === "PATCH" && reservationConfirmMatch) return await confirmReservation(request, decodeURIComponent(reservationConfirmMatch[1]))
@@ -1046,9 +1222,6 @@ Deno.serve(async (request) => {
 
     const notificationReadMatch = path.match(/^\/notifications\/([^/]+)\/read$/)
     if (method === "PATCH" && notificationReadMatch) return await markNotificationRead(request, decodeURIComponent(notificationReadMatch[1]))
-
-    const boothsMatch = path.match(/^\/events\/([^/]+)\/booths$/)
-    if (method === "GET" && boothsMatch) return await eventBooths(request, decodeURIComponent(boothsMatch[1]))
 
     return errorResponse(request, "Not found", 404)
   } catch (error) {

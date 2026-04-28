@@ -8,6 +8,7 @@ The Supabase PostgreSQL database is the production cloud database for this proje
 |---|---|
 | Supabase Project Ref | `uaoufhdysqcivheauwyf` |
 | Initial Migration | `supabase/migrations/20260428120000_initial_schema.sql` |
+| Demo Seed | `supabase/seed.sql` |
 | Cloud Tables | `users`, `events`, `booths`, `merchants`, `reservations`, `payments`, `notifications` |
 | ID Format | `varchar(36)` to match existing SQLAlchemy `String(36)` models |
 | Edge Function Base | `https://uaoufhdysqcivheauwyf.supabase.co/functions/v1/api` |
@@ -56,12 +57,21 @@ The React frontend should set `REACT_APP_API_URL` to the Edge Function base URL 
 
 Payment slip storage is not fully migrated yet. The current Edge Function records a `slip_url` marker so approval flow can be tested. Final storage should use a Supabase Storage bucket.
 
+Demo cloud data is loaded from `supabase/seed.sql`. It includes stable accounts and events so the frontend can be reviewed without running local backend scripts.
+
+| Role | Username | Password |
+|---|---|---|
+| Booth Manager | `boothManager` | `boothManager123` |
+| Merchant | `demoMerchant` | `merchant123` |
+| General User | `demoUser` | `user123` |
+
 ---
 
 ## Access Policy
 
 - **Supabase cloud DB is managed by the team lead / Person 1 only.**
-- Team members run all development and testing against their local SQLite database.
+- Team members use the deployed Edge API and seeded cloud demo data for frontend/manual review.
+- The inherited Python backend uses local SQLite only for CI/SonarCloud baseline coverage tests.
 - Destructive operations (DROP TABLE, DELETE FROM with no WHERE, DROP DATABASE, etc.) must **never** be executed against the Supabase cloud database.
 - If you need a schema change or data operation on the cloud DB, coordinate through the team lead and log the change in `docs/WORK_LOG.md`.
 
@@ -69,8 +79,8 @@ Payment slip storage is not fully migrated yet. The current Edge Function record
 
 ## Local Development & CI
 
-- **Local dev:** Use `DATABASE_URL=sqlite:///./local.db` (or leave unset for dev defaults).
-- **CI tests:** Use `DATABASE_URL=sqlite:///./test.db` so tests run against an isolated SQLite file.
+- **Frontend/manual review:** Use the deployed Edge API base URL and seeded Supabase demo data.
+- **Inherited backend baseline tests:** Use `DATABASE_URL=sqlite:///./test.db` so tests run against an isolated SQLite file.
 - Do not add SQLite-specific SQL (e.g. `PRAGMA foreign_keys=ON`, `check_same_thread`) to shared model code — these are applied conditionally.
 
 ---
@@ -90,7 +100,7 @@ Payment slip storage is not fully migrated yet. The current Edge Function record
 
 | Variable | Description |
 |---|---|
-| `REACT_APP_API_URL` | Full URL to the deployed Edge Function API (e.g. `https://uaoufhdysqcivheauwyf.supabase.co/functions/v1/api`). If omitted, defaults to `/api` (dev proxy). |
+| `REACT_APP_API_URL` | Full URL to the deployed Edge Function API (e.g. `https://uaoufhdysqcivheauwyf.supabase.co/functions/v1/api`). If omitted, the frontend code defaults to the deployed Edge API. |
 
 ---
 
@@ -119,6 +129,7 @@ DATABASE_URL=postgresql+psycopg2://postgres.xxx:yyyy@aws-0-xx.pooler.supabase.co
 
 ```bash
 cd implementations/backend
+python -c "from app.database.db_connection import init_db; init_db()"
 DATABASE_URL=sqlite:///./test.db pytest --cov=app --cov-report=xml --cov-report=term-missing
 ```
 
@@ -137,3 +148,17 @@ npx supabase secrets set JWT_SECRET=<secret> ENVIRONMENT=production
 ```
 
 Do not commit real secret values.
+
+### Apply Demo Seed Data
+
+```bash
+npx supabase db query --linked --file supabase/seed.sql
+```
+
+### Run Cloud Backend Smoke Checks
+
+```bash
+node scripts/smoke-test-edge-api.mjs
+```
+
+These checks use seeded demo accounts and call the deployed Edge Function API. They are integration smoke checks, not line-coverage tests.
