@@ -109,6 +109,7 @@ https://uaoufhdysqcivheauwyf.supabase.co/functions/v1/api
 For detailed cloud database and API notes, see:
 
 ```txt
+AGENTS.md
 docs/CLOUD_DATABASE_GUIDE.md
 docs/TEAM_SCOPE.md
 docs/WORK_LOG.md

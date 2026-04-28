@@ -70,7 +70,8 @@ Demo cloud data is loaded from `supabase/seed.sql`. It includes stable accounts 
 ## Access Policy
 
 - **Supabase cloud DB is managed by the team lead / Person 1 only.**
-- Team members run all development and testing against their local SQLite database.
+- Team members use the deployed Edge API and seeded cloud demo data for frontend/manual review.
+- The inherited Python backend uses local SQLite only for CI/SonarCloud baseline coverage tests.
 - Destructive operations (DROP TABLE, DELETE FROM with no WHERE, DROP DATABASE, etc.) must **never** be executed against the Supabase cloud database.
 - If you need a schema change or data operation on the cloud DB, coordinate through the team lead and log the change in `docs/WORK_LOG.md`.
 
@@ -78,8 +79,8 @@ Demo cloud data is loaded from `supabase/seed.sql`. It includes stable accounts 
 
 ## Local Development & CI
 
-- **Local dev:** Use `DATABASE_URL=sqlite:///./local.db` (or leave unset for dev defaults).
-- **CI tests:** Use `DATABASE_URL=sqlite:///./test.db` so tests run against an isolated SQLite file.
+- **Frontend/manual review:** Use the deployed Edge API base URL and seeded Supabase demo data.
+- **Inherited backend baseline tests:** Use `DATABASE_URL=sqlite:///./test.db` so tests run against an isolated SQLite file.
 - Do not add SQLite-specific SQL (e.g. `PRAGMA foreign_keys=ON`, `check_same_thread`) to shared model code — these are applied conditionally.
 
 ---

@@ -78,6 +78,88 @@ if (managerToken) {
     return `${data.username}/${data.role}`
   })
 
+  let tempEventId = null
+  let tempBoothId = null
+
+  await runCheck("create event", async () => {
+    const body = new URLSearchParams({
+      name: `Smoke Test Event ${Date.now()}`,
+      description: "Temporary event created by smoke test",
+      location: "Test Location",
+      start_date: "2026-05-01",
+      end_date: "2026-05-03",
+    })
+    const data = await jsonRequest("/events", {
+      method: "POST",
+      headers: { ...authHeaders, "Content-Type": "application/x-www-form-urlencoded" },
+      body,
+    })
+    if (!data.event_id) throw new Error(`No event_id returned: ${JSON.stringify(data)}`)
+    tempEventId = data.event_id
+    return tempEventId
+  })
+
+  await runCheck("update event", async () => {
+    if (!tempEventId) throw new Error("Temp event was not created")
+    const body = new URLSearchParams({ description: "Updated by smoke test" })
+    const data = await jsonRequest(`/events/${tempEventId}`, {
+      method: "PUT",
+      headers: { ...authHeaders, "Content-Type": "application/x-www-form-urlencoded" },
+      body,
+    })
+    if (!data.event_id) throw new Error(`No event_id returned: ${JSON.stringify(data)}`)
+    return data.event_id
+  })
+
+  await runCheck("get single event", async () => {
+    if (!tempEventId) throw new Error("Temp event was not created")
+    const data = await jsonRequest(`/events/${tempEventId}`)
+    if (!data.event_id) throw new Error(`No event returned: ${JSON.stringify(data)}`)
+    return data.name
+  })
+
+  await runCheck("create booth", async () => {
+    if (!tempEventId) throw new Error("Temp event was not created")
+    const body = new URLSearchParams({
+      event_id: tempEventId,
+      booth_number: `TEST-${Date.now()}`,
+      size: "3x3",
+      price: "500",
+      location: "Zone A",
+      type: "INDOOR",
+      classification: "FIXED",
+      duration_type: "SHORT_TERM",
+    })
+    const data = await jsonRequest("/booths", {
+      method: "POST",
+      headers: { ...authHeaders, "Content-Type": "application/x-www-form-urlencoded" },
+      body,
+    })
+    if (!data.booth_id) throw new Error(`No booth_id returned: ${JSON.stringify(data)}`)
+    tempBoothId = data.booth_id
+    return tempBoothId
+  })
+
+  await runCheck("delete booth", async () => {
+    if (!tempBoothId) throw new Error("Temp booth was not created")
+    const result = await jsonRequest(`/booths/${tempBoothId}`, {
+      method: "DELETE",
+      headers: authHeaders,
+    })
+    if (result.msg !== "booth deleted") throw new Error(`Unexpected delete response: ${JSON.stringify(result)}`)
+    return tempBoothId
+  })
+
+  await runCheck("delete event", async () => {
+    if (!tempEventId) throw new Error("Temp event was not created")
+    const result = await jsonRequest(`/events/${tempEventId}`, {
+      method: "DELETE",
+      headers: authHeaders,
+    })
+    if (result.msg !== "event deleted") throw new Error(`Unexpected delete response: ${JSON.stringify(result)}`)
+    return tempEventId
+  })
+
   await runCheck("report events", async () => {
     const data = await jsonRequest("/reports/events", { headers: authHeaders })
     if (data.length < 2) throw new Error(`Expected at least 2 report events, got ${data.length}`)
