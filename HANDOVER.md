@@ -14,24 +14,19 @@ Yes, the Booth Organizer System worked on my Mac computer.
 - **Frontend (React)**: Started and running at `http://localhost:3000`.
 - **Database**: Worked fine. The first user (Booth Manager) was created successfully.
 
-## 2. Another Way to Run the Program
-Instead of just running commands one by one, you can run the program easily and safely using a virtual environment:
+## 2. Current Way to Run the Program
 
-**Run the Backend on Mac/Linux:**
-```bash
-cd implementations/backend
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload --env-file .env
-```
+The active maintenance backend is deployed as a Supabase Edge Function. For current review, run only the React frontend and point it to the deployed API using `implementations/frontend/.env.example`.
 
 **Run the Frontend:**
 ```bash
 cd implementations/frontend
+cp .env.example .env
 npm install
 npm start
 ```
+
+The inherited FastAPI backend remains only for CI/SonarCloud baseline tests.
 
 ## 3. Problems in README.md and How to Fix Them
 

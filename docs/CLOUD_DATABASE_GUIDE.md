@@ -8,6 +8,7 @@ The Supabase PostgreSQL database is the production cloud database for this proje
 |---|---|
 | Supabase Project Ref | `uaoufhdysqcivheauwyf` |
 | Initial Migration | `supabase/migrations/20260428120000_initial_schema.sql` |
+| Demo Seed | `supabase/seed.sql` |
 | Cloud Tables | `users`, `events`, `booths`, `merchants`, `reservations`, `payments`, `notifications` |
 | ID Format | `varchar(36)` to match existing SQLAlchemy `String(36)` models |
 | Edge Function Base | `https://uaoufhdysqcivheauwyf.supabase.co/functions/v1/api` |
@@ -55,6 +56,14 @@ Edge Function auth uses `JWT_SECRET` stored as a Supabase function secret. New u
 The React frontend should set `REACT_APP_API_URL` to the Edge Function base URL and send protected requests with `Authorization: Bearer <access_token>` after login. The old Create React App local proxy is not used for cloud testing.
 
 Payment slip storage is not fully migrated yet. The current Edge Function records a `slip_url` marker so approval flow can be tested. Final storage should use a Supabase Storage bucket.
+
+Demo cloud data is loaded from `supabase/seed.sql`. It includes stable accounts and events so the frontend can be reviewed without running local backend scripts.
+
+| Role | Username | Password |
+|---|---|---|
+| Booth Manager | `boothManager` | `boothManager123` |
+| Merchant | `demoMerchant` | `merchant123` |
+| General User | `demoUser` | `user123` |
 
 ---
 
@@ -137,3 +146,9 @@ npx supabase secrets set JWT_SECRET=<secret> ENVIRONMENT=production
 ```
 
 Do not commit real secret values.
+
+### Apply Demo Seed Data
+
+```bash
+npx supabase db query --linked --file supabase/seed.sql
+```

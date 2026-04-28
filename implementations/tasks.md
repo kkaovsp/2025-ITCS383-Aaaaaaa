@@ -524,27 +524,13 @@ The system must enforce the following rules.
 
 ## Backend
 
-Install dependencies and run the FastAPI server.
+The active maintenance backend is deployed as a Supabase Edge Function:
 
 ```
-cd implementations/backend
-
-pip install -r requirements.txt
-
-uvicorn app.main:app --reload
+https://uaoufhdysqcivheauwyf.supabase.co/functions/v1/api
 ```
 
-Backend server runs at:
-
-```
-http://localhost:8000
-```
-
-API documentation is available at:
-
-```
-http://localhost:8000/docs
-```
+The inherited Python backend is kept only for CI/SonarCloud baseline tests.
 
 ---
 
@@ -554,6 +540,8 @@ Run the React development server.
 
 ```
 cd implementations/frontend
+
+cp .env.example .env
 
 npm install
 npm start

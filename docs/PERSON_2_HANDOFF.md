@@ -12,6 +12,7 @@ Person 2 is the first receiver after Person 1. The goal is to verify that the cl
 | Backend API | Supabase Edge Function API is deployed |
 | Frontend API wiring | React app can use `REACT_APP_API_URL` and bearer-token auth |
 | Reporting backend | Event list, reservation/payment report JSON, and CSV endpoints are ready |
+| Demo data | Stable Supabase seed data is loaded for frontend testing |
 | Payment slip storage | Placeholder only; real file storage is not finished |
 | D2 SonarCloud | Baseline is recorded; final scan waits until all team work is done |
 
@@ -32,6 +33,16 @@ https://uaoufhdysqcivheauwyf.supabase.co/functions/v1/api
 ```
 
 For local React testing, create `implementations/frontend/.env` from `implementations/frontend/.env.example`. The frontend now uses `REACT_APP_API_URL` instead of the old local FastAPI proxy.
+
+## Demo Login Accounts
+
+| Role | Username | Password |
+|---|---|---|
+| Booth Manager | `boothManager` | `boothManager123` |
+| Merchant | `demoMerchant` | `merchant123` |
+| General User | `demoUser` | `user123` |
+
+Seeded events include `Campus Food Fair 2026` and `Startup Expo 2026`.
 
 ## Person 2 Scope
 
