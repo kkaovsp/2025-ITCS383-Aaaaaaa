@@ -46,6 +46,9 @@ The first Edge Function API slice is deployed as `api` and currently supports:
 | PATCH | `/merchants/:merchant_id` | Merchant updates seller information |
 | GET | `/notifications` | User lists notifications |
 | PATCH | `/notifications/:notification_id/read` | User marks notification as read |
+| GET | `/reports/events` | Manager lists events for report filter |
+| GET | `/reports/reservations-payments?event_id=...` | Manager gets reservation/payment report rows |
+| GET | `/reports/reservations-payments.csv?event_id=...` | Manager downloads report CSV |
 
 Edge Function auth uses `JWT_SECRET` stored as a Supabase function secret. New users are hashed by the Edge Function using PBKDF2-SHA256.
 

@@ -1,4 +1,5 @@
 import { handleOptions } from "../_shared/cors.ts"
+import { corsHeaders } from "../_shared/cors.ts"
 import { createAccessToken, hashPassword, tokenFromRequest, verifyAccessToken, verifyPassword } from "../_shared/auth.ts"
 import { createServerClient } from "../_shared/supabaseClient.ts"
 import { errorResponse, jsonResponse } from "../_shared/json.ts"
@@ -729,6 +730,159 @@ async function markNotificationRead(request: Request, notificationId: string): P
   return jsonResponse(request, data)
 }
 
+async function requireManager(request: Request): Promise<UserRow | Response> {
+  const userOrResponse = await requireUser(request)
+  if (userOrResponse instanceof Response) return userOrResponse
+  if (userOrResponse.role !== "BOOTH_MANAGER") return errorResponse(request, "Forbidden", 403)
+  return userOrResponse
+}
+
+async function reportEvents(request: Request): Promise<Response> {
+  const managerOrResponse = await requireManager(request)
+  if (managerOrResponse instanceof Response) return managerOrResponse
+  const supabase = createServerClient()
+  const { data, error } = await supabase
+    .from("events")
+    .select("event_id,name,start_date,end_date,location")
+    .order("start_date", { ascending: true })
+  if (error) return errorResponse(request, error.message, 500)
+  return jsonResponse(request, data ?? [])
+}
+
+async function reportRows(request: Request, eventId: string) {
+  const supabase = createServerClient()
+  const { data: event, error: eventError } = await supabase
+    .from("events")
+    .select("event_id,name")
+    .eq("event_id", eventId)
+    .maybeSingle()
+  if (eventError) return { error: eventError.message, status: 500 as const }
+  if (!event) return { error: "Event not found", status: 404 as const }
+
+  const { data: booths, error: boothError } = await supabase
+    .from("booths")
+    .select("booth_id,booth_number,price,status")
+    .eq("event_id", eventId)
+    .order("booth_number", { ascending: true })
+  if (boothError) return { error: boothError.message, status: 500 as const }
+
+  const rows = []
+  for (const booth of booths ?? []) {
+    const { data: reservations } = await supabase
+      .from("reservations")
+      .select("reservation_id,merchant_id,reservation_type,status,created_at")
+      .eq("booth_id", booth.booth_id)
+      .order("created_at", { ascending: false })
+
+    if (!reservations?.length) {
+      rows.push({
+        event_id: event.event_id,
+        event_name: event.name,
+        booth_id: booth.booth_id,
+        booth_number: booth.booth_number,
+        booth_status: booth.status,
+        booth_price: booth.price,
+        reservation_id: null,
+        reservation_status: null,
+        reservation_type: null,
+        merchant_id: null,
+        merchant_name: null,
+        payment_id: null,
+        payment_amount: null,
+        payment_method: null,
+        payment_status: null,
+        payment_created_at: null,
+      })
+      continue
+    }
+
+    for (const reservation of reservations) {
+      const [{ data: merchant }, { data: payments }] = await Promise.all([
+        supabase.from("merchants").select("user_id").eq("merchant_id", reservation.merchant_id).maybeSingle(),
+        supabase.from("payments").select("payment_id,amount,method,payment_status,created_at").eq("reservation_id", reservation.reservation_id).order("created_at", { ascending: false }).limit(1),
+      ])
+      const { data: merchantUser } = merchant?.user_id
+        ? await supabase.from("users").select("name,username").eq("id", merchant.user_id).maybeSingle()
+        : { data: null }
+      const payment = payments?.[0]
+      rows.push({
+        event_id: event.event_id,
+        event_name: event.name,
+        booth_id: booth.booth_id,
+        booth_number: booth.booth_number,
+        booth_status: booth.status,
+        booth_price: booth.price,
+        reservation_id: reservation.reservation_id,
+        reservation_status: reservation.status,
+        reservation_type: reservation.reservation_type,
+        merchant_id: reservation.merchant_id,
+        merchant_name: merchantUser?.name ?? merchantUser?.username ?? null,
+        payment_id: payment?.payment_id ?? null,
+        payment_amount: payment?.amount ?? null,
+        payment_method: payment?.method ?? null,
+        payment_status: payment?.payment_status ?? null,
+        payment_created_at: payment?.created_at ?? null,
+      })
+    }
+  }
+
+  return { event, rows }
+}
+
+async function reportReservationsPayments(request: Request): Promise<Response> {
+  const managerOrResponse = await requireManager(request)
+  if (managerOrResponse instanceof Response) return managerOrResponse
+  const eventId = new URL(request.url).searchParams.get("event_id")
+  if (!eventId) return errorResponse(request, "event_id is required", 400)
+  const result = await reportRows(request, eventId)
+  if ("error" in result) return errorResponse(request, result.error, result.status)
+  return jsonResponse(request, { event: result.event, rows: result.rows })
+}
+
+function csvEscape(value: unknown): string {
+  if (value === null || value === undefined) return ""
+  const text = String(value)
+  if (/[",\n\r]/.test(text)) return `"${text.replace(/"/g, '""')}"`
+  return text
+}
+
+async function reportReservationsPaymentsCsv(request: Request): Promise<Response> {
+  const managerOrResponse = await requireManager(request)
+  if (managerOrResponse instanceof Response) return managerOrResponse
+  const eventId = new URL(request.url).searchParams.get("event_id")
+  if (!eventId) return errorResponse(request, "event_id is required", 400)
+  const result = await reportRows(request, eventId)
+  if ("error" in result) return errorResponse(request, result.error, result.status)
+
+  const headers = [
+    "event_id",
+    "event_name",
+    "booth_number",
+    "booth_status",
+    "booth_price",
+    "reservation_id",
+    "reservation_status",
+    "reservation_type",
+    "merchant_name",
+    "payment_id",
+    "payment_amount",
+    "payment_method",
+    "payment_status",
+    "payment_created_at",
+  ]
+  const lines = [headers.join(",")]
+  for (const row of result.rows) lines.push(headers.map((header) => csvEscape(row[header as keyof typeof row])).join(","))
+
+  return new Response(lines.join("\n"), {
+    status: 200,
+    headers: {
+      ...corsHeaders(request),
+      "Content-Type": "text/csv; charset=utf-8",
+      "Content-Disposition": `attachment; filename="event-${eventId}-report.csv"`,
+    },
+  })
+}
+
 async function updateProfile(request: Request): Promise<Response> {
   const user = await currentUser(request)
   if (!user) return errorResponse(request, "Not authenticated", 401)
@@ -853,6 +1007,9 @@ Deno.serve(async (request) => {
     if (method === "GET" && path === "/merchants/all") return await listUsers(request)
     if (method === "GET" && path === "/users") return await listUsers(request)
     if (method === "GET" && path === "/notifications") return await listNotifications(request)
+    if (method === "GET" && path === "/reports/events") return await reportEvents(request)
+    if (method === "GET" && path === "/reports/reservations-payments") return await reportReservationsPayments(request)
+    if (method === "GET" && path === "/reports/reservations-payments.csv") return await reportReservationsPaymentsCsv(request)
     if (method === "GET" && path === "/events") return await events(request)
 
     const reservationConfirmMatch = path.match(/^\/reservations\/([^/]+)\/confirm$/)
