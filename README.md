@@ -68,10 +68,17 @@ npx react-scripts test --watchAll=false --passWithNoTests
 npm run build
 ```
 
+Cloud backend smoke checks:
+
+```bash
+node scripts/smoke-test-edge-api.mjs
+```
+
 Inherited backend baseline checks for CI/SonarCloud evidence:
 
 ```bash
 cd implementations/backend
+python -c "from app.database.db_connection import init_db; init_db()"
 DATABASE_URL=sqlite:///./test.db pytest --cov=app --cov-report=xml --cov-report=term-missing
 ```
 

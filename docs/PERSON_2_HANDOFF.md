@@ -70,6 +70,7 @@ Run backend baseline tests:
 
 ```bash
 cd implementations/backend
+python -c "from app.database.db_connection import init_db; init_db()"
 DATABASE_URL=sqlite:///./test.db pytest --cov=app --cov-report=xml --cov-report=term-missing
 ```
 
@@ -81,6 +82,14 @@ npm install
 npx react-scripts test --watchAll=false --passWithNoTests
 npm run build
 ```
+
+Run cloud backend smoke checks against the deployed Supabase Edge API:
+
+```bash
+node scripts/smoke-test-edge-api.mjs
+```
+
+These smoke checks verify deployed behavior. They do not replace the inherited Python coverage baseline used for the current D2/SonarCloud evidence.
 
 ## Handoff Completion Criteria
 

@@ -128,6 +128,7 @@ DATABASE_URL=postgresql+psycopg2://postgres.xxx:yyyy@aws-0-xx.pooler.supabase.co
 
 ```bash
 cd implementations/backend
+python -c "from app.database.db_connection import init_db; init_db()"
 DATABASE_URL=sqlite:///./test.db pytest --cov=app --cov-report=xml --cov-report=term-missing
 ```
 
@@ -152,3 +153,11 @@ Do not commit real secret values.
 ```bash
 npx supabase db query --linked --file supabase/seed.sql
 ```
+
+### Run Cloud Backend Smoke Checks
+
+```bash
+node scripts/smoke-test-edge-api.mjs
+```
+
+These checks use seeded demo accounts and call the deployed Edge Function API. They are integration smoke checks, not line-coverage tests.

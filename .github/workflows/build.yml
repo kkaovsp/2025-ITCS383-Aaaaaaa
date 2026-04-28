@@ -74,10 +74,25 @@ jobs:
       - name: Build frontend
         run: npm run build
 
+  edge-smoke:
+    name: Supabase Edge API Smoke Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run deployed Edge API smoke tests
+        run: node scripts/smoke-test-edge-api.mjs
+
   sonarqube:
     name: SonarQube
     runs-on: ubuntu-latest
-    needs: [backend, frontend]
+    needs: [backend, frontend, edge-smoke]
     if: success() && !cancelled()
     steps:
       - name: Checkout repository
