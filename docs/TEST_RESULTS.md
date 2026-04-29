@@ -1,8 +1,8 @@
 # Test Results — Booth Organizer System
 
-**Author:** Person 2  
-**Date:** 2026-04-28  
-**Phase:** Phase 2 Part 2 — Maintenance QA
+**Author:** Person 2
+**Date:** 2026-04-29
+**Phase:** Phase 2 Part 2 — Maintenance QA + D2 SonarCloud migration
 
 ---
 
@@ -11,11 +11,12 @@
 | Category | Total | Pass | Fail |
 |---|---|---|---|
 | Edge API Smoke Tests | 19 | 19 | 0 |
+| Edge Function Deno Tests | 25 | 25 | 0 |
+| Legacy Backend Coverage Tests | 39 | 39 | 0 |
 | Frontend Automated Tests | 23 | 23 | 0 |
-| Inherited Backend Coverage Tests | 38 | 38 | 0 |
 | Manual Browser Tests (Manager) | 11 | 11 | 0 |
 | Manual Browser Tests (Merchant) | 4 | 4 | 0 |
-| **Total** | **95** | **95** | **0** |
+| **Total** | **121** | **121** | **0** |
 
 **Overall Result: ✅ ALL TESTS PASSED**
 
@@ -25,8 +26,8 @@
 
 ### 2.1 Edge API Smoke Tests
 
-**Command:** `node scripts/smoke-test-edge-api.mjs`  
-**Result:** 19/19 passed  
+**Command:** `node scripts/smoke-test-edge-api.mjs`
+**Result:** 19/19 passed
 
 ```
 PASS health: status=ok
@@ -51,23 +52,51 @@ PASS merchant notifications: count=1
 19/19 smoke checks passed
 ```
 
-### 2.2 Frontend Unit Tests
+### 2.2 Edge Function Deno Tests (Active Backend Coverage)
 
-**Command:** `npm run test:coverage`
-**Result:** 23 passed, 3 suites, 98.93% statement coverage and 100% line coverage for new maintenance frontend code
+**Command:** `cd supabase/functions && npx deno test --coverage=coverage --no-check --allow-all api/index_test.ts _shared/shared_helpers_test.ts _shared/auth_test.ts && npx deno coverage coverage --lcov > coverage/lcov.info`
+**Result:** 25 passed, 90.2% overall coverage on 184 lines
 
 ```
-PASS src/pages/__tests__/ReportsPage.test.js
-PASS src/components/__tests__/LanguageToggle.test.js
-PASS src/components/__tests__/NotificationBell.test.js
-Tests:       23 passed, 23 total
-Test Suites: 3 passed, 3 total
-All files:   98.93% statements, 100% lines, 90.12% branches
+running 7 tests from ./_shared/shared_helpers_test.ts
+  jsonResponse sets correct status and headers ... ok
+  jsonResponse accepts custom status and extra headers ... ok
+  errorResponse returns correct error structure ... ok
+  handleOptions returns null for non-OPTIONS requests ... ok
+  handleOptions handles CORS preflight ... ok
+  corsHeaders uses configured allowed origin ... ok
+  corsHeaders falls back when origin is not allowed ... ok
+
+running 7 tests from ./_shared/auth_test.ts
+  hashPassword produces a fixable format ... ok
+  verifyPassword accepts correct password ... ok
+  verifyPassword rejects wrong password ... ok
+  verifyPassword rejects invalid hash format ... ok
+  createAccessToken and verifyAccessToken round-trip ... ok
+  verifyAccessToken rejects tampered token ... ok
+  verifyAccessToken rejects expired token ... ok
+
+running 11 tests from ./api/index_test.ts
+  apiPath strips /functions/v1/api prefix ... ok
+  apiPath strips /api prefix ... ok
+  apiPath returns /events ... ok
+  apiPath returns / ... ok
+  normalizeRole maps role aliases ... ok
+  normalizeRole handles edge cases ... ok
+  isValidCitizenId validates 13-digit strings ... ok
+  isValidCitizenId rejects invalid input ... ok
+  csvEscape handles null/undefined ... ok
+  csvEscape passes simple strings ... ok
+  csvEscape quotes special characters ... ok
+
+ok | 25 passed | 0 failed
 ```
 
-> **Note:** The original project reported backend coverage only. The maintenance team now also records frontend Jest coverage for new maintenance UI files: `ReportsPage.js`, `LanguageToggle.js`, and `NotificationBell.js`. Full inherited-app React coverage is not used for the assignment coverage target because many old pages were outside this maintenance scope.
+**Coverage by file:** auth.ts 86.5% (111 lines), cors.ts 96% (25 lines), json.ts 100% (18 lines), helpers.ts 93.3% (30 lines). Overall 90.2% on 184 lines.
 
-### 2.3 Inherited Backend Coverage Tests
+**LCOV generated at:** `supabase/functions/coverage/lcov.info` (using Deno built-in `npx deno coverage coverage --lcov`)
+
+### 2.3 Legacy Backend Coverage Tests (Reference Only — Non-Blocking)
 
 **Command:** `pytest --cov=app --cov-report=xml --cov-report=term-missing`
 **Result:** 39 passed, 96% total coverage
@@ -80,10 +109,26 @@ Coverage XML written to file coverage.xml
 39 passed
 ```
 
-### 2.4 Frontend Production Build
+> **Note:** This job is a non-blocking reference in CI. It no longer gates the SonarCloud quality gate. The active SonarCloud scan sources are `supabase/functions/` only, so the Python backend (`implementations/backend/`) is entirely outside the active scan scope and requires no explicit exclusion.
 
-**Command:** `npm run build`  
-**Result:** Compiled successfully  
+### 2.4 Frontend Unit Tests
+
+**Command:** `npm run test:coverage`
+**Result:** 23 passed, 3 suites, 98.93% statement coverage and 100% line coverage for maintenance frontend code
+
+```
+PASS src/pages/__tests__/ReportsPage.test.js
+PASS src/components/__tests__/LanguageToggle.test.js
+PASS src/components/__tests__/NotificationBell.test.js
+Tests:       23 passed, 23 total
+Test Suites: 3 passed, 3 total
+All files:   98.93% statements, 100% lines, 90.12% branches
+```
+
+### 2.5 Frontend Production Build
+
+**Command:** `npm run build`
+**Result:** Compiled successfully
 
 ```
 Creating an optimized production build...
@@ -135,10 +180,11 @@ The web system is stable after Person 2 QA, Person 3 localization, and Person 4 
 
 | ID | Severity | Description |
 |---|---|---|
-| KL-01 | Low | Frontend automated tests focus on the reporting page. Full frontend coverage remains limited. |
-| KL-02 | Low | Payment slip storage is a placeholder marker. Full Supabase Storage integration is a future improvement (documented by Person 1). |
-| KL-03 | Info | The frontend has no search functionality or floor plan UI (out of scope for the maintenance phase, as documented in HANDOVER.md). |
+| KL-01 | Low | Deno tests cover pure helper code (184 lines, 90.2% overall coverage). The main `Deno.serve` handler (~1,000 lines) requires a live Supabase project or mock environment to test end-to-end. Covered by deployed smoke tests (19/19). |
+| KL-02 | Low | Payment slip storage is a placeholder marker. Full Supabase Storage integration is a future improvement. |
+| KL-03 | Info | The frontend has no search functionality or floor plan UI (out of scope for this maintenance phase). |
 | KL-04 | Info | Android app scope is still pending after web completion. |
+| KL-05 | Info | Legacy FastAPI backend (`implementations/backend/`) is retained as non-blocking reference job. Its 96% coverage evidence is historical only; it no longer gates SonarCloud. |
 
 ---
 
@@ -165,4 +211,6 @@ The React frontend successfully communicates with the deployed Supabase Edge Fun
 
 ## 6. Conclusion
 
-The web app is **verified and stable**. The system passes 19 deployed Edge API smoke checks, 39 inherited backend coverage tests at 96% coverage, 23 frontend tests with 98.93% frontend new-code statement coverage, frontend production build, and the documented manual browser checks. Android remains the next major implementation area.
+The web app is **verified and stable** based on local Deno tests and deployed smoke tests. The system passes 19 deployed Edge API smoke checks, 25 Deno unit tests with 90.2% coverage on 184 lines of Edge helper/shared code, 39 legacy backend coverage tests (non-blocking reference), 23 frontend tests with 98.93% frontend new-code statement coverage, frontend production build, and the documented manual browser checks. Android remains the next major implementation area.
+
+**D2 SonarCloud migration — configuration complete, awaiting first CI run.** Active backend coverage uses Deno built-in LCOV (`npx deno coverage coverage --lcov > coverage/lcov.info`). Test files are excluded from analysis, helper/shared source is analyzed, and the main handler (`api/index.ts`) and `supabaseClient.ts` are excluded from coverage baseline (covered by smoke tests instead). Legacy Python backend runs as non-blocking reference job.

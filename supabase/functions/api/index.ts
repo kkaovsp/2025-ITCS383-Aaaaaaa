@@ -1,3 +1,4 @@
+import { apiPath, normalizeRole, isValidCitizenId, csvEscape } from "./helpers.ts"
 import { handleOptions } from "../_shared/cors.ts"
 import { corsHeaders } from "../_shared/cors.ts"
 import { createAccessToken, hashPassword, tokenFromRequest, verifyAccessToken, verifyPassword } from "../_shared/auth.ts"
@@ -18,32 +19,6 @@ type MerchantRow = {
   merchant_id: string
   user_id: string
   approval_status: string | null
-}
-
-const roleAliases: Record<string, string> = {
-  general: "GENERAL_USER",
-  general_user: "GENERAL_USER",
-  merchant: "MERCHANT",
-  booth_manager: "BOOTH_MANAGER",
-  boothmanager: "BOOTH_MANAGER",
-}
-
-function apiPath(request: Request): string {
-  const url = new URL(request.url)
-  let path = url.pathname
-  path = path.replace(/^\/functions\/v1\/api/, "")
-  path = path.replace(/^\/api/, "")
-  return path || "/"
-}
-
-function normalizeRole(value: unknown): string {
-  if (typeof value !== "string" || !value.trim()) return "GENERAL_USER"
-  const key = value.trim().toLowerCase()
-  return roleAliases[key] ?? value.trim().toUpperCase()
-}
-
-function isValidCitizenId(value: unknown): boolean {
-  return typeof value === "string" && /^\d{13}$/.test(value)
 }
 
 async function requestBody(request: Request): Promise<Record<string, unknown>> {
@@ -835,15 +810,8 @@ async function reportReservationsPayments(request: Request): Promise<Response> {
   const eventId = new URL(request.url).searchParams.get("event_id")
   if (!eventId) return errorResponse(request, "event_id is required", 400)
   const result = await reportRows(request, eventId)
-  if ("error" in result) return errorResponse(request, result.error, result.status)
+  if ("error" in result) return errorResponse(request, result.error as string, result.status as number)
   return jsonResponse(request, { event: result.event, rows: result.rows })
-}
-
-function csvEscape(value: unknown): string {
-  if (value === null || value === undefined) return ""
-  const text = String(value)
-  if (/[",\n\r]/.test(text)) return `"${text.replace(/"/g, '""')}"`
-  return text
 }
 
 async function reportReservationsPaymentsCsv(request: Request): Promise<Response> {
@@ -852,7 +820,7 @@ async function reportReservationsPaymentsCsv(request: Request): Promise<Response
   const eventId = new URL(request.url).searchParams.get("event_id")
   if (!eventId) return errorResponse(request, "event_id is required", 400)
   const result = await reportRows(request, eventId)
-  if ("error" in result) return errorResponse(request, result.error, result.status)
+  if ("error" in result) return errorResponse(request, result.error as string, result.status as number)
 
   const headers = [
     "event_id",

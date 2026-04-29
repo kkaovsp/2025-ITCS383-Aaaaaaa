@@ -2,7 +2,7 @@
 
 A **Booth Organizer** is a web application designed to help event organizers manage booth inventory, merchant registrations, reservations, and payments. Merchants can sign up and reserve temporary or fixed booths for events; booth managers create events and approve merchants, reservations and payments. The platform includes notification support and role-based access control.
 
-This repository contains a Booth Organizer web frontend and a Supabase Edge Function backend for the Phase 2 Part 2 maintenance work. The inherited FastAPI backend remains in the repository for baseline tests and SonarCloud evidence, but the active cloud backend is Supabase.
+This repository contains a Booth Organizer web frontend and a Supabase Edge Function backend for the Phase 2 Part 2 maintenance work. The inherited FastAPI backend remains in the repository as a non-blocking reference job; the active cloud backend is Supabase Edge Functions.
 
 ## Setup Instructions
 
@@ -74,6 +74,15 @@ Cloud backend smoke checks:
 node scripts/smoke-test-edge-api.mjs
 ```
 
+Deno unit tests (active backend coverage):
+
+```bash
+cd supabase/functions
+npm install --save-dev deno@1.46.0
+npx deno test --coverage=coverage --no-check --allow-all api/index_test.ts _shared/shared_helpers_test.ts _shared/auth_test.ts
+npx deno coverage coverage --lcov > coverage/lcov.info
+```
+
 Inherited backend baseline checks for CI/SonarCloud evidence:
 
 ```bash
@@ -98,7 +107,7 @@ This section records the current Phase 2 Part 2 maintenance work completed by th
 | Web frontend | React app uses the deployed Edge API, includes EN/TH localization, and includes a Booth Manager reporting page with CSV export |
 | Current handoff | Web app review passed after Person 2 QA, Person 3 localization, and Person 4 reporting work |
 | Android app | Required feature; implementation starts after backend/web behavior is stable |
-| Quality | Backend baseline tests pass at 96% coverage; frontend tests/build and Supabase Edge API smoke tests pass |
+| Quality | Active backend Deno unit tests: 25 passed, 90.2% coverage on 184 lines; Edge API smoke: 19/19; frontend tests and build pass; legacy FastAPI backend: reference only (96% coverage, non-blocking) |
 
 Current backend API base:
 

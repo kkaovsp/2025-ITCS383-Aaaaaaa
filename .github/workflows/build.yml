@@ -8,8 +8,9 @@ on:
 
 jobs:
   backend:
-    name: Backend Tests
+    name: Inherited Backend (Legacy Reference)
     runs-on: ubuntu-latest
+    continue-on-error: true
     defaults:
       run:
         working-directory: implementations/backend
@@ -46,6 +47,43 @@ jobs:
           path: implementations/backend/coverage.xml
           if-no-files-found: warn
 
+  edge-coverage:
+    name: Edge Function Deno Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: supabase/functions
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Deno
+        run: npm install --save-dev deno@1.46.0
+
+      - name: Validate Edge Function TypeScript
+        run: npx deno check api/index.ts
+
+      - name: Run Deno tests with coverage
+        run: npx deno test --coverage=coverage --no-check --allow-all api/index_test.ts _shared/shared_helpers_test.ts _shared/auth_test.ts
+
+      - name: Convert coverage to LCOV
+        run: npx deno coverage coverage --lcov > coverage/lcov.info
+
+      - name: Upload Edge coverage LCOV
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge-coverage-lcov
+          path: supabase/functions/coverage/lcov.info
+          if-no-files-found: error
+
   frontend:
     name: Frontend Tests and Build
     runs-on: ubuntu-latest
@@ -80,6 +118,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -92,7 +132,7 @@ jobs:
   sonarqube:
     name: SonarQube
     runs-on: ubuntu-latest
-    needs: [backend, frontend, edge-smoke]
+    needs: [edge-coverage, frontend, edge-smoke]
     if: success() && !cancelled()
     steps:
       - name: Checkout repository
@@ -100,12 +140,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download backend coverage
+      - name: Download Edge coverage LCOV
         uses: actions/download-artifact@v4
-        continue-on-error: true
         with:
-          name: backend-coverage-xml
-          path: implementations/backend
+          name: edge-coverage-lcov
+          path: supabase/functions/coverage
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6

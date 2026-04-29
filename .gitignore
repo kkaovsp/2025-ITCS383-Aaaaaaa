@@ -26,6 +26,10 @@ sonar-scanner-cli-*.zip
 .scannerwork
 .sonar
 
+# Deno
+deno.lock
+supabase/functions/coverage/
+
 # Coverage files
 .coverage
 coverage.xml

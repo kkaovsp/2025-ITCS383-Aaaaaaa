@@ -1,0 +1,12 @@
+{
+  "imports": {
+    "@/": "./",
+    "../_shared/cors.ts": "./_shared/cors.ts",
+    "../_shared/auth.ts": "./_shared/auth.ts",
+    "../_shared/json.ts": "./_shared/json.ts",
+    "../_shared/supabaseClient.ts": "./_shared/supabaseClient.ts"
+  },
+  "compilerOptions": {
+    "lib": ["deno.window", "deno.unstable"]
+  }
+}
