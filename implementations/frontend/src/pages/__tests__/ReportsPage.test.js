@@ -67,6 +67,20 @@ const ReportsPage = require('../ReportsPage').default;
 beforeEach(() => {
   mockGet.mockReset();
   mockGet.mockImplementation(() => Promise.resolve({ data: [] }));
+  if (!window.URL.createObjectURL) {
+    window.URL.createObjectURL = jest.fn();
+  }
+  if (!window.URL.revokeObjectURL) {
+    window.URL.revokeObjectURL = jest.fn();
+  }
+  window.URL.createObjectURL = jest.fn(() => 'blob:report');
+  window.URL.revokeObjectURL = jest.fn();
+});
+
+afterEach(() => {
+  if (document.createElement.mockRestore) {
+    document.createElement.mockRestore();
+  }
 });
 
 test('renders page title and initial hint', async () => {
@@ -166,5 +180,124 @@ test('shows empty state for event with no reservations', async () => {
   });
 
   expect(screen.getByText('No reservations found for this event.')).toBeInTheDocument();
+});
+
+test('shows report API error message when generation fails', async () => {
+  mockGet.mockImplementation((url) => {
+    if (url.includes('/reports/events')) {
+      return Promise.resolve({ data: [{ event_id: 'e1', name: 'Ev1' }] });
+    }
+    return Promise.reject({ response: { data: { error: 'Report unavailable' } } });
+  });
+
+  await act(async () => {
+    render(<BrowserRouter><ReportsPage /></BrowserRouter>);
+  });
+
+  fireEvent.change(screen.getByRole('combobox'), { target: { value: 'e1' } });
+  await act(async () => {
+    fireEvent.click(screen.getByText('Generate Report'));
+  });
+
+  expect(screen.getByRole('alert')).toHaveTextContent('Report unavailable');
+});
+
+test('downloads CSV with selected event name', async () => {
+  const originalCreateElement = document.createElement.bind(document);
+  const anchor = originalCreateElement('a');
+  const click = jest.spyOn(anchor, 'click').mockImplementation(() => {});
+  const remove = jest.spyOn(anchor, 'remove').mockImplementation(() => {});
+  const setAttribute = jest.spyOn(anchor, 'setAttribute');
+  jest.spyOn(document, 'createElement').mockImplementation((tagName) => {
+    if (tagName === 'a') {
+      return anchor;
+    }
+    return originalCreateElement(tagName);
+  });
+
+  mockGet.mockImplementation((url) => {
+    if (url.includes('/reports/events')) {
+      return Promise.resolve({ data: [{ event_id: 'e1', name: 'Big Fair', location: 'Hall' }] });
+    }
+    if (url.includes('/reports/reservations-payments.csv')) {
+      return Promise.resolve({ data: 'csv,data' });
+    }
+    return Promise.resolve({ data: { event: { name: 'Big Fair' }, rows: [] } });
+  });
+
+  await act(async () => {
+    render(<BrowserRouter><ReportsPage /></BrowserRouter>);
+  });
+
+  fireEvent.change(screen.getByRole('combobox'), { target: { value: 'e1' } });
+  await act(async () => {
+    fireEvent.click(screen.getByText(/Download CSV/));
+  });
+
+  expect(mockGet).toHaveBeenCalledWith('/reports/reservations-payments.csv?event_id=e1', { responseType: 'blob' });
+  expect(setAttribute).toHaveBeenCalledWith('download', expect.stringMatching(/^report_Big_Fair_\d{4}-\d{2}-\d{2}\.csv$/));
+  expect(click).toHaveBeenCalled();
+  expect(remove).toHaveBeenCalled();
+  expect(window.URL.revokeObjectURL).toHaveBeenCalledWith('blob:report');
+});
+
+test('shows CSV error when download fails', async () => {
+  mockGet.mockImplementation((url) => {
+    if (url.includes('/reports/events')) {
+      return Promise.resolve({ data: [{ event_id: 'e1', name: 'Ev1' }] });
+    }
+    if (url.includes('/reports/reservations-payments.csv')) {
+      return Promise.reject(new Error('csv failed'));
+    }
+    return Promise.resolve({ data: [] });
+  });
+
+  await act(async () => {
+    render(<BrowserRouter><ReportsPage /></BrowserRouter>);
+  });
+
+  fireEvent.change(screen.getByRole('combobox'), { target: { value: 'e1' } });
+  await act(async () => {
+    fireEvent.click(screen.getByText(/Download CSV/));
+  });
+
+  expect(screen.getByRole('alert')).toHaveTextContent('Failed to download CSV');
+});
+
+test('renders all report status badge branches and fallback values', async () => {
+  mockGet.mockImplementation((url) => {
+    if (url.includes('/reports/events')) {
+      return Promise.resolve({ data: { events: [{ event_id: 'e1', name: 'Fair', location: 'Hall' }] } });
+    }
+    return Promise.resolve({
+      data: {
+        event: { name: 'Fair', start_date: '2026-01-01', end_date: '2026-01-02', location: 'Hall' },
+        rows: [
+          { reservation_id: 'r1', booth_number: 'A01', booth_size: '3x3', merchant_name: 'Shop A', reservation_type: 'SHORT_TERM', reservation_status: 'CONFIRMED', payment_amount: 100, payment_method: 'CARD', payment_status: 'APPROVED', payment_created_at: '2026-04-20T10:00:00Z' },
+          { reservation_id: 'r2', booth_number: 'A02', booth_size: '', merchant_name: '', reservation_type: 'SHORT_TERM', reservation_status: 'PENDING', payment_amount: null, payment_method: '', payment_status: 'REJECTED', payment_created_at: '' },
+          { reservation_id: 'r3', booth_number: 'A03', reservation_type: 'SHORT_TERM', reservation_status: 'CANCELLED', payment_amount: 0, payment_status: 'UNKNOWN' },
+          { reservation_id: 'r4', booth_number: 'A04', reservation_type: 'SHORT_TERM', reservation_status: 'OTHER', payment_status: null },
+        ],
+      },
+    });
+  });
+
+  await act(async () => {
+    render(<BrowserRouter><ReportsPage /></BrowserRouter>);
+  });
+
+  fireEvent.change(screen.getByRole('combobox'), { target: { value: 'e1' } });
+  await act(async () => {
+    fireEvent.click(screen.getByText('Generate Report'));
+  });
+
+  expect(screen.getByText('CONFIRMED')).toHaveClass('badge-success');
+  expect(screen.getByText('PENDING')).toHaveClass('badge-warning');
+  expect(screen.getByText('CANCELLED')).toHaveClass('badge-danger');
+  expect(screen.getByText('OTHER')).toHaveClass('badge-gray');
+  expect(screen.getByText('APPROVED')).toHaveClass('badge-success');
+  expect(screen.getByText('REJECTED')).toHaveClass('badge-danger');
+  expect(screen.getByText('UNKNOWN')).toHaveClass('badge-gray');
+  expect(screen.getAllByText('—').length).toBeGreaterThan(0);
 });
 

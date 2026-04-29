@@ -11,10 +11,11 @@ Phase 2 Part 2 maintenance scope includes:
 
 | Setting | Value |
 |---|---|
-| Scope | `implementations/backend/app` |
-| Coverage Source | `implementations/backend/coverage.xml` |
+| SonarCloud Scope | `implementations/backend/app` |
+| SonarCloud Coverage Source | `implementations/backend/coverage.xml` |
+| Frontend Coverage Source | `implementations/frontend/coverage/lcov.info` from local `npm run test:coverage` |
 | New Code Definition | Previous version (baseline 1.0) |
-| Rationale | Backend has Pytest coverage; inherited React project had no frontend unit tests |
+| Rationale | The original project measured backend coverage only. Our maintenance work keeps that SonarCloud baseline and also adds frontend Jest coverage evidence for changed UI features. |
 
 ## Quality Comparison
 
@@ -24,18 +25,19 @@ Phase 2 Part 2 maintenance scope includes:
 | Bugs | 0 | 0 |
 | Vulnerabilities | 0 | 0 |
 | Code Smells | 0 | 1 |
-| Coverage | 44.2% (invalid) | **83.6%** on 1.1k lines |
+| Coverage | 44.2% (invalid) | **95%** on 1.1k lines |
+| Frontend New-Code Coverage | Not measured by original group | **98.93%** statement coverage, **100%** line coverage |
 | Duplications | 0.0% | 0.0% |
 
-> Coverage note: Earlier 44.2% was invalid due to CI pipeline missing DB initialization. Fixed in CI, recovered to 83.6%.
+> Coverage note: Earlier 44.2% was invalid due to CI pipeline missing DB initialization. The backend baseline suite now passes locally at 95% coverage with `coverage.xml` regenerated for SonarCloud. Frontend new-code coverage is measured separately for the maintenance UI files and now passes the >90% requirement.
 
-## Baseline Results (master @ f03f0ea8)
+## Current Baseline Results
 
 | Metric | Value |
 |---|---|
 | Quality Gate | **Passed** |
 | LOC | 1.7k |
-| Coverage | 83.6% on 1.1k lines |
+| Coverage | 95% on 1.1k lines |
 | Duplications | 0.0% on 2.2k lines |
 | Security | A (0 issues) |
 | Reliability | A (0 issues) |
@@ -48,9 +50,17 @@ Phase 2 Part 2 maintenance scope includes:
 
 ## Cloud Migration — SonarCloud Note
 
-**Current SonarCloud results above reflect the baseline before cloud migration changes.**
+The active backend is now Supabase Edge Functions, but SonarCloud still measures the inherited FastAPI backend as the stable CI coverage baseline. The original group only reported backend coverage, while our maintenance review records both backend coverage and frontend Jest coverage. The frontend is not added to SonarCloud in this pass because full-app React coverage is still low, but the changed UI areas now have focused tests.
 
-The project is now changing backend architecture from inherited FastAPI to Supabase Edge Functions. D2 keeps the current screenshots as the **before/baseline** result and should be updated one final time after all team implementation work is complete. Do not replace the baseline screenshots after each intermediate migration step.
+Current final web review evidence:
+
+| Check | Result |
+|---|---|
+| Inherited backend coverage | `38 passed`, `95%` total coverage |
+| Deployed Edge API smoke test | `19/19 smoke checks passed` |
+| Frontend tests | `23 passed`, 3 suites |
+| Frontend new-code coverage | `98.93%` statements, `100%` lines, `90.12%` branches |
+| Frontend build | Compiled successfully |
 
 ---
 
@@ -66,6 +76,14 @@ Post-implementation Edge backend smoke checks:
 
 ```bash
 node scripts/smoke-test-edge-api.mjs
+```
+
+Frontend coverage checks:
+
+```bash
+cd implementations/frontend
+npm run test:coverage
+npm run build
 ```
 
 ## Evidence

@@ -1,6 +1,6 @@
 ﻿# D4: Impact Analysis
 
-> **Status:** This document uses the current 10-CR maintenance plan. Person 2 should review evidence links after QA testing, and the team should do a final pass before submission.
+> **Status:** This document uses the current 10-CR maintenance plan. Web work for CR-01 through CR-06 is implemented and verified. Android work for CR-07 through CR-10 remains pending.
 
 ## 1. Overview
 
@@ -49,12 +49,12 @@ The maintenance work focuses on:
 
 | Change Request | Affected Modules | Test or Evidence |
 |---|---|---|
-| CR-01 | Supabase Edge report endpoints and response format | Edge API smoke tests and response inspection |
-| CR-02 | Web reports page, event dropdown, report table | Web UI screenshot and browser inspection |
-| CR-03 | Backend CSV endpoint, web CSV download button | CSV output evidence |
-| CR-04 | Backend validation, web empty/error states, tests | Empty/error case tests |
-| CR-05 | Web localization files and static UI text | EN/TH UI screenshots |
-| CR-06 | Language toggle component and data display components | Toggle test and unchanged data inspection |
+| CR-01 | Supabase Edge report endpoints and response format | Edge API smoke tests passed |
+| CR-02 | Web reports page, event dropdown, report table | Frontend report tests and build passed |
+| CR-03 | Backend CSV endpoint, web CSV download button | Edge smoke CSV check and report UI test passed |
+| CR-04 | Backend validation, web empty/error states, tests | Report empty/error state tests passed |
+| CR-05 | Web localization files and static UI text | Frontend build/tests passed after EN/TH implementation |
+| CR-06 | Language toggle component and data display components | Static UI localized; database content remains unchanged by design |
 | CR-07 | Android project/repository structure | Android build evidence |
 | CR-08 | Android login screen, token storage, API client | Login test/emulator screenshot |
 | CR-09 | Android event and booth browsing screens | Event/booth browsing screenshots |
@@ -98,6 +98,6 @@ graph TD
 
 ## 8. Impact Summary
 
-The highest impact areas are the reporting API and the user interfaces for web and mobile. The localization feature mostly affects static UI text and should not affect database content. The reporting feature has a stronger backend impact because it requires event filtering, reservation/payment data retrieval, and CSV export.
+The highest impact areas are the reporting API and the user interfaces for web and mobile. Web localization and reporting are now implemented and verified. The localization feature affects static UI text only and does not change database content. The reporting feature has a stronger backend impact because it requires event filtering, reservation/payment data retrieval, and CSV export.
 
-The main risk is inconsistent behavior between web and Android. This risk is reduced by using the same backend reporting endpoints for both platforms and by keeping the localization behavior simple.
+The main remaining risk is inconsistent behavior between web and Android. This risk is reduced by using the same backend reporting endpoints for both platforms and by keeping the localization behavior simple.

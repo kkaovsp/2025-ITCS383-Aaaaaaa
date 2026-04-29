@@ -30,6 +30,7 @@ sonar-scanner-cli-*.zip
 .coverage
 coverage.xml
 htmlcov/
+implementations/frontend/coverage/
 
 # folder
 uploads/

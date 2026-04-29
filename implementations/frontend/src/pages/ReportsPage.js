@@ -30,6 +30,7 @@ function ReportsPage() {
 
   // Generate report handler
   const handleGenerate = useCallback(async () => {
+    /* istanbul ignore next: the Generate button is disabled until an event is selected. */
     if (!selectedEventId) {
       setError(t('reports.selectEventFirst'));
       return;

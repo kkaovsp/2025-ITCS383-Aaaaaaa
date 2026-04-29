@@ -11,10 +11,11 @@
 | Category | Total | Pass | Fail |
 |---|---|---|---|
 | Edge API Smoke Tests | 19 | 19 | 0 |
-| Frontend Automated Tests | 2 | 2 | 0 |
+| Frontend Automated Tests | 23 | 23 | 0 |
+| Inherited Backend Coverage Tests | 38 | 38 | 0 |
 | Manual Browser Tests (Manager) | 11 | 11 | 0 |
 | Manual Browser Tests (Merchant) | 4 | 4 | 0 |
-| **Total** | **36** | **36** | **0** |
+| **Total** | **95** | **95** | **0** |
 
 **Overall Result: ✅ ALL TESTS PASSED**
 
@@ -29,7 +30,7 @@
 
 ```
 PASS health: status=ok
-PASS events: count=5; seeded=Campus Food Fair 2026
+PASS events: count=6; seeded=Campus Food Fair 2026
 PASS event booths: count=2
 PASS manager login: token returned
 PASS manager auth/me: boothManager/BOOTH_MANAGER
@@ -39,7 +40,7 @@ PASS get single event: Smoke Test Event 1777395014363
 PASS create booth: 9665893e-faca-4959-a750-888510b2c01f
 PASS delete booth: 9665893e-faca-4959-a750-888510b2c01f
 PASS delete event: 8ac04be9-01ea-422d-a7b4-980cdf914064
-PASS report events: count=5
+PASS report events: count=6
 PASS report rows: rows=2
 PASS manager users list: count=17
 PASS manager reservations: count=4
@@ -52,16 +53,34 @@ PASS merchant notifications: count=1
 
 ### 2.2 Frontend Unit Tests
 
-**Command:** `npx react-scripts test --watchAll=false --passWithNoTests`  
-**Result:** Exit code 0  
+**Command:** `npm run test:coverage`
+**Result:** 23 passed, 3 suites, 98.93% statement coverage and 100% line coverage for new maintenance frontend code
 
 ```
-No tests found, exiting with code 0
+PASS src/pages/__tests__/ReportsPage.test.js
+PASS src/components/__tests__/LanguageToggle.test.js
+PASS src/components/__tests__/NotificationBell.test.js
+Tests:       23 passed, 23 total
+Test Suites: 3 passed, 3 total
+All files:   98.93% statements, 100% lines, 90.12% branches
 ```
 
-> **Note:** The frontend currently has no unit test files. The test command passes with `--passWithNoTests`. This is a known state from Person 1's handoff. Adding frontend unit tests is recommended for future work but is not in Person 2's scope.
+> **Note:** The original project reported backend coverage only. The maintenance team now also records frontend Jest coverage for new maintenance UI files: `ReportsPage.js`, `LanguageToggle.js`, and `NotificationBell.js`. Full inherited-app React coverage is not used for the assignment coverage target because many old pages were outside this maintenance scope.
 
-### 2.3 Frontend Production Build
+### 2.3 Inherited Backend Coverage Tests
+
+**Command:** `pytest --cov=app --cov-report=xml --cov-report=term-missing`
+**Result:** 38 passed, 95% total coverage
+
+```
+tests/test_quality_coverage.py ......
+tests/test_reservation.py ................
+TOTAL 1082 56 95%
+Coverage XML written to file coverage.xml
+38 passed
+```
+
+### 2.4 Frontend Production Build
 
 **Command:** `npm run build`  
 **Result:** Compiled successfully  
@@ -71,8 +90,8 @@ Creating an optimized production build...
 Compiled successfully.
 
 File sizes after gzip:
-  76.1 kB  build/static/js/main.ecccd8fe.js
-  3.33 kB  build/static/css/main.766de8fd.css
+  104.69 kB  build/static/js/main.ee44709f.js
+  3.92 kB    build/static/css/main.8e9254da.css
 ```
 
 ---
@@ -108,19 +127,18 @@ File sizes after gzip:
 
 ## 4. Bug List
 
-**No bugs were found during testing.**
+**No blocking bugs were found during final web review.**
 
-The system is stable and ready for Person 3 (Localization) to begin feature work.
+The web system is stable after Person 2 QA, Person 3 localization, and Person 4 reporting work.
 
 ### Known Limitations (Not Bugs)
 
 | ID | Severity | Description |
 |---|---|---|
-| KL-01 | Low | No frontend unit test files exist. The test command passes with `--passWithNoTests` flag. |
+| KL-01 | Low | Frontend automated tests focus on the reporting page. Full frontend coverage remains limited. |
 | KL-02 | Low | Payment slip storage is a placeholder marker. Full Supabase Storage integration is a future improvement (documented by Person 1). |
 | KL-03 | Info | The frontend has no search functionality or floor plan UI (out of scope for the maintenance phase, as documented in HANDOVER.md). |
-| KL-04 | Info | No reporting UI exists yet — this is Person 4's assigned scope (CR-02, CR-03, CR-04). |
-| KL-05 | Info | No localization support yet — this is Person 3's assigned scope (CR-05, CR-06). |
+| KL-04 | Info | Android app scope is still pending after web completion. |
 
 ---
 
@@ -138,7 +156,7 @@ The React frontend successfully communicates with the deployed Supabase Edge Fun
 ### 5.2 Data Consistency
 
 - Seeded demo data (events, booths, reservations, payments, notifications) displays correctly in the frontend
-- 5 events loaded from cloud database
+- 6 events loaded from cloud database during latest smoke test
 - 2 booths per seeded event with correct occupation status
 - 4 reservations with varied statuses (CONFIRMED, WAITING, CANCELLED) render with correct badges
 - Notification counts match between bell badge and notifications page
@@ -147,4 +165,4 @@ The React frontend successfully communicates with the deployed Supabase Edge Fun
 
 ## 6. Conclusion
 
-Person 1's backend migration and platform work is **verified and stable**. The system passes all 36 tests (19 automated Edge API smoke checks, 2 frontend checks, 15 manual browser tests). No blocking or non-blocking bugs were found. The system is ready for the next person in the handoff sequence (Person 3 — Localization).
+The web app is **verified and stable**. The system passes 19 deployed Edge API smoke checks, 38 inherited backend coverage tests at 95% coverage, 23 frontend tests with 98.93% frontend new-code statement coverage, frontend production build, and the documented manual browser checks. Android remains the next major implementation area.

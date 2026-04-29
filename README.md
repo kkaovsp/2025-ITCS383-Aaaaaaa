@@ -95,10 +95,10 @@ This section records the current Phase 2 Part 2 maintenance work completed by th
 | Backend endpoints done | `/health`, `/events`, `/events/:event_id/booths`, auth/profile, reservations, payments, merchant approval, notifications, reports with CSV export |
 | Backend endpoints next | full slip file storage |
 | Demo data | Supabase seed data loaded for manager, merchant, user, events, booths, reservation, payment, and notification testing |
-| Web frontend | React app can use the deployed Edge API with `REACT_APP_API_URL`; login stores the Edge bearer token for protected requests |
-| Current handoff | Person 1 backend/platform work is ready for Person 2 QA and regression testing |
+| Web frontend | React app uses the deployed Edge API, includes EN/TH localization, and includes a Booth Manager reporting page with CSV export |
+| Current handoff | Web app review passed after Person 2 QA, Person 3 localization, and Person 4 reporting work |
 | Android app | Required feature; implementation starts after backend/web behavior is stable |
-| Quality | GitHub Actions runs inherited backend coverage, frontend checks, and Supabase Edge API smoke tests; final D2 scan will be updated after all changes |
+| Quality | Backend baseline tests pass at 95% coverage; frontend tests/build and Supabase Edge API smoke tests pass |
 
 Current backend API base:
 
