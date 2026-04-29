@@ -98,7 +98,7 @@ This section records the current Phase 2 Part 2 maintenance work completed by th
 | Web frontend | React app uses the deployed Edge API, includes EN/TH localization, and includes a Booth Manager reporting page with CSV export |
 | Current handoff | Web app review passed after Person 2 QA, Person 3 localization, and Person 4 reporting work |
 | Android app | Required feature; implementation starts after backend/web behavior is stable |
-| Quality | Backend baseline tests pass at 95% coverage; frontend tests/build and Supabase Edge API smoke tests pass |
+| Quality | Backend baseline tests pass at 96% coverage; frontend tests/build and Supabase Edge API smoke tests pass |
 
 Current backend API base:
 

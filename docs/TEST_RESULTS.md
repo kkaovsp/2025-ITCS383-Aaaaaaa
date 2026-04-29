@@ -70,14 +70,14 @@ All files:   98.93% statements, 100% lines, 90.12% branches
 ### 2.3 Inherited Backend Coverage Tests
 
 **Command:** `pytest --cov=app --cov-report=xml --cov-report=term-missing`
-**Result:** 38 passed, 95% total coverage
+**Result:** 39 passed, 96% total coverage
 
 ```
 tests/test_quality_coverage.py ......
 tests/test_reservation.py ................
-TOTAL 1082 56 95%
+TOTAL 1079 46 96%
 Coverage XML written to file coverage.xml
-38 passed
+39 passed
 ```
 
 ### 2.4 Frontend Production Build
@@ -165,4 +165,4 @@ The React frontend successfully communicates with the deployed Supabase Edge Fun
 
 ## 6. Conclusion
 
-The web app is **verified and stable**. The system passes 19 deployed Edge API smoke checks, 38 inherited backend coverage tests at 95% coverage, 23 frontend tests with 98.93% frontend new-code statement coverage, frontend production build, and the documented manual browser checks. Android remains the next major implementation area.
+The web app is **verified and stable**. The system passes 19 deployed Edge API smoke checks, 39 inherited backend coverage tests at 96% coverage, 23 frontend tests with 98.93% frontend new-code statement coverage, frontend production build, and the documented manual browser checks. Android remains the next major implementation area.

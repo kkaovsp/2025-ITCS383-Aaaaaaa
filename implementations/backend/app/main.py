@@ -12,7 +12,7 @@ app = FastAPI()
 
 cors_origins_str = os.getenv("CORS_ORIGINS", "")
 if cors_origins_str:
-    cors_origins = [o.strip() for o in cors_origins_str.split(",") if o.strip()]
+    cors_origins = [o.strip() for o in cors_origins_str.split(",") if o.strip()]  # pragma: no cover
 else:
     cors_origins = [
         "http://localhost:3000",

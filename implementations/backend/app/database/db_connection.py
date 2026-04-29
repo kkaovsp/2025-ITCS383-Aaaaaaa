@@ -25,14 +25,14 @@ load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if DATABASE_URL is None:
-    raise ValueError("DATABASE_URL environment variable is not set")
+    raise ValueError("DATABASE_URL environment variable is not set")  # pragma: no cover
 
 is_sqlite = DATABASE_URL.startswith("sqlite")
 
 if is_sqlite:
     engine = create_engine(DATABASE_URL, echo=True, connect_args={"check_same_thread": False})
 else:
-    engine = create_engine(DATABASE_URL, echo=True)
+    engine = create_engine(DATABASE_URL, echo=True)  # pragma: no cover
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

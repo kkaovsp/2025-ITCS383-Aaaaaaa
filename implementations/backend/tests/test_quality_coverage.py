@@ -5,6 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
+from app.database import db_connection
 from app.database.db_connection import SessionLocal
 from app.models.booth import Booth, BoothStatus
 from app.models.event import Event
@@ -20,6 +21,14 @@ from app.routes import payment_routes
 
 client = TestClient(app)
 PASSWORD = "quality_password_123"
+
+
+def test_root_health_startup_and_db_init_branches():
+    with TestClient(app) as lifecycle_client:
+        assert lifecycle_client.get("/").json() == {"message": "Booth Organizer API"}
+        assert lifecycle_client.get("/health").json() == {"status": "ok"}
+
+    db_connection.init_db()
 
 
 def register_user(username, role="GENERAL_USER", **overrides):

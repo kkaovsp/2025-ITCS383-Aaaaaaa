@@ -25,11 +25,11 @@ Phase 2 Part 2 maintenance scope includes:
 | Bugs | 0 | 0 |
 | Vulnerabilities | 0 | 0 |
 | Code Smells | 0 | 1 |
-| Coverage | 44.2% (invalid) | **95%** on 1.1k lines |
+| Coverage | 44.2% (invalid) | **96%** on 1.1k lines |
 | Frontend New-Code Coverage | Not measured by original group | **98.93%** statement coverage, **100%** line coverage |
 | Duplications | 0.0% | 0.0% |
 
-> Coverage note: Earlier 44.2% was invalid due to CI pipeline missing DB initialization. The backend baseline suite now passes locally at 95% coverage with `coverage.xml` regenerated for SonarCloud. Frontend new-code coverage is measured separately for the maintenance UI files and now passes the >90% requirement.
+> Coverage note: Earlier 44.2% was invalid due to CI pipeline missing DB initialization. The backend baseline suite now passes locally at 96% coverage with `coverage.xml` regenerated for SonarCloud. Frontend new-code coverage is measured separately for the maintenance UI files and now passes the >90% requirement.
 
 ## Current Baseline Results
 
@@ -37,7 +37,7 @@ Phase 2 Part 2 maintenance scope includes:
 |---|---|
 | Quality Gate | **Passed** |
 | LOC | 1.7k |
-| Coverage | 95% on 1.1k lines |
+| Coverage | 96% on 1.1k lines |
 | Duplications | 0.0% on 2.2k lines |
 | Security | A (0 issues) |
 | Reliability | A (0 issues) |
@@ -56,7 +56,7 @@ Current final web review evidence:
 
 | Check | Result |
 |---|---|
-| Inherited backend coverage | `38 passed`, `95%` total coverage |
+| Inherited backend coverage | `39 passed`, `96%` total coverage |
 | Deployed Edge API smoke test | `19/19 smoke checks passed` |
 | Frontend tests | `23 passed`, 3 suites |
 | Frontend new-code coverage | `98.93%` statements, `100%` lines, `90.12%` branches |
