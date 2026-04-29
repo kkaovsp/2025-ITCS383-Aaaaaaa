@@ -4,7 +4,7 @@ import pathlib
 import pytest
 from fastapi.testclient import TestClient
 
-from app.main import app
+from app import main as main_module
 from app.database import db_connection
 from app.database.db_connection import SessionLocal
 from app.models.booth import Booth, BoothStatus
@@ -19,16 +19,50 @@ from app.routes import merchant_routes
 from app.routes import payment_routes
 
 
+app = main_module.app
 client = TestClient(app)
 PASSWORD = "quality_password_123"
 
 
-def test_root_health_startup_and_db_init_branches():
-    with TestClient(app) as lifecycle_client:
-        assert lifecycle_client.get("/").json() == {"message": "Booth Organizer API"}
-        assert lifecycle_client.get("/health").json() == {"status": "ok"}
+def test_root_health_startup_and_db_init_branches(monkeypatch):
+    called = {"startup": False, "create_all": False, "pragma": False}
 
+    def fake_startup_init():
+        called["startup"] = True
+
+    def fake_create_all(bind):
+        called["create_all"] = bind is fake_engine
+
+    class FakeConnection:
+        def execute(self, statement):
+            called["pragma"] = "PRAGMA foreign_keys=ON" in str(statement)
+
+    class FakeBegin:
+        def __enter__(self):
+            return FakeConnection()
+
+        def __exit__(self, exc_type, exc, traceback):
+            return False
+
+    class FakeEngine:
+        def begin(self):
+            return FakeBegin()
+
+    fake_engine = FakeEngine()
+
+    monkeypatch.setattr(main_module, "init_db", fake_startup_init)
+    main_module.startup_event()
+    assert called["startup"] is True
+
+    assert client.get("/").json() == {"message": "Booth Organizer API"}
+    assert client.get("/health").json() == {"status": "ok"}
+
+    monkeypatch.setattr(db_connection.base.Base.metadata, "create_all", fake_create_all)
+    monkeypatch.setattr(db_connection, "engine", fake_engine)
+    monkeypatch.setattr(db_connection, "is_sqlite", True)
     db_connection.init_db()
+    assert called["create_all"] is True
+    assert called["pragma"] is True
 
 
 def register_user(username, role="GENERAL_USER", **overrides):
