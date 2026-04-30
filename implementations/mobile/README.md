@@ -29,6 +29,81 @@ https://uaoufhdysqcivheauwyf.supabase.co/functions/v1/api
 | Merchant | `demoMerchant` | `merchant123` |
 | General User | `demoUser` | `user123` |
 
-## Run
+## SDK Setup
 
-Open this folder in Android Studio, let Gradle sync, then run the `app` configuration on an emulator or Android device.
+Create or update `implementations/mobile/local.properties` with your Android SDK path:
+
+```powershell
+# Example (Windows)
+@"
+sdk.dir=C\:\\Users\\User\\AppData\\Local\\Android\\Sdk
+"@ | Out-File -FilePath "implementations/mobile/local.properties" -Encoding UTF8
+```
+
+The `local.properties` file is local-only and is ignored by git. Do not commit it.
+
+## Build APK
+
+```powershell
+cd implementations/mobile
+./gradlew.bat --no-daemon assembleDebug
+```
+
+The APK outputs to `app/build/outputs/apk/debug/app-debug.apk`.
+
+## Create and Launch Emulator
+
+If no AVD exists yet, create one via command line:
+
+```powershell
+# Install a system image (example: API 35)
+sdkmanager "system-images;android-35;google_apis;x86_64"
+
+# Create an AVD
+echo y | avdmanager create avd -n "BoothOrganizer_API35" -k "system-images;android-35;google_apis;x86_64"
+
+# Start the emulator (runs in background)
+emulator -avd BoothOrganizer_API35 -no-boot-anim -no-window &
+
+# Wait for device to be ready
+adb wait-for-device
+
+# Install the APK
+adb install app/build/outputs/apk/debug/app-debug.apk
+
+# Launch MainActivity
+adb shell am start -n "com.kkaovsp.boothorganizer/.MainActivity"
+```
+
+To list existing AVDs:
+
+```powershell
+avdmanager list avd
+```
+
+To stop a running emulator:
+
+```powershell
+adb emu kill
+```
+
+## Runtime Test Checklist
+
+Manual verification on emulator or device:
+
+- [ ] Home screen loads
+- [ ] Login with `boothManager` / `boothManager123`
+- [ ] Browse events
+- [ ] View booths
+- [ ] Make or view reservations
+- [ ] Check profile page
+- [ ] Generate a report (Reports section)
+- [ ] Confirm manager-only navigation items are visible
+- [ ] Toggle language (TH/EN)
+- [ ] Check for crash: scan logcat for `FATAL EXCEPTION` — none should appear
+
+No screenshots are required for this project delivery.
+
+## Android Test Coverage
+
+Unit and UI tests are not required for the current phase. Current evidence is the APK build passing and emulator runtime verification. Adding unit tests or UI tests is an optional future improvement if the instructor requests it.
