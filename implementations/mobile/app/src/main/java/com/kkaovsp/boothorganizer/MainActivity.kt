@@ -475,7 +475,12 @@ class MainActivity : Activity() {
 
     private fun boothCard(eventId: String, eventName: String, booth: JSONObject) {
         val available = booth.clean("status") == "AVAILABLE"
-        card {
+        val borderColor = when (booth.clean("status")) {
+            "AVAILABLE" -> Color.rgb(167, 243, 208)
+            "RESERVED" -> Color.rgb(253, 230, 138)
+            else -> null
+        }
+        card(borderColor) {
             addView(row().apply {
                 addView(label("#${booth.clean("booth_number")}", 19f, textPrimary, Typeface.BOLD), LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
                 addView(statusBadge(booth.clean("status"), when (booth.clean("status")) {
@@ -859,14 +864,22 @@ class MainActivity : Activity() {
             val confirmed = rowList.count { it.clean("reservation_status") == "CONFIRMED" }
             val pending = rowList.count { it.clean("reservation_status") in listOf("PENDING", "PENDING_PAYMENT", "WAITING_FOR_APPROVAL") }
             val total = rowList.sumOf { it.optDouble("payment_amount", 0.0) }
-            card {
-                addView(label(event.clean("name"), 20f, primary, Typeface.BOLD))
-                addView(label("📅 ${event.clean("start_date")} - ${event.clean("end_date")} · 📍 ${event.clean("location")}", 14f, textSecondary), matchWrap(top = dp(4)))
+            val headerBox = LinearLayout(this@MainActivity).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(dp(20), dp(20), dp(20), dp(20))
+                background = GradientDrawable(
+                    GradientDrawable.Orientation.TL_BR,
+                    intArrayOf(primary, secondary)
+                ).apply { cornerRadius = dp(10).toFloat() }
             }
+            headerBox.addView(label(event.clean("name"), 20f, Color.WHITE, Typeface.BOLD))
+            headerBox.addView(label("📅 ${event.clean("start_date")} - ${event.clean("end_date")} · 📍 ${event.clean("location")}", 14f, Color.WHITE).apply { alpha = 0.9f }, matchWrap(top = dp(4)))
+            content.addView(headerBox, matchWrap(bottom = dp(20)))
             statRow(t("total_reservations"), rowList.size.toString(), "📊")
             statRow(t("confirmed"), confirmed.toString(), "✅", success)
             statRow(t("pending"), pending.toString(), "⏳", warning)
-            statRow(t("total_revenue"), formatMoney(total), "💰", primary)
+            val revenueColor = Color.rgb(124, 58, 237)
+            statRow(t("total_revenue"), formatMoney(total), "💰", revenueColor)
             if (rowList.isEmpty()) {
                 emptyState("📭", t("no_report_rows"))
             } else {
@@ -1112,17 +1125,21 @@ class MainActivity : Activity() {
 
     private fun statRow(labelText: String, value: String, icon: String, color: Int = primary) {
         card {
-            gravity = Gravity.CENTER_VERTICAL
-            addView(label("$icon  $value", 24f, color, Typeface.BOLD))
-            addView(label(labelText, 13f, textSecondary, Typeface.BOLD), matchWrap(top = dp(4)))
+            gravity = Gravity.CENTER
+            addView(label(icon, 24f, textPrimary).apply { gravity = Gravity.CENTER }, matchWrap(bottom = dp(6)))
+            addView(label(value, 28f, color, Typeface.BOLD).apply { gravity = Gravity.CENTER })
+            addView(label(labelText, 12f, textSecondary, Typeface.BOLD).apply {
+                gravity = Gravity.CENTER
+                isAllCaps = true
+            }, matchWrap(top = dp(4)))
         }
     }
 
-    private fun card(block: LinearLayout.() -> Unit) {
+    private fun card(borderColor: Int? = null, block: LinearLayout.() -> Unit) {
         val box = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(24), dp(24), dp(24), dp(24))
-            background = rect(surface, dp(10), border, dp(1))
+            background = rect(surface, dp(10), borderColor ?: border, dp(if (borderColor != null) 2 else 1))
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 elevation = dp(1).toFloat()
             }
