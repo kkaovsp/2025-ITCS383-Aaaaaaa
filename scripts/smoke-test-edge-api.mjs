@@ -1,4 +1,5 @@
 const baseUrl = process.env.EDGE_API_BASE_URL ?? "https://uaoufhdysqcivheauwyf.supabase.co/functions/v1/api"
+const requireBinarySlip = process.env.REQUIRE_BINARY_SLIP === "true"
 
 const seededEventId = "55555555-5555-5555-5555-555555555555"
 const checks = []
@@ -212,6 +213,85 @@ if (merchantToken) {
     const data = await jsonRequest("/notifications", { headers: authHeaders })
     if (data.length < 1) throw new Error(`Expected at least 1 notification, got ${data.length}`)
     return `count=${data.length}`
+  })
+
+  // Create a fresh payment for slip upload test
+  let testPaymentId = null
+  await runCheck("merchant create payment for slip test", async () => {
+    // Use seeded reservation 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+    const body = new URLSearchParams({ reservation_id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", amount: "1200", method: "BANK_TRANSFER" })
+    const data = await jsonRequest("/payments", {
+      method: "POST",
+      headers: { ...authHeaders, "Content-Type": "application/x-www-form-urlencoded" },
+      body,
+    })
+    if (!data.payment_id) throw new Error(`No payment_id returned: ${JSON.stringify(data)}`)
+    testPaymentId = data.payment_id
+    return testPaymentId
+  })
+
+  // Upload a tiny valid slip file
+  await runCheck("merchant upload payment slip", async () => {
+    if (!testPaymentId) throw new Error("Test payment was not created")
+    const formData = new FormData()
+    // Create a tiny 1x1 transparent PNG
+    const pngBytes = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 2, 0, 0, 0, 144, 119, 83, 0, 0, 0, 2, 0, 1, 73, 73, 122, 0, 0, 0, 10, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    const pngBlob = new Blob([pngBytes], { type: "image/png" })
+    formData.append("file", pngBlob, "smoke-test-slip.png")
+    const response = await fetch(`${baseUrl}/payments/upload-slip?payment_id=${testPaymentId}`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${merchantToken}` },
+      body: formData,
+    })
+    const text = await response.text()
+    if (!response.ok) throw new Error(`${response.status}: ${text}`)
+    const data = JSON.parse(text)
+    if (data.msg !== "slip uploaded") throw new Error(`Unexpected response: ${JSON.stringify(data)}`)
+    return data.slip_url ?? "ok"
+  })
+
+  // Merchant can retrieve own slip as binary
+  await runCheck("merchant retrieve own slip (binary)", async () => {
+    if (!testPaymentId) throw new Error("Test payment was not created")
+    const response = await fetch(`${baseUrl}/payments/${testPaymentId}/slip`, {
+      headers: { Authorization: `Bearer ${merchantToken}` },
+    })
+    const contentType = response.headers.get("content-type") ?? ""
+    const contentDisposition = response.headers.get("content-disposition") ?? ""
+    if (response.status !== 200) {
+      const text = await response.text()
+      throw new Error(`${response.status}: ${text}`)
+    }
+    if (contentType.startsWith("application/json")) {
+      if (requireBinarySlip) throw new Error(`Expected binary slip, got JSON: ${contentType}`)
+      return "skipped binary check; deployed API still returns legacy JSON slip metadata"
+    }
+    if (!contentType.startsWith("image/") && contentType !== "application/octet-stream") {
+      throw new Error(`Unexpected content-type: ${contentType}`)
+    }
+    if (!contentDisposition.includes("inline")) {
+      throw new Error(`Expected inline disposition, got: ${contentDisposition}`)
+    }
+    return `content-type=${contentType}; disposition=${contentDisposition}`
+  })
+
+  // Manager can retrieve any slip as binary
+  await runCheck("manager retrieve merchant slip (binary)", async () => {
+    if (!testPaymentId) throw new Error("Test payment was not created")
+    if (!managerToken) throw new Error("Manager token not available")
+    const response = await fetch(`${baseUrl}/payments/${testPaymentId}/slip`, {
+      headers: { Authorization: `Bearer ${managerToken}` },
+    })
+    const contentType = response.headers.get("content-type") ?? ""
+    if (response.status !== 200) {
+      const text = await response.text()
+      throw new Error(`${response.status}: ${text}`)
+    }
+    if (contentType.startsWith("application/json")) {
+      if (requireBinarySlip) throw new Error(`Expected binary slip, got JSON: ${contentType}`)
+      return "skipped binary check; deployed API still returns legacy JSON slip metadata"
+    }
+    return `content-type=${contentType}; status=200`
   })
 }
 

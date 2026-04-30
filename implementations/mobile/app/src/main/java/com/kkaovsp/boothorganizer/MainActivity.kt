@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import androidx.core.content.FileProvider
 import android.text.InputType
 import android.view.Gravity
 import android.view.View
@@ -750,13 +751,37 @@ class MainActivity : Activity() {
                         } else {
                             addView(statusBadge(t("slip_uploaded"), success), matchWrap(top = dp(8)))
                             addView(smallButton(t("view_slip"), false) {
-                                task({ JSONObject(api.get("/payments/${payment.clean("payment_id")}/slip")) }, { slip ->
-                                    AlertDialog.Builder(this@MainActivity)
-                                        .setTitle(t("view_slip"))
-                                        .setMessage("${slip.clean("message")}\n${slip.clean("slip_url")}")
-                                        .setPositiveButton("OK", null)
-                                        .show()
-                                })
+                                task(
+                                    {
+                                        val paymentId = payment.clean("payment_id")
+                                        val bytes: ByteArray = api.downloadSlipBytes(paymentId)
+                                        val mime: String = when {
+                                            bytes.size >= 4 && bytes[0] == 0x89.toByte() && bytes[1] == 0x50.toByte() -> "image/png"
+                                            bytes.size >= 4 && bytes[0] == 0xFF.toByte() && bytes[1] == 0xD8.toByte() -> "image/jpeg"
+                                            bytes.size >= 4 && bytes[0] == 0x25.toByte() && bytes[1] == 0x50.toByte() -> "application/pdf"
+                                            else -> "application/octet-stream"
+                                        }
+                                        val ext: String = if (mime == "image/png") "png" else if (mime == "image/jpeg") "jpg" else if (mime == "application/pdf") "pdf" else "bin"
+                                        val dir = File(cacheDir, "slips")
+                                        if (!dir.exists()) dir.mkdirs()
+                                        val file = File(dir, "$paymentId.$ext")
+                                        file.writeBytes(bytes)
+                                        FileProvider.getUriForFile(
+                                            this@MainActivity,
+                                            "${packageName}.fileprovider",
+                                            file
+                                        )
+                                    },
+                                    { uri: Uri ->
+                                        val mime = contentResolver.getType(uri) ?: "application/octet-stream"
+                                        val view = Intent(Intent.ACTION_VIEW).setDataAndType(uri, mime).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                        if (view.resolveActivity(packageManager) != null) {
+                                            startActivity(view)
+                                        } else {
+                                            toast(t("no_app_for_slip"))
+                                        }
+                                    }
+                                )
                             }, matchWrap(top = dp(8)))
                         }
                     }
@@ -1729,6 +1754,7 @@ class MainActivity : Activity() {
             "login_failed" to "Login failed",
             "missing_credentials" to "Username and password are required",
             "forbidden" to "You do not have access to this page",
+            "no_app_for_slip" to "No app available to view this file",
             "unexpected_error" to "Unexpected error"
         )
     }

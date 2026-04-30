@@ -57,6 +57,21 @@ class ApiClient(private val context: Context) {
         return execute(Request.Builder().url(url("/payments/upload-slip?payment_id=${encode(paymentId)}")).post(body))
     }
 
+    fun downloadSlipBytes(paymentId: String): ByteArray {
+        val request = Request.Builder()
+            .url(url("/payments/${encode(paymentId)}/slip"))
+            .get()
+            .header("Accept", "*/*")
+            .build()
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) {
+                val text = response.body?.string().orEmpty()
+                throw ApiException(response.code, parseError(text, response.message))
+            }
+            return response.body?.bytes() ?: throw ApiException(response.code, "Empty response body")
+        }
+    }
+
     private fun json(method: String, path: String, body: JSONObject): String {
         val requestBody = body.toString().toRequestBody("application/json; charset=utf-8".toMediaType())
         val builder = Request.Builder().url(url(path)).method(method, requestBody)

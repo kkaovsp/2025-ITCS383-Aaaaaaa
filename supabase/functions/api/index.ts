@@ -4,6 +4,7 @@ import { corsHeaders } from "../_shared/cors.ts"
 import { createAccessToken, hashPassword, tokenFromRequest, verifyAccessToken, verifyPassword } from "../_shared/auth.ts"
 import { createServerClient } from "../_shared/supabaseClient.ts"
 import { errorResponse, jsonResponse } from "../_shared/json.ts"
+import { createClient as createStorageClient } from "https://esm.sh/@supabase/supabase-js@2"
 
 type UserRow = {
   id: string
@@ -457,6 +458,7 @@ async function createPayment(request: Request): Promise<Response> {
 async function uploadSlip(request: Request): Promise<Response> {
   const userOrResponse = await requireUser(request)
   if (userOrResponse instanceof Response) return userOrResponse
+  const user = userOrResponse
   const url = new URL(request.url)
   const paymentId = url.searchParams.get("payment_id") ?? ""
   if (!paymentId) return errorResponse(request, "payment_id is required", 400)
@@ -470,24 +472,94 @@ async function uploadSlip(request: Request): Promise<Response> {
   if (error) return errorResponse(request, error.message, 500)
   if (!payment) return errorResponse(request, "Payment not found", 404)
 
+  // Verify user owns this payment's reservation (merchant) or is a manager
+  const { data: reservation } = await supabase
+    .from("reservations")
+    .select("merchant_id")
+    .eq("reservation_id", payment.reservation_id)
+    .maybeSingle()
+  if (!reservation) return errorResponse(request, "Reservation not found", 404)
+
+  if (user.role !== "BOOTH_MANAGER") {
+    const merchant = await merchantForUser(user.id)
+    if (!merchant || merchant.merchant_id !== reservation.merchant_id) {
+      return errorResponse(request, "Not allowed to upload slip for this payment", 403)
+    }
+  }
+
   const form = await request.formData()
   const file = form.get("file")
   if (!(file instanceof File)) return errorResponse(request, "Slip file is required", 400)
 
-  // Storage migration is planned later. For now, keep a stable marker URL for approval checks and UI display.
-  await supabase.from("payments").update({ slip_url: `/functions/v1/api/payments/${paymentId}/slip` }).eq("payment_id", paymentId)
+  // Use safe filename: keep extension, strip rest, limit length
+  const rawName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_")
+  const safeName = rawName.length > 80 ? rawName.substring(rawName.length - 80) : rawName
+  const storagePath = `payment-slips/${paymentId}/${safeName}`
+
+  const storage = createStorageClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  )
+  const { error: uploadError } = await storage.storage.from("payment-slips").upload(storagePath, file, {
+    contentType: file.type || "application/octet-stream",
+    upsert: true,
+  })
+  if (uploadError) return errorResponse(request, `Storage upload failed: ${uploadError.message}`, 500)
+
+  // Store the storage path (not a URL) as slip_url metadata
+  await supabase.from("payments").update({ slip_url: storagePath }).eq("payment_id", paymentId)
   await notifyUsers(await boothManagerIds(), "Payment slip uploaded", `Slip uploaded for payment ${paymentId}`, "PAYMENT", paymentId)
-  return jsonResponse(request, { msg: "slip uploaded" })
+  return jsonResponse(request, { msg: "slip uploaded", slip_url: storagePath })
 }
 
 async function getPaymentSlip(request: Request, paymentId: string): Promise<Response> {
   const userOrResponse = await requireUser(request)
   if (userOrResponse instanceof Response) return userOrResponse
+  const user = userOrResponse
   const supabase = createServerClient()
-  const { data: payment, error } = await supabase.from("payments").select("slip_url").eq("payment_id", paymentId).maybeSingle()
+
+  const { data: payment, error } = await supabase
+    .from("payments")
+    .select("payment_id,reservation_id,slip_url")
+    .eq("payment_id", paymentId)
+    .maybeSingle()
   if (error) return errorResponse(request, error.message, 500)
-  if (!payment?.slip_url) return errorResponse(request, "Slip file not found", 404)
-  return jsonResponse(request, { payment_id: paymentId, slip_url: payment.slip_url, message: "Slip storage migration pending" })
+  if (!payment) return errorResponse(request, "Payment not found", 404)
+  if (!payment.slip_url) return errorResponse(request, "Slip file not found", 404)
+
+  // Permission: booth manager can read any slip; merchant can only read own reservation's slip
+  if (user.role !== "BOOTH_MANAGER") {
+    const { data: reservation } = await supabase
+      .from("reservations")
+      .select("merchant_id")
+      .eq("reservation_id", payment.reservation_id)
+      .maybeSingle()
+    if (!reservation) return errorResponse(request, "Reservation not found", 404)
+    const merchant = await merchantForUser(user.id)
+    if (!merchant || merchant.merchant_id !== reservation.merchant_id) {
+      return errorResponse(request, "Not allowed to read this slip", 403)
+    }
+  }
+
+  const storage = createStorageClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  )
+  const { data: fileData, error: downloadError } = await storage.storage.from("payment-slips").download(payment.slip_url)
+  if (downloadError) return errorResponse(request, "Slip file not found in storage", 404)
+
+  const contentType = fileData.type || "application/octet-stream"
+  const disposition = `inline; filename="${payment.slip_url.split("/").pop()}"`
+
+  return new Response(fileData, {
+    status: 200,
+    headers: {
+      ...corsHeaders(request),
+      "Content-Type": contentType,
+      "Content-Disposition": disposition,
+      "Content-Length": String(fileData.size),
+    },
+  })
 }
 
 async function approvePayment(request: Request, paymentId: string): Promise<Response> {
