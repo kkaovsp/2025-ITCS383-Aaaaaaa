@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#555"/></marker>
+    <style>.title{font:700 24px Arial,sans-serif;fill:#111}.head{font:700 16px Arial,sans-serif;fill:#111}.node{font:700 13px Arial,sans-serif;fill:#111;text-anchor:middle;dominant-baseline:middle}.col{fill:#fff;stroke:#333;stroke-width:2}.r{fill:#eef7ff;stroke:#333;stroke-width:1.5}.d{fill:#fff8db;stroke:#333;stroke-width:1.5}.c{fill:#ffecec;stroke:#333;stroke-width:1.5}.t{fill:#eef9ec;stroke:#333;stroke-width:1.5}.line{stroke:#555;stroke-width:1.2;stroke-dasharray:4 3;fill:none;marker-end:url(#arrow)}</style>
+  </defs>
+  <rect width="1200" height="760" fill="#fff"/><text x="40" y="42" class="title">D4 Full Traceability Graph</text>
+  <rect x="45" y="80" width="180" height="610" class="col"/><text x="135" y="715" class="head" text-anchor="middle">Requirements</text>
+  <rect x="350" y="80" width="180" height="610" class="col"/><text x="440" y="715" class="head" text-anchor="middle">Design</text>
+  <rect x="655" y="80" width="180" height="610" class="col"/><text x="745" y="715" class="head" text-anchor="middle">Code</text>
+  <rect x="960" y="80" width="180" height="610" class="col"/><text x="1050" y="715" class="head" text-anchor="middle">Test</text>
+  <g><circle cx="135" cy="130" r="24" class="r"/><text x="135" y="130" class="node">R01</text><circle cx="135" cy="185" r="24" class="r"/><text x="135" y="185" class="node">R02</text><circle cx="135" cy="240" r="24" class="r"/><text x="135" y="240" class="node">R03</text><circle cx="135" cy="295" r="24" class="r"/><text x="135" y="295" class="node">R04</text><circle cx="135" cy="350" r="24" class="r"/><text x="135" y="350" class="node">R05</text><circle cx="135" cy="405" r="24" class="r"/><text x="135" y="405" class="node">R06</text><circle cx="135" cy="460" r="24" class="r"/><text x="135" y="460" class="node">R07</text><circle cx="135" cy="515" r="24" class="r"/><text x="135" y="515" class="node">R08</text><circle cx="135" cy="570" r="24" class="r"/><text x="135" y="570" class="node">R09</text><circle cx="135" cy="625" r="24" class="r"/><text x="135" y="625" class="node">R10</text></g>
+  <g><circle cx="440" cy="130" r="24" class="d"/><text x="440" y="130" class="node">D01</text><circle cx="440" cy="185" r="24" class="d"/><text x="440" y="185" class="node">D02</text><circle cx="440" cy="240" r="24" class="d"/><text x="440" y="240" class="node">D03</text><circle cx="440" cy="295" r="24" class="d"/><text x="440" y="295" class="node">D04</text><circle cx="440" cy="350" r="24" class="d"/><text x="440" y="350" class="node">D05</text><circle cx="440" cy="405" r="24" class="d"/><text x="440" y="405" class="node">D06</text><circle cx="440" cy="460" r="24" class="d"/><text x="440" y="460" class="node">D07</text><circle cx="440" cy="515" r="24" class="d"/><text x="440" y="515" class="node">D08</text><circle cx="440" cy="570" r="24" class="d"/><text x="440" y="570" class="node">D09</text><circle cx="440" cy="625" r="24" class="d"/><text x="440" y="625" class="node">D10</text></g>
+  <g><circle cx="745" cy="130" r="24" class="c"/><text x="745" y="130" class="node">C01</text><circle cx="745" cy="185" r="24" class="c"/><text x="745" y="185" class="node">C02</text><circle cx="745" cy="240" r="24" class="c"/><text x="745" y="240" class="node">C03</text><circle cx="745" cy="295" r="24" class="c"/><text x="745" y="295" class="node">C04</text><circle cx="745" cy="350" r="24" class="c"/><text x="745" y="350" class="node">C05</text><circle cx="745" cy="405" r="24" class="c"/><text x="745" y="405" class="node">C06</text><circle cx="745" cy="460" r="24" class="c"/><text x="745" y="460" class="node">C07</text><circle cx="745" cy="515" r="24" class="c"/><text x="745" y="515" class="node">C08</text><circle cx="745" cy="570" r="24" class="c"/><text x="745" y="570" class="node">C09</text><circle cx="745" cy="625" r="24" class="c"/><text x="745" y="625" class="node">C10</text></g>
+  <g><circle cx="1050" cy="130" r="24" class="t"/><text x="1050" y="130" class="node">T01</text><circle cx="1050" cy="185" r="24" class="t"/><text x="1050" y="185" class="node">T02</text><circle cx="1050" cy="240" r="24" class="t"/><text x="1050" y="240" class="node">T03</text><circle cx="1050" cy="295" r="24" class="t"/><text x="1050" y="295" class="node">T04</text><circle cx="1050" cy="350" r="24" class="t"/><text x="1050" y="350" class="node">T05</text><circle cx="1050" cy="405" r="24" class="t"/><text x="1050" y="405" class="node">T06</text><circle cx="1050" cy="460" r="24" class="t"/><text x="1050" y="460" class="node">T07</text><circle cx="1050" cy="515" r="24" class="t"/><text x="1050" y="515" class="node">T08</text><circle cx="1050" cy="570" r="24" class="t"/><text x="1050" y="570" class="node">T09</text><circle cx="1050" cy="625" r="24" class="t"/><text x="1050" y="625" class="node">T10</text></g>
+  <!-- Requirements to Design: includes cross-links so the traceability graph matches the assignment style. -->
+  <path d="M159 130 C240 130 315 130 416 130" class="line"/><path d="M159 130 C250 150 310 215 416 240" class="line"/><path d="M159 130 C260 170 300 280 416 295" class="line"/>
+  <path d="M159 185 C245 185 315 185 416 185" class="line"/><path d="M159 185 C250 205 320 270 416 295" class="line"/>
+  <path d="M159 240 C250 210 315 160 416 130" class="line"/><path d="M159 240 C250 240 310 240 416 240" class="line"/>
+  <path d="M159 295 C250 260 315 220 416 185" class="line"/><path d="M159 295 C250 295 310 295 416 295" class="line"/>
+  <path d="M159 350 C250 350 310 350 416 350" class="line"/><path d="M159 350 C250 365 310 395 416 405" class="line"/>
+  <path d="M159 405 C250 385 310 365 416 350" class="line"/><path d="M159 405 C250 405 310 405 416 405" class="line"/>
+  <path d="M159 460 C250 460 310 460 416 460" class="line"/>
+  <path d="M159 515 C250 515 310 515 416 515" class="line"/><path d="M159 515 C250 540 310 590 416 625" class="line"/>
+  <path d="M159 570 C250 570 310 570 416 570" class="line"/>
+  <path d="M159 625 C250 590 310 540 416 515" class="line"/><path d="M159 625 C250 605 310 600 416 570" class="line"/><path d="M159 625 C250 625 310 625 416 625" class="line"/>
+  <!-- Design to Code: design objects can map to multiple implementation modules. -->
+  <path d="M464 130 C540 130 625 130 721 130" class="line"/><path d="M464 130 C540 160 625 215 721 240" class="line"/>
+  <path d="M464 185 C540 185 625 185 721 185" class="line"/><path d="M464 185 C540 215 625 270 721 295" class="line"/>
+  <path d="M464 240 C540 240 625 240 721 240" class="line"/>
+  <path d="M464 295 C540 295 625 295 721 295" class="line"/>
+  <path d="M464 350 C540 350 625 350 721 350" class="line"/>
+  <path d="M464 405 C540 405 625 405 721 405" class="line"/>
+  <path d="M464 460 C540 460 625 460 721 460" class="line"/>
+  <path d="M464 515 C540 515 625 515 721 515" class="line"/><path d="M464 515 C540 540 625 600 721 625" class="line"/>
+  <path d="M464 570 C540 570 625 570 721 570" class="line"/>
+  <path d="M464 625 C540 595 625 540 721 515" class="line"/><path d="M464 625 C540 625 625 625 721 625" class="line"/>
+  <!-- Code to Test: test cases verify direct and integration behavior. -->
+  <path d="M769 130 C850 130 925 130 1026 130" class="line"/><path d="M769 130 C850 165 925 220 1026 240" class="line"/>
+  <path d="M769 185 C850 185 925 185 1026 185" class="line"/><path d="M769 185 C850 215 925 280 1026 295" class="line"/>
+  <path d="M769 240 C850 240 925 240 1026 240" class="line"/>
+  <path d="M769 295 C850 295 925 295 1026 295" class="line"/>
+  <path d="M769 350 C850 350 925 350 1026 350" class="line"/>
+  <path d="M769 405 C850 405 925 405 1026 405" class="line"/>
+  <path d="M769 460 C850 460 925 460 1026 460" class="line"/>
+  <path d="M769 515 C850 515 925 515 1026 515" class="line"/><path d="M769 515 C850 545 925 595 1026 625" class="line"/>
+  <path d="M769 570 C850 570 925 570 1026 570" class="line"/>
+  <path d="M769 625 C850 595 925 545 1026 515" class="line"/><path d="M769 625 C850 625 925 625 1026 625" class="line"/>
+</svg>

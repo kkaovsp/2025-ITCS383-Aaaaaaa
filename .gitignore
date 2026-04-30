@@ -30,6 +30,12 @@ sonar-scanner-cli-*.zip
 deno.lock
 supabase/functions/coverage/
 
+# Android local/build output
+implementations/mobile/.gradle/
+implementations/mobile/.kotlin/
+implementations/mobile/local.properties
+implementations/mobile/**/build/
+
 # Coverage files
 .coverage
 coverage.xml
