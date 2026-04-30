@@ -153,7 +153,7 @@ To make future maintenance easier, the following practices would help:
 
 | Feature | CRs | Status |
 |---|---|---|
-| Administrative Reporting | CR-01 to CR-04 | Completed and verified: Edge API deployed, web ReportsPage implemented, smoke tests 19/19, Deno unit tests 25/25 at 90.2% coverage on 184 lines |
+| Administrative Reporting | CR-01 to CR-04 | Completed and verified: Edge API deployed, web ReportsPage implemented, smoke tests 23/23, Deno unit tests 25/25 at 90.2% coverage on 184 lines |
 | UI Localization | CR-05 to CR-06 | Completed and verified: i18n structure with EN/TH files, LanguageToggle component, frontend tests pass, database content unchanged by design |
 | Native Android App | CR-07 to CR-10 | Completed and verified: native Android project built with `./gradlew.bat --no-daemon assembleDebug`, APK installed and launched on emulator `BoothOrganizer_API35` / `emulator-5554`, runtime verified for login, events, booths, reservations, profile, reports, language toggle, and manager navigation; no `FATAL EXCEPTION` |
 

@@ -27,7 +27,7 @@
 | Priority | High |
 | Severity | Critical |
 | Time to Implement | 1 person-week |
-| Verification Method | Edge API smoke tests (19/19 passed) and Deno helper unit tests (25/25, 90.2% coverage on 184 lines of shared/Edge helper code) |
+| Verification Method | Edge API smoke tests (23/23 passed) and Deno helper unit tests (25/25, 90.2% coverage on 184 lines of shared/Edge helper code) |
 
 ---
 

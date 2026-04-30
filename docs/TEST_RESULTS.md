@@ -10,14 +10,14 @@
 
 | Category | Total | Pass | Fail |
 |---|---|---|---|
-| Edge API Smoke Tests | 19 | 19 | 0 |
+| Edge API Smoke Tests | 23 | 23 | 0 |
 | Edge Function Deno Tests | 25 | 25 | 0 |
 | Android Unit Tests | 75 | 75 | 0 |
 | Legacy Backend Coverage Tests | 39 | 39 | 0 |
 | Frontend Automated Tests | 23 | 23 | 0 |
 | Manual Browser Tests (Manager) | 11 | 11 | 0 |
 | Manual Browser Tests (Merchant) | 4 | 4 | 0 |
-| **Total** | **196** | **196** | **0** |
+| **Total** | **200** | **200** | **0** |
 
 **Overall Result: ✅ ALL TESTS PASSED**
 
@@ -28,11 +28,11 @@
 ### 2.1 Edge API Smoke Tests
 
 **Command:** `node scripts/smoke-test-edge-api.mjs`
-**Result:** 19/19 passed
+**Result:** 23/23 passed
 
 ```
 PASS health: status=ok
-PASS events: count=6; seeded=Campus Food Fair 2026
+PASS events: count=7; seeded=Campus Food Fair 2026
 PASS event booths: count=2
 PASS manager login: token returned
 PASS manager auth/me: boothManager/BOOTH_MANAGER
@@ -42,15 +42,19 @@ PASS get single event: Smoke Test Event 1777395014363
 PASS create booth: 9665893e-faca-4959-a750-888510b2c01f
 PASS delete booth: 9665893e-faca-4959-a750-888510b2c01f
 PASS delete event: 8ac04be9-01ea-422d-a7b4-980cdf914064
-PASS report events: count=6
+PASS report events: count=7
 PASS report rows: rows=2
 PASS manager users list: count=17
-PASS manager reservations: count=4
+PASS manager reservations: count=10
 PASS merchant login: token returned
 PASS merchant auth/me: demoMerchant/MERCHANT
-PASS merchant reservations: count=1
-PASS merchant notifications: count=1
-19/19 smoke checks passed
+PASS merchant reservations: count=7
+PASS merchant notifications: count=7
+PASS merchant create payment for slip test: payment_id returned
+PASS merchant upload payment slip: payment-slips/.../smoke-test-slip.png
+PASS merchant retrieve own slip (binary): content-type=image/png; disposition=inline
+PASS manager retrieve merchant slip (binary): content-type=image/png; status=200
+23/23 smoke checks passed
 ```
 
 ### 2.2 Edge Function Deno Tests (Active Backend Coverage)
@@ -225,8 +229,8 @@ The web system is stable after Person 2 QA, Person 3 localization, and Person 4 
 
 | ID | Severity | Description |
 |---|---|---|
-| KL-01 | Low | Deno tests cover pure helper code (184 lines, 90.2% overall coverage). The main `Deno.serve` handler (~1,000 lines) requires a live Supabase project or mock environment to test end-to-end. Covered by deployed smoke tests (19/19). |
-| KL-02 | Low | Payment slip storage is a placeholder marker. Full Supabase Storage integration is a future improvement. |
+| KL-01 | Low | Deno tests cover pure helper code (184 lines, 90.2% overall coverage). The main `Deno.serve` handler (~1,000 lines) requires a live Supabase project or mock environment to test end-to-end. Covered by deployed smoke tests (23/23). |
+| KL-02 | Low | Payment slip storage is implemented with a private Supabase Storage bucket and verified by strict deployed smoke tests. Future improvement: add richer file metadata and retention rules if the project grows. |
 | KL-03 | Info | The frontend has no search functionality or floor plan UI (out of scope for this maintenance phase). |
 | KL-04 | Info | Native Android app is completed and verified. Gradle build (`./gradlew.bat --no-daemon assembleDebug`) produced debug APK; Android unit coverage passed (`75 passed`, 100% line coverage on utility code); emulator runtime checks passed for login, events, booths, reservations, profile, reports, language toggle, and manager navigation; no `FATAL EXCEPTION` in crash log. |
 | KL-05 | Info | Legacy FastAPI backend (`implementations/backend/`) is retained as non-blocking reference job. Its 96% coverage evidence is historical only; it no longer gates SonarCloud. |
@@ -265,6 +269,6 @@ The Android app communicates with the deployed Supabase Edge Function API for al
 
 ## 7. Conclusion
 
-The web app and Android app are both **verified and stable**. The system passes 19 deployed Edge API smoke checks, 25 Deno unit tests with 90.2% coverage on 184 lines of Edge helper/shared code, 75 Android JVM unit tests with 100% line coverage on utility code, 39 legacy backend coverage tests (non-blocking reference), 23 frontend tests with 98.93% frontend new-code statement coverage, frontend production build, documented manual browser checks, and Android APK build plus emulator runtime verification. All 10 change requests (CR-01 to CR-10) are completed and verified.
+The web app and Android app are both **verified and stable**. The system passes 23 deployed Edge API smoke checks, 25 Deno unit tests with 90.2% coverage on 184 lines of Edge helper/shared code, 75 Android JVM unit tests with 100% line coverage on utility code, 39 old backend comparison tests, 23 frontend tests with 98.93% frontend new-code statement coverage, frontend production build, documented manual browser checks, and Android APK build plus emulator runtime verification. All 10 change requests (CR-01 to CR-10) are completed and verified.
 
-**D2 SonarCloud migration — configuration complete, awaiting first CI run.** Active backend coverage uses Deno built-in LCOV (`npx deno coverage coverage --lcov > coverage/lcov.info`). Android coverage uses JaCoCo XML from `testDebugUnitTest jacocoTestReport`. The after-implementation scan uses `sonar.projectVersion=2.0`, so SonarCloud's Previous Version new-code setting compares this report against the earlier `1.0` baseline. Test files are excluded from analysis, helper/shared source is analyzed, and the main Edge handler (`api/index.ts`), `supabaseClient.ts`, Android UI, and Android network client are excluded from coverage baseline because they are covered by smoke tests, APK build, and runtime verification instead. Legacy Python backend runs as non-blocking reference job.
+**D2 quality evidence:** Active backend coverage uses Deno built-in LCOV (`npx deno coverage coverage --lcov > coverage/lcov.info`). Android coverage uses JaCoCo XML from `testDebugUnitTest jacocoTestReport`. The after-implementation scan uses `sonar.projectVersion=2.0`, so SonarQube Cloud's Previous Version new-code setting compares this report against the earlier `1.0` baseline. During final capture, SonarQube Cloud was under maintenance, so the final report uses the verified local and deployed smoke-test evidence listed above.

@@ -115,7 +115,7 @@ This section records the current Phase 2 Part 2 maintenance work completed by th
 | Web frontend | React app uses the deployed Edge API; includes EN/TH localization, Booth Manager reporting page with CSV export, and all RBAC features |
 | Android app | Native Android/Kotlin app completed and verified: APK built with Gradle, runtime tested on emulator `BoothOrganizer_API35` / `emulator-5554`; login, events, booths, reservations, profile, reports, language toggle, and manager navigation all verified; no `FATAL EXCEPTION` in crash log |
 | Submission status | Full project review passed: backend, web frontend, and Android app all verified; ready to present |
-| Quality | Active backend Deno unit tests: 25 passed, 90.2% coverage on 184 lines; Edge API smoke: 19/19; frontend tests and build pass; Android unit tests: 75 passed with 100% line coverage on utility code; Android APK build and emulator runtime checks pass; old FastAPI backend comparison tests: 96% coverage |
+| Quality | Active backend Deno unit tests: 25 passed, 90.2% coverage on 184 lines; Edge API smoke: 23/23; frontend tests and build pass; Android unit tests: 75 passed with 100% line coverage on utility code; Android APK build and emulator runtime checks pass; old FastAPI backend comparison tests: 96% coverage |
 
 Current backend API base:
 

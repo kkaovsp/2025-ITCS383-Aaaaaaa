@@ -25,7 +25,7 @@ Phase 2 Part 2 maintenance scope includes:
 
 | Metric | Before (Legacy FastAPI) | After (Active Edge Functions + Android) |
 |---|---:|---:|
-| Quality Gate | Failed | **Pending CI/SonarCloud confirmation** |
+| Quality Gate | Failed | **Local evidence passed; SonarQube Cloud final screenshot unavailable due service maintenance** |
 | Bugs | 0 | 0 |
 | Vulnerabilities | 0 | 0 |
 | Code Smells | 0 | 1 (legacy `auth_routes.py:88`) |
@@ -35,13 +35,13 @@ Phase 2 Part 2 maintenance scope includes:
 | Frontend New-Code Coverage | Not measured | **98.93%** statements, **100%** lines |
 | Duplications | 0.0% | 0.0% |
 
-> Coverage note: The 44.2% was invalid due to CI pipeline missing DB initialization. The active backend is Supabase Edge Functions, measured by Deno built-in LCOV (`npx deno coverage coverage --lcov`). The 90.2% covers 184 lines of pure helper/shared code only — it does not include the ~1,000-line Deno.serve handler and router, which requires a live Supabase project and is covered by deployed smoke tests (19/19) instead. Quality gate status is pending until the migrated scan runs in CI.
+> Coverage note: The 44.2% was invalid due to CI pipeline missing DB initialization. The active backend is Supabase Edge Functions, measured by Deno built-in LCOV (`npx deno coverage coverage --lcov`). The 90.2% covers 184 lines of pure helper/shared code only — it does not include the ~1,000-line Deno.serve handler and router, which requires a live Supabase project and is covered by deployed smoke tests instead.
 
 ## Current Baseline Results — Active Backend (Supabase Edge Functions)
 
 | Metric | Value |
 |---|---|
-| Quality Gate | **Pending CI/SonarCloud confirmation** |
+| Quality Gate | **Local evidence passed; final SonarQube Cloud capture unavailable due service maintenance** |
 | LOC measured | 184 lines (auth.ts 111 + cors.ts 25 + json.ts 18 + helpers.ts 30) |
 | Coverage (helper/shared only) | **90.2%** |
 | Functions | 18 named functions; `tokenFromRequest` in auth.ts not exercised by unit tests |
@@ -80,14 +80,18 @@ The before-implementation baseline was scanned as project version `1.0`. The aft
 
 For pull requests, SonarCloud also shows new code as the branch diff against `master`. For the final D2 evidence, use the `master` scan after this branch is merged and CI completes, because that scan compares version `2.0` against the earlier `1.0` baseline.
 
-Current verified evidence (SonarCloud quality gate status is pending CI run after migration):
+## SonarQube Cloud Availability Note
+
+During the final report update, SonarQube Cloud showed **SQC EU System Maintenance** and warned that analysis execution and access to some features may be interrupted. Because of that, the final D2 evidence below uses verified local/CI-equivalent test commands instead of a fresh SonarQube Cloud screenshot.
+
+Current verified evidence:
 
 | Check | Result |
 |---|---|
 | Active Edge Function Deno tests | `25 passed`, 90.2% coverage on 184 lines |
 | Android unit tests | `75 passed`, 100% line coverage and 91.21% branch coverage on utility code |
 | Android build | `assembleDebug` passed |
-| Deployed Edge API smoke test | `19/19 smoke checks passed` |
+| Deployed Edge API smoke test | `23/23 smoke checks passed` after payment slip deployment |
 | Legacy backend comparison tests | `39 passed`, 96% coverage |
 | Frontend tests | `23 passed`, 3 suites |
 | Frontend new-code coverage | `98.93%` statements, `100%` lines, `90.12%` branches |
@@ -139,6 +143,8 @@ node scripts/smoke-test-edge-api.mjs
 ## Evidence
 
 Edge Function coverage LCOV is written to `supabase/functions/coverage/lcov.info` using Deno's built-in LCOV output (`npx deno coverage coverage --lcov`) and uploaded as a CI artifact. Android JaCoCo XML is written to `implementations/mobile/app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml` and uploaded as a CI artifact for the SonarCloud scan.
+
+The final local verification also included strict deployed payment slip smoke testing after deploying the Supabase migration and Edge Function update. The strict binary slip check passed with real `image/png` responses for both merchant and Booth Manager access.
 
 ---
 
