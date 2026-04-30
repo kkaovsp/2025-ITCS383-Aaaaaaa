@@ -2,7 +2,7 @@
 
 A **Booth Organizer** is a web application designed to help event organizers manage booth inventory, merchant registrations, reservations, and payments. Merchants can sign up and reserve temporary or fixed booths for events; booth managers create events and approve merchants, reservations and payments. The platform includes notification support and role-based access control.
 
-This repository contains a Booth Organizer web frontend, a native Android/Kotlin mobile app, and a Supabase Edge Function backend for the Phase 2 Part 2 maintenance work. All 10 change requests (CR-01 to CR-10) are completed and verified. The inherited FastAPI backend remains in the repository as a non-blocking reference job; the active cloud backend is Supabase Edge Functions.
+This repository contains a Booth Organizer web frontend, a native Android/Kotlin mobile app, and a Supabase Edge Function backend for the Phase 2 Part 2 maintenance work. All 10 change requests (CR-01 to CR-10) are completed and verified. The active backend is Supabase Edge Functions. The old FastAPI backend is kept only for comparison tests.
 
 ## Setup Instructions
 
@@ -114,8 +114,8 @@ This section records the current Phase 2 Part 2 maintenance work completed by th
 | Demo data | Supabase seed data loaded for manager, merchant, user, events, booths, reservation, payment, and notification testing |
 | Web frontend | React app uses the deployed Edge API; includes EN/TH localization, Booth Manager reporting page with CSV export, and all RBAC features |
 | Android app | Native Android/Kotlin app completed and verified: APK built with Gradle, runtime tested on emulator `BoothOrganizer_API35` / `emulator-5554`; login, events, booths, reservations, profile, reports, language toggle, and manager navigation all verified; no `FATAL EXCEPTION` in crash log |
-| Current handoff | Full project review passed: backend, web frontend, and Android app all verified; ready for submission |
-| Quality | Active backend Deno unit tests: 25 passed, 90.2% coverage on 184 lines; Edge API smoke: 19/19; frontend tests and build pass; Android unit tests: 75 passed with 100% line coverage on utility code; Android APK build and emulator runtime checks pass; legacy FastAPI backend: reference only (96% coverage, non-blocking) |
+| Submission status | Full project review passed: backend, web frontend, and Android app all verified; ready to present |
+| Quality | Active backend Deno unit tests: 25 passed, 90.2% coverage on 184 lines; Edge API smoke: 19/19; frontend tests and build pass; Android unit tests: 75 passed with 100% line coverage on utility code; Android APK build and emulator runtime checks pass; old FastAPI backend comparison tests: 96% coverage |
 
 Current backend API base:
 

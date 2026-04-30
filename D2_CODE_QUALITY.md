@@ -14,12 +14,12 @@ Phase 2 Part 2 maintenance scope includes:
 | Active Backend | Supabase Edge Functions (`supabase/functions/`) |
 | Active Coverage Source | Deno built-in LCOV (`supabase/functions/coverage/lcov.info`) |
 | Android Coverage Source | JaCoCo XML (`implementations/mobile/app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml`) |
-| Legacy Backend | Inherited FastAPI (`implementations/backend/app`) — reference only, not the quality gate |
+| Legacy Backend | Inherited FastAPI (`implementations/backend/app`) — old backend kept for comparison tests |
 | Legacy Coverage | Available in `implementations/backend/coverage.xml` but no longer drives SonarCloud quality gate |
 | Frontend Coverage Source | `implementations/frontend/coverage/lcov.info` from local `npm run test:coverage` |
 | New Code Definition | Previous version: compare current `2.0` scan against baseline `1.0` scan |
 
-> **Scope note:** The original project measured only the FastAPI backend. The active maintained backend is now Supabase Edge Functions. The legacy Python backend coverage (`implementations/backend/`) is retained as a non-blocking reference job in CI but is no longer the SonarCloud quality baseline.
+> **Scope note:** The original project measured only the FastAPI backend. The active backend is now Supabase Edge Functions. The old Python backend is still tested for comparison, but it is not the main quality target anymore.
 
 ## Quality Comparison
 
@@ -31,7 +31,7 @@ Phase 2 Part 2 maintenance scope includes:
 | Code Smells | 0 | 1 (legacy `auth_routes.py:88`) |
 | Edge Function Coverage | Not measured | **90.2%** on helper/shared code (auth.ts 86.5%, cors.ts 96%, json.ts 100%, helpers.ts 93.3%) |
 | Android Helper Coverage | Not measured | **100% line coverage**, **91.21% branch coverage** on pure Kotlin utility code |
-| Legacy Backend Coverage | 44.2% (invalid) | **96%** (reference only, not gating) |
+| Legacy Backend Coverage | 44.2% (invalid) | **96%** (comparison tests only) |
 | Frontend New-Code Coverage | Not measured | **98.93%** statements, **100%** lines |
 | Duplications | 0.0% | 0.0% |
 
@@ -53,7 +53,7 @@ Phase 2 Part 2 maintenance scope includes:
 
 ## Legacy Backend — Reference Only (Not Gating)
 
-The inherited FastAPI backend (`implementations/backend/`) runs as a non-blocking reference job. Its last passing state was 96% coverage on ~1.1k lines. It is excluded from the SonarCloud quality gate.
+The inherited FastAPI backend (`implementations/backend/`) is kept for comparison. Its last passing state was 96% coverage on ~1.1k lines. It is not the active backend for this maintenance work.
 
 ## Current Baseline Results — Android App
 
@@ -72,7 +72,7 @@ Coverage note: Android `MainActivity.kt` is a large programmatic UI file and `Ap
 
 ## Cloud Migration — SonarCloud Note
 
-The active backend is Supabase Edge Functions. SonarCloud consumes Deno LCOV from `supabase/functions/coverage/lcov.info` using the property `sonar.javascript.lcov.reportPaths`. Android coverage is imported from JaCoCo XML using `sonar.coverage.jacoco.xmlReportPaths`. The active scan sources are `supabase/functions/` and `implementations/mobile/app/src/main/java`; the legacy FastAPI backend (`implementations/backend/`) runs in CI as a non-blocking reference job.
+The active backend is Supabase Edge Functions. SonarCloud consumes Deno LCOV from `supabase/functions/coverage/lcov.info` using the property `sonar.javascript.lcov.reportPaths`. Android coverage is imported from JaCoCo XML using `sonar.coverage.jacoco.xmlReportPaths`. The active scan sources are `supabase/functions/` and `implementations/mobile/app/src/main/java`; the legacy FastAPI backend (`implementations/backend/`) is excluded from this active scan.
 
 ## New Code Report Method
 
@@ -88,7 +88,7 @@ Current verified evidence (SonarCloud quality gate status is pending CI run afte
 | Android unit tests | `75 passed`, 100% line coverage and 91.21% branch coverage on utility code |
 | Android build | `assembleDebug` passed |
 | Deployed Edge API smoke test | `19/19 smoke checks passed` |
-| Legacy backend reference tests | `39 passed`, 96% coverage (non-blocking) |
+| Legacy backend comparison tests | `39 passed`, 96% coverage |
 | Frontend tests | `23 passed`, 3 suites |
 | Frontend new-code coverage | `98.93%` statements, `100%` lines, `90.12%` branches |
 | Frontend build | Compiled successfully |
@@ -106,7 +106,7 @@ npx deno test --coverage=coverage --no-check --allow-all api/index_test.ts _shar
 npx deno coverage coverage --lcov > coverage/lcov.info
 ```
 
-### Legacy backend (reference only):
+### Old backend comparison tests:
 
 ```bash
 cd implementations/backend
@@ -153,4 +153,4 @@ The Deno test suite covers 184 lines of pure helper code from the Edge Function 
 
 The remaining ~1,000 lines of `api/index.ts` contain the Deno.serve handler and route dispatch logic, which requires a live Supabase project or a mock environment to test end-to-end. The smoke test script (`scripts/smoke-test-edge-api.mjs`) exercises the deployed endpoint against the real Supabase cloud project.
 
-The legacy FastAPI backend (`implementations/backend/`) is fully excluded from the SonarCloud quality gate and runs as a non-blocking reference job in CI.
+The legacy FastAPI backend (`implementations/backend/`) is not part of the active runtime system. It remains in the repository only for comparison with the original project.

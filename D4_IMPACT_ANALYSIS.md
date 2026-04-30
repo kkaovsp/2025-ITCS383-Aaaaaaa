@@ -12,7 +12,7 @@ Phase 2 Part 2 adds three new features to the Booth Organizer System:
 2. **UI Localization** — Static UI text can be switched between English and Thai.
 3. **Native Android App** — A mobile app supports core user-facing functions.
 
-The system has an active Supabase Edge Functions backend, a React web frontend, and an inherited FastAPI backend (reference only, non-blocking in CI).
+The current system has a Supabase Edge Functions backend, a React web frontend, and a native Android application. The old FastAPI backend remains in the repository only as original project material.
 
 ## 2. Requirements Artifacts
 
@@ -157,4 +157,4 @@ To make future maintenance easier, the following practices would help:
 | UI Localization | CR-05 to CR-06 | Completed and verified: i18n structure with EN/TH files, LanguageToggle component, frontend tests pass, database content unchanged by design |
 | Native Android App | CR-07 to CR-10 | Completed and verified: native Android project built with `./gradlew.bat --no-daemon assembleDebug`, APK installed and launched on emulator `BoothOrganizer_API35` / `emulator-5554`, runtime verified for login, events, booths, reservations, profile, reports, language toggle, and manager navigation; no `FATAL EXCEPTION` |
 
-The active backend for web features is Supabase Edge Functions at `https://uaoufhdysqcivheauwyf.supabase.co/functions/v1/api`. Legacy FastAPI backend (`implementations/backend/`) is retained as a non-blocking reference job in CI and is excluded from the active SonarCloud scan scope.
+The active backend for web and Android features is Supabase Edge Functions at `https://uaoufhdysqcivheauwyf.supabase.co/functions/v1/api`. The old FastAPI backend (`implementations/backend/`) is not used by the current web or Android app.
