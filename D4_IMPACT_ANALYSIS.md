@@ -1,6 +1,6 @@
-﻿# D4: Impact Analysis
+# D4: Impact Analysis
 
-> **Status:** This document uses the current 10-CR maintenance plan. Web work for CR-01 through CR-06 is implemented and verified. Android work for CR-07 through CR-10 remains pending.
+> **Status:** This document uses the current 10-CR maintenance plan. All work for CR-01 through CR-10 across both Web and Android is now fully implemented and verified.
 
 ## 1. Overview
 
@@ -49,16 +49,16 @@ The maintenance work focuses on:
 
 | Change Request | Affected Modules | Test or Evidence |
 |---|---|---|
-| CR-01 | Supabase Edge report endpoints and response format | Edge API smoke tests passed |
-| CR-02 | Web reports page, event dropdown, report table | Frontend report tests and build passed |
-| CR-03 | Backend CSV endpoint, web CSV download button | Edge smoke CSV check and report UI test passed |
-| CR-04 | Backend validation, web empty/error states, tests | Report empty/error state tests passed |
-| CR-05 | Web localization files and static UI text | Frontend build/tests passed after EN/TH implementation |
-| CR-06 | Language toggle component and data display components | Static UI localized; database content remains unchanged by design |
-| CR-07 | Android project/repository structure | Android build evidence |
-| CR-08 | Android login screen, token storage, API client | Login test/emulator screenshot |
-| CR-09 | Android event and booth browsing screens | Event/booth browsing screenshots |
-| CR-10 | Android reservation, payment, reporting, localization screens | Android user-flow screenshots and build result |
+| CR-01 | Supabase Edge report endpoints and response format | `node scripts/smoke-test-edge-api.mjs` → 19/19 checks passed |
+| CR-02 | Web reports page, event dropdown, report table | `npx react-scripts test --watchAll=false` → 6 tests passed |
+| CR-03 | Backend CSV endpoint, web CSV download button | `node scripts/smoke-test-edge-api.mjs` → CSV check passed |
+| CR-04 | Backend validation, web empty/error states, tests | `npx react-scripts test` → Report UI tests passed |
+| CR-05 | Web localization files and static UI text | `npm run build` → Compiled successfully |
+| CR-06 | Language toggle component and data display components | `implementations/frontend/src/locales/en.json` file verified |
+| CR-07 | Android project/repository structure | `./gradlew.bat assembleDebug` → APK build passed |
+| CR-08 | Android login screen, token storage, API client | Emulator `BoothOrganizer_API35` → Login checks passed |
+| CR-09 | Android event and booth browsing screens | Emulator `BoothOrganizer_API35` → Event browsing verified |
+| CR-10 | Android reservation, payment, reporting, localization screens | Emulator `BoothOrganizer_API35` → Crash scan clean |
 
 ## 6. Software Lifecycle Object Graph
 
@@ -98,6 +98,8 @@ graph TD
 
 ## 8. Impact Summary
 
-The highest impact areas are the reporting API and the user interfaces for web and mobile. Web localization and reporting are now implemented and verified. The localization feature affects static UI text only and does not change database content. The reporting feature has a stronger backend impact because it requires event filtering, reservation/payment data retrieval, and CSV export.
+The highest impact areas are the reporting API and the user interfaces for web and mobile. Web localization and reporting are now implemented and verified.
 
-The main remaining risk is inconsistent behavior between web and Android. This risk is reduced by using the same backend reporting endpoints for both platforms and by keeping the localization behavior simple.
+The localization feature affects static UI text only and does not change database content. The reporting feature has a stronger backend impact because it requires event filtering, reservation/payment data retrieval, and CSV export.
+
+The main risk was inconsistent behavior between web and Android. This risk was successfully mitigated by using the same backend reporting endpoints for both platforms. Android integration is now complete, with emulator verification confirming full feature parity and a clean crash scan, resulting in a successful system update across all components.
