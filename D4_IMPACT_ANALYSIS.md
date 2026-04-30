@@ -76,7 +76,7 @@ The current system has a Supabase Edge Functions backend, a React web frontend, 
 
 ## 6. Full Traceability Graph
 
-![D4 Full Traceability Graph](D4_TRACEABILITY_GRAPH.svg)
+![D4 Full Traceability Graph](docs/assets/d4/traceability-full.svg)
 
 The image above follows the assignment format: Requirements, Design, Code, and Test are shown as vertical columns with arrows between related lifecycle objects.
 
@@ -84,7 +84,7 @@ The image above follows the assignment format: Requirements, Design, Code, and T
 
 ## 7. Affected-Part Traceability (Maintenance Scope)
 
-![D4 Affected-Part Traceability Graph](D4_AFFECTED_TRACEABILITY_GRAPH.svg)
+![D4 Affected-Part Traceability Graph](docs/assets/d4/traceability-affected.svg)
 
 The image above is the affected-only version of the traceability graph. It keeps only the reporting, localization, Android, and related verification paths introduced or changed during this maintenance phase.
 
@@ -92,7 +92,7 @@ The image above is the affected-only version of the traceability graph. It keeps
 
 ## 8. Software Lifecycle Object (SLO) Graph
 
-![D4 Directed SLO Graph](D4_SLO_GRAPH.svg)
+![D4 Directed SLO Graph](docs/assets/d4/slo-directed-graph.svg)
 
 The image above focuses only on code modules, as required by the assignment.
 
