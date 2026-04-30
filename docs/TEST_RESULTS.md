@@ -170,11 +170,38 @@ File sizes after gzip:
 
 ---
 
-## 4. Bug List
+## 4. Android App Verification
 
-**No blocking bugs were found during final web review.**
+### 4.1 Build Verification
 
-The web system is stable after Person 2 QA, Person 3 localization, and Person 4 reporting work.
+| Check | Command / Method | Result |
+|---|---|---|
+| APK build | `./gradlew.bat --no-daemon assembleDebug` | Passed — debug APK produced |
+| Project structure | Manual inspection of `implementations/mobile/` | Gradle files, `AndroidManifest.xml`, `MainActivity.kt`, `ApiClient.kt` all present |
+
+### 4.2 Runtime Verification (Emulator)
+
+| Check | Device | Result |
+|---|---|---|
+| APK launch | `emulator-5554` (BoothOrganizer_API35) | APK installed and launched successfully |
+| Login flow | `boothManager / boothManager123` | Token received and stored in SharedPreferences |
+| Events list | Runtime inspection | Event list loaded correctly |
+| Booth browsing | Runtime inspection | Booth list loaded with status badges |
+| Pull-to-refresh | Runtime inspection | Refresh triggered on events and booths |
+| Reservation flow | Runtime inspection | Reservation created successfully |
+| Payment screen | Runtime inspection | Payment status displayed correctly |
+| Reports screen | Runtime inspection | Reports generated with event filter |
+| Language toggle | Runtime inspection | EN/TH toggle changed UI text |
+| Manager navigation | Runtime inspection | Admin, Create Event links visible for manager role |
+| Crash scan | Log inspection | No `FATAL EXCEPTION` found |
+
+---
+
+## 5. Bug List
+
+**No blocking bugs were found during final web and Android review.**
+
+The web system is stable after Person 2 QA, Person 3 localization, and Person 4 reporting work. The Android app is stable after Person 5 implementation and runtime verification.
 
 ### Known Limitations (Not Bugs)
 
@@ -183,14 +210,14 @@ The web system is stable after Person 2 QA, Person 3 localization, and Person 4 
 | KL-01 | Low | Deno tests cover pure helper code (184 lines, 90.2% overall coverage). The main `Deno.serve` handler (~1,000 lines) requires a live Supabase project or mock environment to test end-to-end. Covered by deployed smoke tests (19/19). |
 | KL-02 | Low | Payment slip storage is a placeholder marker. Full Supabase Storage integration is a future improvement. |
 | KL-03 | Info | The frontend has no search functionality or floor plan UI (out of scope for this maintenance phase). |
-| KL-04 | Info | Android app scope is still pending after web completion. |
+| KL-04 | Info | Native Android app is completed and verified. Gradle build (`./gradlew.bat --no-daemon assembleDebug`) produced debug APK; emulator runtime checks passed for login, events, booths, reservations, profile, reports, language toggle, and manager navigation; no `FATAL EXCEPTION` in crash log. |
 | KL-05 | Info | Legacy FastAPI backend (`implementations/backend/`) is retained as non-blocking reference job. Its 96% coverage evidence is historical only; it no longer gates SonarCloud. |
 
 ---
 
-## 5. Integration Evidence
+## 6. Integration Evidence
 
-### 5.1 Frontend → Edge API Integration
+### 6.1 Frontend → Edge API Integration
 
 The React frontend successfully communicates with the deployed Supabase Edge Function API for all tested flows:
 
@@ -199,7 +226,7 @@ The React frontend successfully communicates with the deployed Supabase Edge Fun
 - **Protected endpoints:** Reservations, payments, notifications, admin features all require and correctly use the bearer token
 - **RBAC:** Booth Manager sees admin features; Merchant does not
 
-### 5.2 Data Consistency
+### 6.2 Data Consistency
 
 - Seeded demo data (events, booths, reservations, payments, notifications) displays correctly in the frontend
 - 6 events loaded from cloud database during latest smoke test
@@ -207,10 +234,19 @@ The React frontend successfully communicates with the deployed Supabase Edge Fun
 - 4 reservations with varied statuses (CONFIRMED, WAITING, CANCELLED) render with correct badges
 - Notification counts match between bell badge and notifications page
 
+### 6.3 Android → Edge API Integration
+
+The Android app communicates with the deployed Supabase Edge Function API for all tested flows:
+
+- **Authentication:** Login with bearer token stored in SharedPreferences; token sent with each authenticated request
+- **Public endpoints:** Events and booths load without authentication
+- **Protected endpoints:** Reservations, payments, reports, and manager features require and correctly use the bearer token
+- **RBAC:** Manager role sees Admin and Create Event links; these links are hidden for Merchant role
+
 ---
 
-## 6. Conclusion
+## 7. Conclusion
 
-The web app is **verified and stable** based on local Deno tests and deployed smoke tests. The system passes 19 deployed Edge API smoke checks, 25 Deno unit tests with 90.2% coverage on 184 lines of Edge helper/shared code, 39 legacy backend coverage tests (non-blocking reference), 23 frontend tests with 98.93% frontend new-code statement coverage, frontend production build, and the documented manual browser checks. Android remains the next major implementation area.
+The web app and Android app are both **verified and stable**. The system passes 19 deployed Edge API smoke checks, 25 Deno unit tests with 90.2% coverage on 184 lines of Edge helper/shared code, 39 legacy backend coverage tests (non-blocking reference), 23 frontend tests with 98.93% frontend new-code statement coverage, frontend production build, documented manual browser checks, and Android APK build plus emulator runtime verification. All 10 change requests (CR-01 to CR-10) are completed and verified.
 
-**D2 SonarCloud migration — configuration complete, awaiting first CI run.** Active backend coverage uses Deno built-in LCOV (`npx deno coverage coverage --lcov > coverage/lcov.info`). Test files are excluded from analysis, helper/shared source is analyzed, and the main handler (`api/index.ts`) and `supabaseClient.ts` are excluded from coverage baseline (covered by smoke tests instead). Legacy Python backend runs as non-blocking reference job.
+**D2 SonarCloud migration — configuration complete, awaiting first CI run.** Active backend coverage uses Deno built-in LCOV (`npx deno coverage coverage --lcov > coverage/lcov.info`). Test files are excluded from analysis, helper/shared source is analyzed, and the main handler (`api/index.ts`) and `supabaseClient.ts` are excluded from coverage baseline (covered by smoke tests instead). Legacy Python backend runs as non-blocking reference job. Android app completed via `implementations/mobile/` with Gradle build and emulator runtime verification.

@@ -27,7 +27,7 @@
 | Priority | High |
 | Severity | Critical |
 | Time to Implement | 1 person-week |
-| Verification Method | Testing and inspection |
+| Verification Method | Edge API smoke tests (19/19 passed) and Deno helper unit tests (25/25, 90.2% coverage on 184 lines of shared/Edge helper code) |
 
 ---
 
@@ -41,7 +41,7 @@
 | Priority | High |
 | Severity | Critical |
 | Time to Implement | 1 person-week |
-| Verification Method | Testing and inspection |
+| Verification Method | Frontend automated tests (6 report-specific tests passed) and `npm run build` compiled successfully; manual inspection confirms event dropdown, data table, and filter controls render correctly |
 
 ---
 
@@ -55,7 +55,7 @@
 | Priority | Medium |
 | Severity | Major |
 | Time to Implement | 0.5 person-week |
-| Verification Method | Testing and inspection |
+| Verification Method | Edge API smoke test for CSV endpoint (`/reports/reservations-payments.csv`) returned valid CSV output; UI download button triggers browser download and file content inspected |
 
 ---
 
@@ -69,7 +69,7 @@
 | Priority | Medium |
 | Severity | Major |
 | Time to Implement | 0.5 person-week |
-| Verification Method | Testing |
+| Verification Method | Frontend automated tests for empty and error state rendering (ReportsPage test suite); manual inspection confirms empty-state message and error boundary display correctly |
 
 ---
 
@@ -83,7 +83,7 @@
 | Priority | High |
 | Severity | Major |
 | Time to Implement | 1 person-week |
-| Verification Method | Testing and inspection |
+| Verification Method | Frontend automated tests for LanguageToggle passed; `npm run build` compiled successfully; manual UI inspection confirms EN/TH text files are loaded and toggle is visible in navbar |
 
 ---
 
@@ -97,7 +97,7 @@
 | Priority | High |
 | Severity | Critical |
 | Time to Implement | 0.5 person-week |
-| Verification Method | Testing and inspection |
+| Verification Method | Language toggle button toggles UI text between English and Thai in the browser; database content (event names, merchant names, booth descriptions) remains in original language after toggle |
 
 ---
 
@@ -111,7 +111,7 @@
 | Priority | High |
 | Severity | Major |
 | Time to Implement | 1 person-week |
-| Verification Method | Testing and inspection |
+| Verification Method | `./gradlew.bat --no-daemon assembleDebug` completed without error, producing debug APK; Android project structure inspected (Gradle files, AndroidManifest.xml, MainActivity.kt, ApiClient.kt present) |
 
 ---
 
@@ -125,7 +125,7 @@
 | Priority | High |
 | Severity | Major |
 | Time to Implement | 1 person-week |
-| Verification Method | Testing and inspection |
+| Verification Method | APK installed on emulator `BoothOrganizer_API35` (device `emulator-5554`) via `adb install`; runtime verified: login screen renders, JWT token received and stored in SharedPreferences, authenticated requests succeed, no `FATAL EXCEPTION` in log |
 
 ---
 
@@ -139,7 +139,7 @@
 | Priority | High |
 | Severity | Major |
 | Time to Implement | 1 person-week |
-| Verification Method | Testing and inspection |
+| Verification Method | Runtime verified on emulator `BoothOrganizer_API35` / `emulator-5554`: event list loads, booth list loads, pull-to-refresh triggers reload, loading and empty states display correctly |
 
 ---
 
@@ -153,4 +153,4 @@
 | Priority | High |
 | Severity | Major |
 | Time to Implement | 1 person-week |
-| Verification Method | Testing and inspection |
+| Verification Method | Runtime verified on emulator `BoothOrganizer_API35` / `emulator-5554`: reservation creation flow, payment screen, reports generation with event filter, EN/TH language toggle, manager-only navigation (Admin, Create Event); crash scan confirms no `FATAL EXCEPTION` in log |

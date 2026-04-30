@@ -2,7 +2,7 @@
 
 A **Booth Organizer** is a web application designed to help event organizers manage booth inventory, merchant registrations, reservations, and payments. Merchants can sign up and reserve temporary or fixed booths for events; booth managers create events and approve merchants, reservations and payments. The platform includes notification support and role-based access control.
 
-This repository contains a Booth Organizer web frontend and a Supabase Edge Function backend for the Phase 2 Part 2 maintenance work. The inherited FastAPI backend remains in the repository as a non-blocking reference job; the active cloud backend is Supabase Edge Functions.
+This repository contains a Booth Organizer web frontend, a native Android/Kotlin mobile app, and a Supabase Edge Function backend for the Phase 2 Part 2 maintenance work. All 10 change requests (CR-01 to CR-10) are completed and verified. The inherited FastAPI backend remains in the repository as a non-blocking reference job; the active cloud backend is Supabase Edge Functions.
 
 ## Setup Instructions
 
@@ -91,6 +91,15 @@ python -c "from app.database.db_connection import init_db; init_db()"
 DATABASE_URL=sqlite:///./test.db pytest --cov=app --cov-report=xml --cov-report=term-missing
 ```
 
+Android app checks:
+
+```bash
+cd implementations/mobile
+./gradlew.bat --no-daemon assembleDebug
+```
+
+For emulator setup, APK install, and runtime verification steps, see `implementations/mobile/README.md`.
+
 ---
 
 ## Maintenance Phase Progress
@@ -100,14 +109,12 @@ This section records the current Phase 2 Part 2 maintenance work completed by th
 | Area | Current Status |
 |---|---|
 | Cloud database | Supabase PostgreSQL project connected and initial schema migration applied |
-| Backend migration | Supabase Edge Function API foundation deployed at `https://uaoufhdysqcivheauwyf.supabase.co/functions/v1/api` |
-| Backend endpoints done | `/health`, `/events`, `/events/:event_id/booths`, auth/profile, reservations, payments, merchant approval, notifications, reports with CSV export |
-| Backend endpoints next | full slip file storage |
+| Backend | Supabase Edge Function API deployed at `https://uaoufhdysqcivheauwyf.supabase.co/functions/v1/api`; all endpoints implemented: `/health`, `/events`, `/events/:event_id/booths`, auth/profile, reservations, payments, merchant approval, notifications, reports with CSV export |
 | Demo data | Supabase seed data loaded for manager, merchant, user, events, booths, reservation, payment, and notification testing |
-| Web frontend | React app uses the deployed Edge API, includes EN/TH localization, and includes a Booth Manager reporting page with CSV export |
-| Current handoff | Web app review passed after Person 2 QA, Person 3 localization, and Person 4 reporting work |
-| Android app | Required feature; implementation starts after backend/web behavior is stable |
-| Quality | Active backend Deno unit tests: 25 passed, 90.2% coverage on 184 lines; Edge API smoke: 19/19; frontend tests and build pass; legacy FastAPI backend: reference only (96% coverage, non-blocking) |
+| Web frontend | React app uses the deployed Edge API; includes EN/TH localization, Booth Manager reporting page with CSV export, and all RBAC features |
+| Android app | Native Android/Kotlin app completed and verified: APK built with Gradle, runtime tested on emulator `BoothOrganizer_API35` / `emulator-5554`; login, events, booths, reservations, profile, reports, language toggle, and manager navigation all verified; no `FATAL EXCEPTION` in crash log |
+| Current handoff | Full project review passed: backend, web frontend, and Android app all verified; ready for submission |
+| Quality | Active backend Deno unit tests: 25 passed, 90.2% coverage on 184 lines; Edge API smoke: 19/19; frontend tests and build pass; Android APK build and emulator runtime checks pass; legacy FastAPI backend: reference only (96% coverage, non-blocking) |
 
 Current backend API base:
 
