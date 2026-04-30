@@ -111,7 +111,7 @@
 | Priority | High |
 | Severity | Major |
 | Time to Implement | 1 person-week |
-| Verification Method | `./gradlew.bat --no-daemon assembleDebug` completed without error, producing debug APK; Android project structure inspected (Gradle files, AndroidManifest.xml, MainActivity.kt, ApiClient.kt present) |
+| Verification Method | `./gradlew.bat --no-daemon assembleDebug` completed without error, producing debug APK; Android project structure inspected (Gradle files, AndroidManifest.xml, MainActivity.kt, ApiClient.kt present); Android unit coverage passed (`75 passed`, 100% line coverage on utility code) |
 
 ---
 
@@ -153,4 +153,4 @@
 | Priority | High |
 | Severity | Major |
 | Time to Implement | 1 person-week |
-| Verification Method | Runtime verified on emulator `BoothOrganizer_API35` / `emulator-5554`: reservation creation flow, payment screen, reports generation with event filter, EN/TH language toggle, manager-only navigation (Admin, Create Event); crash scan confirms no `FATAL EXCEPTION` in log |
+| Verification Method | Runtime verified on emulator `BoothOrganizer_API35` / `emulator-5554`: reservation creation flow, payment screen, reports generation with event filter, EN/TH language toggle, manager-only navigation (Admin, Create Event); Android unit coverage passed (`75 passed`, 100% line coverage on utility code); crash scan confirms no `FATAL EXCEPTION` in log |

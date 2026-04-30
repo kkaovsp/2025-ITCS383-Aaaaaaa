@@ -1,7 +1,7 @@
 # Test Results — Booth Organizer System
 
 **Author:** Person 2
-**Date:** 2026-04-29
+**Date:** 2026-05-01
 **Phase:** Phase 2 Part 2 — Maintenance QA + D2 SonarCloud migration
 
 ---
@@ -12,11 +12,12 @@
 |---|---|---|---|
 | Edge API Smoke Tests | 19 | 19 | 0 |
 | Edge Function Deno Tests | 25 | 25 | 0 |
+| Android Unit Tests | 75 | 75 | 0 |
 | Legacy Backend Coverage Tests | 39 | 39 | 0 |
 | Frontend Automated Tests | 23 | 23 | 0 |
 | Manual Browser Tests (Manager) | 11 | 11 | 0 |
 | Manual Browser Tests (Merchant) | 4 | 4 | 0 |
-| **Total** | **121** | **121** | **0** |
+| **Total** | **196** | **196** | **0** |
 
 **Overall Result: ✅ ALL TESTS PASSED**
 
@@ -131,6 +132,22 @@ All files:   98.93% statements, 100% lines, 90.12% branches
 **Result:** Compiled successfully
 
 ```
+
+### 2.6 Android Unit Tests and JaCoCo Coverage
+
+**Command:** `cd implementations/mobile && ./gradlew.bat --no-daemon testDebugUnitTest jacocoTestReport`
+**Result:** 75 passed, 0 failures, 0 errors
+
+| Coverage Counter | Result |
+|---|---:|
+| Instruction coverage | 100% |
+| Branch coverage | 91.21% |
+| Line coverage | 100% |
+| Method coverage | 100% |
+| Class coverage | 100% |
+
+**Coverage scope:** pure Kotlin utility code in `com.kkaovsp.boothorganizer.util`.
+**JaCoCo XML:** `implementations/mobile/app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml`
 Creating an optimized production build...
 Compiled successfully.
 
@@ -177,6 +194,7 @@ File sizes after gzip:
 | Check | Command / Method | Result |
 |---|---|---|
 | APK build | `./gradlew.bat --no-daemon assembleDebug` | Passed — debug APK produced |
+| Unit coverage | `./gradlew.bat --no-daemon testDebugUnitTest jacocoTestReport` | Passed — 75 tests, 100% line coverage on utility code |
 | Project structure | Manual inspection of `implementations/mobile/` | Gradle files, `AndroidManifest.xml`, `MainActivity.kt`, `ApiClient.kt` all present |
 
 ### 4.2 Runtime Verification (Emulator)
@@ -210,7 +228,7 @@ The web system is stable after Person 2 QA, Person 3 localization, and Person 4 
 | KL-01 | Low | Deno tests cover pure helper code (184 lines, 90.2% overall coverage). The main `Deno.serve` handler (~1,000 lines) requires a live Supabase project or mock environment to test end-to-end. Covered by deployed smoke tests (19/19). |
 | KL-02 | Low | Payment slip storage is a placeholder marker. Full Supabase Storage integration is a future improvement. |
 | KL-03 | Info | The frontend has no search functionality or floor plan UI (out of scope for this maintenance phase). |
-| KL-04 | Info | Native Android app is completed and verified. Gradle build (`./gradlew.bat --no-daemon assembleDebug`) produced debug APK; emulator runtime checks passed for login, events, booths, reservations, profile, reports, language toggle, and manager navigation; no `FATAL EXCEPTION` in crash log. |
+| KL-04 | Info | Native Android app is completed and verified. Gradle build (`./gradlew.bat --no-daemon assembleDebug`) produced debug APK; Android unit coverage passed (`75 passed`, 100% line coverage on utility code); emulator runtime checks passed for login, events, booths, reservations, profile, reports, language toggle, and manager navigation; no `FATAL EXCEPTION` in crash log. |
 | KL-05 | Info | Legacy FastAPI backend (`implementations/backend/`) is retained as non-blocking reference job. Its 96% coverage evidence is historical only; it no longer gates SonarCloud. |
 
 ---
@@ -247,6 +265,6 @@ The Android app communicates with the deployed Supabase Edge Function API for al
 
 ## 7. Conclusion
 
-The web app and Android app are both **verified and stable**. The system passes 19 deployed Edge API smoke checks, 25 Deno unit tests with 90.2% coverage on 184 lines of Edge helper/shared code, 39 legacy backend coverage tests (non-blocking reference), 23 frontend tests with 98.93% frontend new-code statement coverage, frontend production build, documented manual browser checks, and Android APK build plus emulator runtime verification. All 10 change requests (CR-01 to CR-10) are completed and verified.
+The web app and Android app are both **verified and stable**. The system passes 19 deployed Edge API smoke checks, 25 Deno unit tests with 90.2% coverage on 184 lines of Edge helper/shared code, 75 Android JVM unit tests with 100% line coverage on utility code, 39 legacy backend coverage tests (non-blocking reference), 23 frontend tests with 98.93% frontend new-code statement coverage, frontend production build, documented manual browser checks, and Android APK build plus emulator runtime verification. All 10 change requests (CR-01 to CR-10) are completed and verified.
 
-**D2 SonarCloud migration — configuration complete, awaiting first CI run.** Active backend coverage uses Deno built-in LCOV (`npx deno coverage coverage --lcov > coverage/lcov.info`). Test files are excluded from analysis, helper/shared source is analyzed, and the main handler (`api/index.ts`) and `supabaseClient.ts` are excluded from coverage baseline (covered by smoke tests instead). Legacy Python backend runs as non-blocking reference job. Android app completed via `implementations/mobile/` with Gradle build and emulator runtime verification.
+**D2 SonarCloud migration — configuration complete, awaiting first CI run.** Active backend coverage uses Deno built-in LCOV (`npx deno coverage coverage --lcov > coverage/lcov.info`). Android coverage uses JaCoCo XML from `testDebugUnitTest jacocoTestReport`. The after-implementation scan uses `sonar.projectVersion=2.0`, so SonarCloud's Previous Version new-code setting compares this report against the earlier `1.0` baseline. Test files are excluded from analysis, helper/shared source is analyzed, and the main Edge handler (`api/index.ts`), `supabaseClient.ts`, Android UI, and Android network client are excluded from coverage baseline because they are covered by smoke tests, APK build, and runtime verification instead. Legacy Python backend runs as non-blocking reference job.

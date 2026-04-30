@@ -8,7 +8,7 @@ Native Android/Kotlin mobile client for the Booth Organizer system.
 - Registration for General User and Merchant, including citizen ID and seller details for merchants.
 - Event browsing, manager event create/edit/delete.
 - Booth list, manager booth create/edit/delete, merchant booth reservation.
-- Reservations, payment submission by Credit Card, TrueMoney, or Bank Transfer, and bank slip upload.
+- Reservations, payment submission by Credit Card, TrueMoney, or Bank Transfer, with bank-transfer slip marker support in the current master branch.
 - Booth Manager merchant approval, payment approval, and event reports with CSV sharing.
 - Profile editing, merchant seller info editing, notifications, and TH/EN language toggle.
 - Web color theme matched to the React app: primary `#4f46e5`, secondary `#06b6d4`, light background `#f8fafc`.
@@ -106,4 +106,20 @@ No screenshots are required for this project delivery.
 
 ## Android Test Coverage
 
-Unit and UI tests are not required for the current phase. Current evidence is the APK build passing and emulator runtime verification. Adding unit tests or UI tests is an optional future improvement if the instructor requests it.
+Run JVM unit tests and generate the JaCoCo XML report:
+
+```powershell
+cd implementations/mobile
+./gradlew.bat --no-daemon testDebugUnitTest jacocoTestReport
+```
+
+Current local result:
+
+| Check | Result |
+|---|---|
+| Unit tests | 75 passed, 0 failures, 0 errors |
+| JaCoCo line coverage | 100% on pure Kotlin utility code |
+| JaCoCo branch coverage | 91.21% on pure Kotlin utility code |
+| Report path | `app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml` |
+
+The coverage gate focuses on `com.kkaovsp.boothorganizer.util`, which contains pure Kotlin logic that can be tested reliably on the JVM. `MainActivity.kt` and `ApiClient.kt` are verified by APK build, emulator runtime checks, and Edge API smoke tests.
