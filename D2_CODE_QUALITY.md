@@ -7,6 +7,12 @@ Phase 2 Part 2 maintenance scope includes:
 - Administrative Reporting System
 - Native Android mobile application
 
+<img width="1484" height="843" alt="image" src="https://github.com/user-attachments/assets/2bcfcfc2-478f-4254-b21a-4566a0c2c7ec" />
+
+<img width="1557" height="797" alt="image" src="https://github.com/user-attachments/assets/ddaece17-7d34-44cb-b195-b461c5ed4d83" />
+
+
+
 ## Analysis Scope
 
 | Setting | Value |
